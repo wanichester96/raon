@@ -14,23 +14,24 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=hLVZuCA5qwfgbKPspzsBADNssxkmXa4VE3zQkW_PphHO2Hka8Lz4bnaTqIvMp932AykQy5O1XrICLx7fF_hRugBPJPkkzBeyNgetLvg4XUgd1bji3wBspDV2VqhP_VGsr2kd0A29XWH5kqtFX2eMBOil9cI7QLlk6JVGxSAt3GQsZEsjO4UJXXtI03UZhWoMLeu8hn9dN4JFd4bowHy2qKXwiMn1P-MbLsgihzb3jqnZRau24cT4ZBLJIdayUmuIgkepB7O-x9rPkf6thaC4sFWXvn1oeMwsPpii3aWTl1EwBnQ8aBAJuuMTlaGMjkXp" charset="UTF-8"></script><style>
+    <style>
         :root {
-            --bg-color: #08080a;
-            --ink: #f5f3ef;
-            --ink-soft: rgba(245, 243, 239, 0.55);
-            --ink-faint: rgba(245, 243, 239, 0.32);
-            --hairline: rgba(245, 243, 239, 0.1);
-            --hairline-strong: rgba(245, 243, 239, 0.2);
-            --glass-bg: rgba(16, 16, 18, 0.55);
-            --glass-bg-deep: rgba(16, 16, 18, 0.78);
-            --accent: #f5f3ef;
-            --accent-soft: rgba(245, 243, 239, 0.16);
+            /* Warm fall base — brown-charcoal */
+            --bg-color: #0d0a08;
+            --ink: #efe6d8;
+            --ink-soft: rgba(239, 230, 216, 0.58);
+            --ink-faint: rgba(239, 230, 216, 0.32);
+            --hairline: rgba(239, 230, 216, 0.1);
+            --hairline-strong: rgba(239, 230, 216, 0.22);
+            --glass-bg: rgba(22, 17, 14, 0.55);
+            --glass-bg-deep: rgba(22, 17, 14, 0.8);
+            --accent: #efe6d8;
+            --accent-soft: rgba(239, 230, 216, 0.14);
 
-            /* Traffic Status Color Palette */
-            --traffic-clear: #AEC6CF;  /* Pastel Blue */
-            --traffic-moderate: #FFDAB9; /* Peach */
-            --traffic-jammed: #800020;  /* Maroon */
+            /* Muted fall traffic palette */
+            --traffic-clear: #8a9a7b;     /* warm sage */
+            --traffic-moderate: #c98a4b;  /* burnt amber */
+            --traffic-jammed: #7a3524;    /* deep rust */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -44,19 +45,20 @@
 
         #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
 
+        /* Warm fall filter on map tiles */
         .dark-tiles .leaflet-tile {
-            filter: grayscale(0.85) brightness(0.68) contrast(1.06) sepia(0.08);
+            filter: grayscale(0.55) brightness(0.62) contrast(1.05) sepia(0.35) hue-rotate(-10deg) saturate(0.85);
         }
         .leaflet-container { background: var(--bg-color) !important; font-family: inherit; }
 
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(36px) saturate(130%);
-            -webkit-backdrop-filter: blur(36px) saturate(130%);
+            backdrop-filter: blur(36px) saturate(140%);
+            -webkit-backdrop-filter: blur(36px) saturate(140%);
             border: 1px solid var(--hairline);
             box-shadow:
-                0 24px 64px rgba(0, 0, 0, 0.75),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                0 24px 64px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 240, 220, 0.06);
             border-radius: 4px;
         }
 
@@ -83,7 +85,7 @@
         }
         .search-input-wrapper:focus-within {
             border-color: var(--hairline-strong);
-            background: rgba(245, 243, 239, 0.03);
+            background: rgba(239, 230, 216, 0.03);
         }
         .search-input-wrapper input {
             background: transparent; border: none; outline: none; color: var(--ink);
@@ -109,8 +111,8 @@
             animation: micPulse 1.2s infinite alternate;
         }
         @keyframes micPulse {
-            0% { box-shadow: 0 0 0 0 rgba(245,243,239,0.3); }
-            100% { box-shadow: 0 0 0 8px rgba(245,243,239,0); }
+            0% { box-shadow: 0 0 0 0 rgba(239,230,216,0.3); }
+            100% { box-shadow: 0 0 0 8px rgba(239,230,216,0); }
         }
 
         .search-results-dropdown {
@@ -118,8 +120,8 @@
             max-height: 280px; overflow-y: auto;
             display: none; flex-direction: column; z-index: 4000; padding: 4px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px) saturate(130%);
-            -webkit-backdrop-filter: blur(32px) saturate(130%);
+            backdrop-filter: blur(32px) saturate(140%);
+            -webkit-backdrop-filter: blur(32px) saturate(140%);
             border: 1px solid var(--hairline-strong);
             box-shadow: 0 24px 64px rgba(0,0,0,0.9);
             border-radius: 4px;
@@ -143,7 +145,7 @@
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
-            background: rgba(16, 16, 18, 0.55);
+            background: rgba(22, 17, 14, 0.55);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--hairline); border-radius: 2px;
             padding: 8px 14px; font-family: 'Inter', sans-serif;
@@ -185,8 +187,8 @@
         .ultron-voice-btn.active { background: var(--accent-soft); color: var(--ink); border-color: var(--hairline-strong); }
         .ultron-voice-btn.speaking { animation: voicePulse 1s infinite alternate; }
         @keyframes voicePulse {
-            0% { box-shadow: 0 0 0 0 rgba(245,243,239,0.3); }
-            100% { box-shadow: 0 0 0 6px rgba(245,243,239,0); }
+            0% { box-shadow: 0 0 0 0 rgba(239,230,216,0.3); }
+            100% { box-shadow: 0 0 0 6px rgba(239,230,216,0); }
         }
 
         .turn-banner {
@@ -194,7 +196,7 @@
             left: 12px; right: 12px; z-index: 999; padding: 14px 18px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px) saturate(130%); -webkit-backdrop-filter: blur(32px) saturate(130%);
+            backdrop-filter: blur(32px) saturate(140%); -webkit-backdrop-filter: blur(32px) saturate(140%);
             border: 1px solid var(--hairline-strong); border-radius: 4px;
             box-shadow: 0 24px 64px rgba(0,0,0,0.85);
         }
@@ -296,7 +298,7 @@
         }
         .btn:hover { border-color: var(--hairline-strong); color: var(--ink); background: var(--accent-soft); }
         .btn-primary { background: var(--accent); color: var(--bg-color); border-color: var(--accent); }
-        .btn-primary:hover { background: var(--ink); color: var(--bg-color); }
+        .btn-primary:hover { background: #fff4e4; color: var(--bg-color); }
         .btn-secondary { background: transparent; }
         .btn-danger { background: transparent; border-color: var(--hairline-strong); color: var(--ink-faint); }
         .btn-danger:hover { color: var(--ink); border-color: var(--ink); }
@@ -312,12 +314,12 @@
         .user-dot {
             width: 14px; height: 14px; background: var(--ink);
             border: 2px solid var(--bg-color); border-radius: 50%;
-            box-shadow: 0 0 0 1px var(--ink), 0 0 20px rgba(245,243,239,0.6);
+            box-shadow: 0 0 0 1px var(--ink), 0 0 20px rgba(239, 230, 216, 0.55);
             position: absolute; top: 7px; left: 7px; z-index: 2;
         }
         .user-pulse {
             width: 40px; height: 40px;
-            background: radial-gradient(circle, rgba(245,243,239,0.35) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(239, 230, 216, 0.3) 0%, transparent 70%);
             border-radius: 50%; position: absolute; top: -6px; left: -6px;
             animation: pulse-ring 2.4s infinite ease-out;
         }
@@ -327,15 +329,15 @@
         }
         .dest-pin-icon {
             font-size: 26px; color: var(--ink);
-            filter: drop-shadow(0 0 10px rgba(245,243,239,0.7));
+            filter: drop-shadow(0 0 10px rgba(239, 230, 216, 0.65));
         }
         .leaflet-routing-container { display: none !important; }
 
         .toast-msg {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%; transform: translateX(-50%);
-            background: var(--glass-bg-deep); backdrop-filter: blur(28px) saturate(130%);
-            -webkit-backdrop-filter: blur(28px) saturate(130%);
+            background: var(--glass-bg-deep); backdrop-filter: blur(28px) saturate(140%);
+            -webkit-backdrop-filter: blur(28px) saturate(140%);
             border: 1px solid var(--hairline-strong); color: var(--ink);
             padding: 10px 20px; border-radius: 2px;
             font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
@@ -360,12 +362,12 @@
         }
         .tab-btn i { font-size: 14px; }
         .tab-btn.active { color: var(--ink); }
-        .tab-btn.active i { filter: drop-shadow(0 0 6px rgba(245,243,239,0.5)); }
+        .tab-btn.active i { filter: drop-shadow(0 0 6px rgba(239, 230, 216, 0.5)); }
 
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 3000; display: none; background: rgba(8, 8, 10, 0.92);
-            backdrop-filter: blur(24px) saturate(130%); -webkit-backdrop-filter: blur(24px) saturate(130%);
+            z-index: 3000; display: none; background: rgba(13, 10, 8, 0.93);
+            backdrop-filter: blur(24px) saturate(140%); -webkit-backdrop-filter: blur(24px) saturate(140%);
             padding: calc(env(safe-area-inset-top, 0px) + 32px) 20px calc(env(safe-area-inset-bottom, 0px) + 90px);
             animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -439,7 +441,7 @@
         }
 
         .toggle-switch {
-            width: 42px; height: 24px; border-radius: 12px; background: rgba(245,243,239,0.1);
+            width: 42px; height: 24px; border-radius: 12px; background: rgba(239, 230, 216, 0.08);
             border: 1px solid var(--hairline); position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
         }
         .toggle-switch::after {
@@ -471,7 +473,6 @@
 
     <div id="toast" class="toast-msg">Navigation initialized</div>
 
-    <!-- Top Header -->
     <div class="top-container">
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
@@ -505,7 +506,6 @@
         </div>
     </div>
 
-    <!-- Turn Banner -->
     <div class="turn-banner" id="turnBanner">
         <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
         <div class="turn-details">
@@ -514,19 +514,16 @@
         </div>
     </div>
 
-    <!-- Speed Badge -->
     <div class="speed-badge glass-panel">
         <i class="fa-solid fa-gauge-high"></i>
         <span class="speed-value" id="speedValue">0</span>
         <span>KM/H</span>
     </div>
 
-    <!-- Side Controls -->
     <div class="side-controls">
         <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
 
-    <!-- Route Selection -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
         <div style="font-family:'Inter',sans-serif; font-size:9px; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:var(--ink-faint); padding: 4px 4px 8px;">
             Route Options
@@ -534,10 +531,8 @@
         <div id="routeCardsContainer"></div>
     </div>
 
-    <!-- Map -->
     <div id="map"></div>
 
-    <!-- Bottom Action Bar -->
     <div class="bottom-bar glass-panel">
         <div id="routeMetrics">
             <span>Tap the map or search</span>
@@ -555,7 +550,6 @@
         </div>
     </div>
 
-    <!-- Tab Bar -->
     <div class="tab-bar glass-panel">
         <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
             <i class="fa-solid fa-map"></i><span>Map</span>
@@ -571,7 +565,6 @@
         </button>
     </div>
 
-    <!-- Overlay Panels -->
     <div class="overlay-panel" id="panel-recents">
         <div class="overlay-header">
             <div class="overlay-title">Recents</div>
@@ -678,6 +671,7 @@
             } catch(e) {}
         }
 
+        /* Deeper, slower metallic pulse */
         function playUltronMetallicPulse() {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -687,38 +681,58 @@
                 const filter = audioCtx.createBiquadFilter();
                 const gain = audioCtx.createGain();
                 osc1.type = 'sawtooth'; osc2.type = 'square';
-                osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
-                osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
+                osc1.frequency.setValueAtTime(36, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(72, audioCtx.currentTime);
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(320, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                filter.frequency.setValueAtTime(280, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.28, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.55);
                 osc1.connect(filter); osc2.connect(filter);
                 filter.connect(gain); gain.connect(audioCtx.destination);
                 osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.4);
-                osc2.stop(audioCtx.currentTime + 0.4);
+                osc1.stop(audioCtx.currentTime + 0.55);
+                osc2.stop(audioCtx.currentTime + 0.55);
             } catch(e) {}
         }
 
+        /* Deeper, slower voice */
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
             playUltronMetallicPulse();
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.add('speaking');
+
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.pitch = 0.4;
-                utterance.rate = 0.92;
+                utterance.pitch = 0.05;   /* lowest possible */
+                utterance.rate = 0.72;    /* slow, ominous */
                 utterance.volume = 1.0;
+
                 const voices = synth.getVoices();
-                const v = voices.find(v => v.lang.startsWith('en')) || voices[0];
-                if (v) utterance.voice = v;
+                /* Prefer the deepest male voice available */
+                const preferredVoices = [
+                    'Google UK English Male',
+                    'Microsoft David',
+                    'Microsoft Guy',
+                    'Daniel',
+                    'Alex',
+                    'Male'
+                ];
+                let chosen = null;
+                for (const name of preferredVoices) {
+                    chosen = voices.find(v => v.name === name || v.name.includes(name));
+                    if (chosen) break;
+                }
+                if (!chosen) {
+                    chosen = voices.find(v => v.lang && v.lang.startsWith('en') && v.name.toLowerCase().includes('male')) || voices[0];
+                }
+                if (chosen) utterance.voice = chosen;
+
                 utterance.onend = () => btn.classList.remove('speaking');
                 utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
-            }, 180);
+            }, 220);
         }
 
         function requestLocationWithSafariFallback() {
@@ -788,7 +802,7 @@
                     iconSize: [28, 28], iconAnchor: [14, 14]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#f5f3ef', fillColor: '#f5f3ef', fillOpacity: 0.05, weight: 0.5 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#efe6d8', fillColor: '#efe6d8', fillOpacity: 0.05, weight: 0.5 }).addTo(map);
             }
         }
 
@@ -929,7 +943,7 @@
             renderRouteOnMap(routesList[idx]);
         }
 
-        /* Colorized Real-Time Traffic Segments (Pastel Blue, Peach, Maroon) */
+        /* Muted fall traffic segments */
         function renderRouteOnMap(routeData) {
             clearPolylines();
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
@@ -944,22 +958,22 @@
                 const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
                 const jammedSegment = activeRouteCoordinates.slice(jamEnd);
 
-                // Pastel Blue for Clear Traffic
+                /* Warm sage — clear */
                 if (clearSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(clearSegment, {
-                        color: '#AEC6CF', weight: 6, opacity: 0.95
+                        color: '#8a9a7b', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
-                // Peach for Moderate Traffic
+                /* Burnt amber — moderate */
                 if (moderateSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(moderateSegment, {
-                        color: '#FFDAB9', weight: 6, opacity: 0.95
+                        color: '#c98a4b', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
-                // Maroon for Jammed Traffic
+                /* Deep rust — jammed */
                 if (jammedSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(jammedSegment, {
-                        color: '#800020', weight: 6, opacity: 0.95
+                        color: '#7a3524', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
             }
