@@ -2,376 +2,375 @@
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAON Navigation - Steampunk Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RAON Navigation • Vogue Glass Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Fonts: Inter & Syncopate for High-End Vogue Aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brass: '#d4af37',
-                        copper: '#b87333',
-                        bronze: '#cd7f32',
-                        amber: '#ffbf00',
-                        crimson: '#990000',
-                        mahogany: '#2c160b',
-                        obsidian: '#120a06',
+                        vogueBlack: '#050505',
+                        vogueDark: '#0e0e10',
+                        vogueGrey: '#1a1a1e',
+                        vogueLightGrey: '#2b2b30',
+                        vogueWhite: '#fcfcfc',
+                        vogueSilver: '#a1a1aa',
+                        vogueAccent: '#ffffff',
+                        vogueEmerald: '#10b981',
+                        vogueAmber: '#f59e0b',
+                        vogueCrimson: '#ef4444'
                     },
                     fontFamily: {
-                        cinzel: ['Cinzel', 'serif'],
-                        elite: ['Special Elite', 'cursive'],
-                        mono: ['Courier Prime', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                        vogue: ['Syncopate', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                 }
             }
         }
     </script>
+    
     <style>
         body {
-            background-color: #0b0604;
-            color: #d4af37;
-            font-family: 'Courier Prime', monospace;
-            overflow-x: hidden;
+            background-color: #050505;
+            color: #fcfcfc;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
         }
-        /* Steampunk Glassmorphism */
-        .steampunk-glass {
-            background: rgba(28, 14, 8, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 2px solid rgba(212, 175, 55, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(184, 115, 51, 0.2);
+
+        /* High-End Glassmorphism UI */
+        .vogue-glass {
+            background: rgba(14, 14, 16, 0.72);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
-        .steampunk-card {
-            background: linear-gradient(135deg, rgba(44, 22, 11, 0.95) 0%, rgba(18, 10, 6, 0.98) 100%);
-            border: 1px solid #b87333;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(212, 175, 55, 0.15);
+
+        .vogue-card {
+            background: rgba(22, 22, 26, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .steampunk-btn {
-            background: linear-gradient(to bottom, #d4af37 0%, #b87333 50%, #8c5825 100%);
-            color: #120a06;
-            font-family: 'Cinzel', serif;
+        .vogue-card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Pure Vogue Mono Buttons */
+        .vogue-btn {
+            background: #fcfcfc;
+            color: #050505;
+            font-family: 'Syncopate', sans-serif;
             font-weight: 700;
-            border: 1px solid #ffbf00;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
-            transition: all 0.2s ease;
+            letter-spacing: 0.1em;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
         }
-        .steampunk-btn:hover {
-            background: linear-gradient(to bottom, #ffbf00 0%, #d4af37 50%, #b87333 100%);
-            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+        .vogue-btn:hover {
+            background: #ffffff;
             transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(255, 255, 255, 0.3);
         }
-        .steampunk-input {
-            background: rgba(18, 10, 6, 0.9);
-            border: 1px solid #b87333;
-            color: #ffbf00;
-            font-family: 'Courier Prime', monospace;
+
+        .vogue-btn-dark {
+            background: rgba(255, 255, 255, 0.07);
+            color: #fcfcfc;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            transition: all 0.25s ease;
         }
-        .steampunk-input:focus {
-            border-color: #d4af37;
+        .vogue-btn-dark:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+        }
+
+        .vogue-input {
+            background: rgba(5, 5, 5, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fcfcfc;
+            transition: all 0.25s ease;
+        }
+        .vogue-input:focus {
+            border-color: #ffffff;
             outline: none;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
+
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #2b2b30; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+
+        @keyframes pulse-white {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.96); }
         }
-        ::-webkit-scrollbar-track {
-            background: #120a06;
-            border-left: 1px solid #b87333;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #b87333;
-            border-radius: 4px;
-            border: 1px solid #d4af37;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #d4af37;
-        }
-        /* Gear animations */
-        @keyframes slow-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-gear {
-            animation: slow-spin 20s linear infinite;
-        }
-        .animate-gear-reverse {
-            animation: slow-spin 25s linear infinite reverse;
-        }
+        .animate-vogue-pulse { animation: pulse-white 2.5s infinite ease-in-out; }
     </style>
 </head>
-<body class="h-full flex flex-col justify-between selection:bg-amber selection:text-obsidian">
+<body class="h-screen w-screen flex flex-col justify-between select-none overflow-hidden bg-vogueBlack text-vogueWhite">
 
-    <!-- Top Navigation Header -->
-    <header class="steampunk-glass border-b border-brass/40 px-6 py-4 flex items-center justify-between z-20">
+    <!-- Top Navigation Glass Header -->
+    <header class="vogue-glass border-b border-white/10 px-6 py-4 flex items-center justify-between z-30">
         <div class="flex items-center space-x-4">
-            <div class="relative w-12 h-12 flex items-center justify-center">
-                <i class="fa-solid fa-gear text-3xl text-brass absolute animate-gear"></i>
-                <i class="fa-solid fa-cogs text-xl text-copper absolute animate-gear-reverse"></i>
-                <i class="fa-solid fa-compass text-amber text-lg z-10"></i>
+            <div class="w-10 h-10 rounded-full bg-vogueWhite text-vogueBlack flex items-center justify-center font-vogue font-bold text-lg shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                RN
             </div>
             <div>
-                <h1 class="font-cinzel text-2xl font-bold tracking-wider text-brass drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">RAON NAVIGATION</h1>
-                <p class="font-elite text-xs text-copper tracking-widest">AETHER-POWERED GUIDANCE SYSTEM • MK-IV</p>
+                <h1 class="font-vogue text-sm tracking-[0.2em] font-bold text-vogueWhite uppercase">RAON NAV • VOGUE EDITION</h1>
+                <p class="font-mono text-[10px] text-vogueSilver tracking-widest uppercase">LANE ASSIST & REAL-TIME TRAFFIC INTELLIGENCE</p>
             </div>
         </div>
 
-        <div class="flex items-center space-x-6">
-            <!-- System Status Indicator -->
-            <div class="hidden md:flex items-center space-x-3 steampunk-card px-4 py-2 rounded-lg text-xs">
-                <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber animate-pulse"></span>
-                <span class="text-brass font-mono">STEAM PRESSURE: <strong id="steamPressureVal" class="text-amber">120 PSI</strong></span>
-                <span class="text-copper/50">|</span>
-                <span class="text-brass font-mono">AETHER SIGNAL: <strong class="text-amber">EXCELLENT</strong></span>
+        <div class="flex items-center space-x-4">
+            <!-- Real-Time Traffic & Toll Badge -->
+            <div class="hidden md:flex items-center space-x-3 vogue-card px-4 py-2 rounded-full text-xs border border-white/10">
+                <span id="liveTrafficStatus" class="inline-block w-2 h-2 rounded-full bg-vogueEmerald animate-pulse"></span>
+                <span class="text-vogueWhite font-mono text-[11px] uppercase tracking-wider">LIVE TRAFFIC: <strong id="trafficLevelText" class="text-vogueEmerald font-bold">NOMINAL FLOW</strong></span>
             </div>
 
-            <!-- Voice Toggle -->
-            <button id="voiceToggleBtn" onclick="toggleVoice()" class="steampunk-btn px-4 py-2 rounded text-xs flex items-center space-x-2 border-brass">
-                <i id="voiceIcon" class="fa-solid fa-microphone text-obsidian"></i>
-                <span id="voiceStatusText">VOICE: ON</span>
+            <!-- Voice Toggle with Upgraded Natural Male Robot Voice -->
+            <button id="voiceToggleBtn" onclick="toggleVoice()" class="vogue-btn-dark px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider flex items-center space-x-2 border">
+                <i id="voiceIcon" class="fa-solid fa-robot text-vogueWhite"></i>
+                <span id="voiceStatusText">VOICE: ROBOT MALE</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Content Workspace -->
+    <!-- Main Navigation Interface -->
     <main class="flex-1 flex flex-col lg:flex-row relative overflow-hidden">
         
-        <!-- Left Sidebar: Controls, Stats & Route Details -->
-        <aside class="w-full lg:w-96 steampunk-glass border-r border-brass/30 p-5 flex flex-col justify-between z-10 overflow-y-auto space-y-5">
+        <!-- Left Sidebar Panel -->
+        <aside class="w-full lg:w-[420px] vogue-glass border-r border-white/10 p-6 flex flex-col justify-between z-20 overflow-y-auto space-y-6">
             <div class="space-y-5">
-                <!-- Route Destination Input Card -->
-                <div class="steampunk-card p-5 rounded-xl space-y-4">
-                    <h2 class="font-cinzel text-lg text-brass border-b border-copper/40 pb-2 flex items-center justify-between">
-                        <span><i class="fa-solid fa-route mr-2 text-amber"></i>Destination Set</span>
-                        <i class="fa-solid fa-gauge-high text-xs text-copper"></i>
-                    </h2>
+                
+                <!-- Destination Panel -->
+                <div class="vogue-card p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="font-vogue text-xs font-bold tracking-widest uppercase text-vogueWhite">ROUTE SETUP</span>
+                        <i class="fa-solid fa-sliders text-vogueSilver text-xs"></i>
+                    </div>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs uppercase text-copper font-bold mb-1">Current Position</label>
-                            <div class="flex items-center steampunk-input px-3 py-2 rounded text-sm">
-                                <i class="fa-solid fa-circle-dot text-amber mr-2 text-xs"></i>
-                                <span id="currentLocText" class="truncate text-brass">Johor Bahru Central Station</span>
+                            <label class="block text-[10px] font-mono uppercase text-vogueSilver tracking-wider mb-1">ORIGIN</label>
+                            <div class="flex items-center vogue-input px-3 py-2.5 rounded-xl text-xs font-mono">
+                                <i class="fa-solid fa-location-crosshairs text-vogueWhite mr-2.5"></i>
+                                <span id="currentLocText" class="truncate text-vogueWhite">Johor Bahru Central Hub</span>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs uppercase text-copper font-bold mb-1">Destination</label>
+                            <label class="block text-[10px] font-mono uppercase text-vogueSilver tracking-wider mb-1">DESTINATION</label>
                             <div class="relative">
-                                <input type="text" id="destInput" value="Senai International Airport" class="w-full steampunk-input px-3 py-2 rounded text-sm pr-10">
-                                <button onclick="calculateRoute()" class="absolute right-1 top-1 bottom-1 px-3 bg-brass text-obsidian rounded hover:bg-amber transition" title="Search Route">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="destInput" value="Senai International Airport" class="w-full vogue-input px-3 py-2.5 rounded-xl text-xs font-mono pr-10">
+                                <button onclick="calculateRoute()" class="absolute right-1 top-1 bottom-1 px-3 bg-vogueWhite text-vogueBlack rounded-lg hover:bg-white transition text-xs font-bold">
+                                    <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Quick Presets -->
-                        <div class="flex space-x-2 pt-1">
-                            <button onclick="setDestination('Senai International Airport')" class="flex-1 bg-mahogany border border-copper/60 text-brass text-xs py-1.5 px-2 rounded hover:bg-copper/30 transition truncate">
+                        <!-- Presets -->
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <button onclick="setDestination('Senai International Airport')" class="vogue-btn-dark py-2 px-3 rounded-lg text-[10px] font-mono truncate">
                                 Senai Airport
                             </button>
-                            <button onclick="setDestination('Puteri Harbour Marina')" class="flex-1 bg-mahogany border border-copper/60 text-brass text-xs py-1.5 px-2 rounded hover:bg-copper/30 transition truncate">
-                                Puteri Marina
+                            <button onclick="setDestination('Puteri Harbour Marina')" class="vogue-btn-dark py-2 px-3 rounded-lg text-[10px] font-mono truncate">
+                                Puteri Harbour
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Live Traffic Flow & Route Telemetry -->
-                <div class="steampunk-card p-5 rounded-xl space-y-4">
-                    <h3 class="font-cinzel text-md text-brass border-b border-copper/40 pb-2 flex items-center justify-between">
-                        <span><i class="fa-solid fa-gauge text-amber mr-2"></i>Traffic & Toll Status</span>
-                        <span id="trafficBadge" class="text-xs px-2 py-0.5 rounded bg-amber/20 text-amber border border-amber/40 font-mono">MODERATE</span>
-                    </h3>
+                <!-- Live Route Telemetry & Toll Details -->
+                <div class="vogue-card p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="font-vogue text-xs font-bold tracking-widest uppercase text-vogueWhite">ROUTE TELEMETRY</span>
+                        <span id="routeConditionBadge" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-vogueWhite/10 text-vogueWhite border border-white/20">OPTIMAL</span>
+                    </div>
 
-                    <div class="grid grid-cols-3 gap-2.5 text-center">
-                        <div class="bg-obsidian/80 p-2.5 rounded border border-copper/30">
-                            <div class="text-[10px] text-copper uppercase">Est. Time</div>
-                            <div id="statTime" class="text-base font-bold text-brass font-cinzel">24 min</div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-vogueBlack/60 p-3 rounded-xl border border-white/5">
+                            <div class="text-[9px] font-mono text-vogueSilver uppercase tracking-wider">EST. TIME</div>
+                            <div id="statTime" class="text-sm font-bold text-vogueWhite font-mono mt-0.5">24 MIN</div>
                         </div>
-                        <div class="bg-obsidian/80 p-2.5 rounded border border-copper/30">
-                            <div class="text-[10px] text-copper uppercase">Distance</div>
-                            <div id="statDist" class="text-base font-bold text-brass font-cinzel">28.4 km</div>
+                        <div class="bg-vogueBlack/60 p-3 rounded-xl border border-white/5">
+                            <div class="text-[9px] font-mono text-vogueSilver uppercase tracking-wider">DISTANCE</div>
+                            <div id="statDist" class="text-sm font-bold text-vogueWhite font-mono mt-0.5">28.4 KM</div>
                         </div>
-                        <div class="bg-obsidian/80 p-2.5 rounded border border-copper/30">
-                            <div class="text-[10px] text-copper uppercase">Tolls</div>
-                            <div id="statTolls" class="text-base font-bold text-amber font-cinzel">1 Booth</div>
+                        <div class="bg-vogueBlack/60 p-3 rounded-xl border border-white/5">
+                            <div class="text-[9px] font-mono text-vogueSilver uppercase tracking-wider">TOLLS</div>
+                            <div id="statTolls" class="text-sm font-bold text-vogueWhite font-mono mt-0.5">1 PLAZA</div>
                         </div>
                     </div>
 
-                    <!-- Toll Gate Banner -->
-                    <div id="tollNoticeBox" class="bg-obsidian/90 border border-amber/50 p-2.5 rounded flex items-center justify-between text-xs">
-                        <div class="flex items-center space-x-2">
-                            <i class="fa-solid fa-ticket text-amber"></i>
-                            <span id="tollGateName" class="text-brass">Skudai Toll Booth</span>
+                    <!-- Toll Gate Marker Alert Box -->
+                    <div id="tollNoticeBox" class="bg-vogueBlack/80 border border-white/20 p-3 rounded-xl flex items-center justify-between text-xs font-mono">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-vogueWhite text-vogueBlack flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-receipt text-xs"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-vogueSilver uppercase">TOLL BOOTH EN ROUTE</div>
+                                <div id="tollGateName" class="text-vogueWhite font-bold">Senai Utara Toll Plaza</div>
+                            </div>
                         </div>
-                        <span id="tollGateFee" class="font-bold text-amber font-mono">RM 2.50</span>
-                    </div>
-
-                    <!-- Traffic Flow Bar Indicator -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-[10px] text-copper">
-                            <span>Clear Corridor</span>
-                            <span>Moderate</span>
-                            <span>Heavy Delay</span>
-                        </div>
-                        <div class="h-2 w-full bg-obsidian rounded overflow-hidden flex border border-copper/40">
-                            <div class="w-1/2 bg-amber"></div>
-                            <div class="w-1/3 bg-bronze"></div>
-                            <div class="w-1/6 bg-crimson"></div>
-                        </div>
+                        <span id="tollGateFee" class="font-bold text-vogueWhite bg-vogueWhite/10 px-2.5 py-1 rounded-md border border-white/20">RM 2.50</span>
                     </div>
                 </div>
 
-                <!-- Waze-Style Turn-by-Turn Maneuvers Queue -->
-                <div class="steampunk-card p-5 rounded-xl space-y-3">
-                    <h3 class="font-cinzel text-md text-brass border-b border-copper/40 pb-2 flex items-center justify-between">
-                        <span><i class="fa-solid fa-list-ul text-amber mr-2"></i>Route Queue</span>
-                        <button onclick="triggerDevOffRoute()" class="text-[10px] text-amber/80 hover:text-amber border border-amber/30 px-2 py-0.5 rounded" title="Simulate Off-Route Trigger">
-                            <i class="fa-solid fa-arrows-split-up-and-left mr-1"></i>Sim Off-Route
+                <!-- Maneuver Queue & Lane Assist -->
+                <div class="vogue-card p-5 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="font-vogue text-xs font-bold tracking-widest uppercase text-vogueWhite">MANEUVERS & LANES</span>
+                        <button onclick="triggerMissedLane()" class="text-[10px] font-mono text-vogueWhite bg-vogueWhite/10 hover:bg-vogueWhite hover:text-vogueBlack px-2.5 py-1 rounded-lg border border-white/20 transition" title="Simulate Missed Lane">
+                            <i class="fa-solid fa-arrows-split-up-and-left mr-1"></i>SIM MISSED LANE
                         </button>
-                    </h3>
+                    </div>
 
-                    <div id="maneuversList" class="space-y-2 max-h-52 overflow-y-auto pr-1">
-                        <!-- Dynamic list generated via JavaScript -->
+                    <div id="maneuversList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- Rendered via JS -->
                     </div>
                 </div>
             </div>
 
-            <!-- Action Button Footer -->
-            <div class="pt-3 border-t border-brass/30">
-                <button onclick="startNavigationSession()" id="navActionBtn" class="w-full steampunk-btn py-3 rounded-lg text-sm tracking-widest flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-compass text-obsidian"></i>
-                    <span id="navActionText">ENGAGE STEAM GUIDANCE</span>
+            <!-- Start Button -->
+            <div class="pt-2">
+                <button onclick="startNavigationSession()" id="navActionBtn" class="w-full vogue-btn py-3.5 rounded-xl text-xs flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-location-arrow"></i>
+                    <span id="navActionText">ENGAGE VOGUE GUIDANCE</span>
                 </button>
             </div>
         </aside>
 
-        <!-- Right Side: Interactive Map & Live HUD -->
-        <div class="flex-1 relative flex flex-col bg-obsidian">
+        <!-- Main Map HUD Viewport -->
+        <div class="flex-1 relative flex flex-col bg-vogueBlack">
             
-            <!-- Map Overlay HUD Banner (Waze Style) -->
-            <div class="absolute top-4 left-4 right-4 z-10 flex flex-col md:flex-row justify-between items-start md:items-center pointer-events-none gap-3">
-                <!-- Navigation HUD Banner -->
-                <div class="steampunk-glass px-5 py-3 rounded-xl pointer-events-auto flex items-center space-x-4 border border-brass/60 shadow-2xl max-w-xl">
-                    <div id="hudIconContainer" class="w-12 h-12 rounded-lg bg-brass/20 border-2 border-brass flex items-center justify-center text-amber text-2xl shadow-inner">
+            <!-- Map Overlay Banner (Vogue Glass) -->
+            <div class="absolute top-5 left-5 right-5 z-20 flex flex-col md:flex-row justify-between items-start md:items-center pointer-events-none gap-4">
+                
+                <!-- HUD Maneuver Box -->
+                <div class="vogue-glass px-5 py-3.5 rounded-2xl pointer-events-auto flex items-center space-x-4 border border-white/20 shadow-2xl max-w-lg">
+                    <div id="hudIconContainer" class="w-12 h-12 rounded-xl bg-vogueWhite text-vogueBlack flex items-center justify-center text-xl font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)]">
                         <i id="hudTurnIcon" class="fa-solid fa-arrow-up"></i>
                     </div>
                     <div>
-                        <div class="text-[10px] uppercase font-bold text-copper tracking-wider">Next Maneuver in <span id="hudDistText" class="text-brass">300m</span></div>
-                        <div id="hudInstructionText" class="text-base font-cinzel font-bold text-brass">Proceed north along Jalan Skudai</div>
+                        <div class="text-[10px] font-mono uppercase tracking-widest text-vogueSilver">NEXT TURN IN <span id="hudDistText" class="text-vogueWhite font-bold">300M</span></div>
+                        <div id="hudInstructionText" class="text-sm font-vogue font-bold text-vogueWhite tracking-wider uppercase mt-0.5">PROCEED NORTH ALONG JALAN SKUDAI</div>
                     </div>
                 </div>
 
-                <!-- Interactive Map Controls -->
-                <div class="steampunk-glass p-2 rounded-xl pointer-events-auto flex items-center space-x-2">
-                    <button onclick="zoomMap(1.2)" class="w-9 h-9 steampunk-btn rounded flex items-center justify-center text-xs" title="Zoom In">
+                <!-- Map Action Controls -->
+                <div class="vogue-glass p-2 rounded-2xl pointer-events-auto flex items-center space-x-2 border border-white/15">
+                    <button onclick="zoomMap(1.2)" class="w-9 h-9 vogue-btn-dark rounded-xl flex items-center justify-center text-xs" title="Zoom In">
                         <i class="fa-solid fa-plus"></i>
                     </button>
-                    <button onclick="zoomMap(0.8)" class="w-9 h-9 steampunk-btn rounded flex items-center justify-center text-xs" title="Zoom Out">
+                    <button onclick="zoomMap(0.8)" class="w-9 h-9 vogue-btn-dark rounded-xl flex items-center justify-center text-xs" title="Zoom Out">
                         <i class="fa-solid fa-minus"></i>
                     </button>
-                    <button onclick="recenterMap()" class="w-9 h-9 steampunk-btn rounded flex items-center justify-center text-xs" title="Recenter Map">
+                    <button onclick="recenterMap()" class="w-9 h-9 vogue-btn-dark rounded-xl flex items-center justify-center text-xs" title="Recenter">
                         <i class="fa-solid fa-crosshairs"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Map Off-Route Recalculation Alert Banner -->
-            <div id="recalcAlert" class="hidden absolute top-20 left-1/2 transform -translate-x-1/2 z-20 steampunk-glass border-2 border-amber bg-obsidian/90 px-6 py-2.5 rounded-full shadow-2xl flex items-center space-x-3">
-                <i class="fa-solid fa-gear text-amber animate-gear text-lg"></i>
-                <span class="text-xs font-cinzel font-bold text-amber tracking-wider">OFF-ROUTE DETECTED • RECALCULATING AETHER PATHWAY...</span>
+            <!-- Missed Lane / Alternate Route Banner -->
+            <div id="recalcAlert" class="hidden absolute top-24 left-1/2 transform -translate-x-1/2 z-30 vogue-glass border-2 border-vogueWhite bg-vogueDark/95 px-6 py-3 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.25)] flex items-center space-x-3">
+                <i class="fa-solid fa-circle-notch animate-spin text-vogueWhite text-base"></i>
+                <span class="text-xs font-vogue font-bold text-vogueWhite tracking-widest uppercase">MISSED LANE DETECTED • ENGAGING ALTERNATE ROUTE...</span>
             </div>
 
-            <!-- Interactive Steampunk Map Canvas -->
+            <!-- Canvas Viewport -->
             <div class="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing" id="mapContainer">
                 <canvas id="navigationCanvas" class="w-full h-full block"></canvas>
             </div>
 
-            <!-- Bottom Telemetry HUD Bar -->
-            <div class="steampunk-glass border-t border-brass/30 px-6 py-3 flex flex-wrap items-center justify-between z-10 text-xs">
+            <!-- Telemetry Footer Bar -->
+            <div class="vogue-glass border-t border-white/10 px-6 py-3 flex flex-wrap items-center justify-between z-20 text-xs font-mono">
                 <div class="flex items-center space-x-6">
-                    <div><span class="text-copper">SPEED:</span> <strong id="telemetrySpeed" class="text-brass font-mono">64 km/h</strong></div>
-                    <div><span class="text-copper">BOILER TEMP:</span> <strong class="text-amber font-mono">312°C</strong></div>
-                    <div><span class="text-copper">CORRIDOR:</span> <strong id="telemetryTraffic" class="text-amber font-mono">GOLDEN HIGHWAY (NOMINAL)</strong></div>
+                    <div><span class="text-vogueSilver uppercase">VELOCITY:</span> <strong id="telemetrySpeed" class="text-vogueWhite font-bold">68 KM/H</strong></div>
+                    <div><span class="text-vogueSilver uppercase">LATENCY:</span> <strong class="text-vogueEmerald font-bold">12 MS</strong></div>
+                    <div><span class="text-vogueSilver uppercase">TRAFFIC DENSITY:</span> <strong id="telemetryTraffic" class="text-vogueWhite font-bold">LOW (GREEN CORRIDOR)</strong></div>
                 </div>
-                <div class="flex items-center space-x-2 text-copper font-elite">
-                    <i class="fa-solid fa-gear animate-gear text-brass"></i>
-                    <span>RAON MECHANICAL COG-NAV v4.2</span>
+                <div class="flex items-center space-x-2 text-vogueSilver text-[11px]">
+                    <span class="w-2 h-2 rounded-full bg-vogueWhite animate-ping"></span>
+                    <span class="font-vogue uppercase tracking-widest text-[10px]">RAON INTELLIGENCE v5.0</span>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Steampunk Notification Modal -->
-    <div id="customModal" class="fixed inset-0 bg-obsidian/85 backdrop-blur-md z-50 flex items-center justify-center hidden">
-        <div class="steampunk-card p-6 rounded-2xl max-w-md w-full mx-4 border-2 border-brass text-center space-y-4 shadow-2xl">
-            <div class="w-16 h-16 mx-auto rounded-full bg-brass/20 border-2 border-brass flex items-center justify-center text-amber text-2xl">
-                <i id="modalIcon" class="fa-solid fa-triangle-exclamation"></i>
+    <!-- Vogue Notification Modal -->
+    <div id="customModal" class="fixed inset-0 bg-vogueBlack/90 backdrop-blur-xl z-50 flex items-center justify-center hidden">
+        <div class="vogue-card p-6 rounded-3xl max-w-md w-full mx-4 border border-white/20 text-center space-y-5 shadow-2xl">
+            <div class="w-14 h-14 mx-auto rounded-full bg-vogueWhite text-vogueBlack flex items-center justify-center text-xl shadow-[0_0_25px_rgba(255,255,255,0.3)]">
+                <i id="modalIcon" class="fa-solid fa-compass"></i>
             </div>
-            <h3 id="modalTitle" class="font-cinzel text-xl font-bold text-brass">Aether Notice</h3>
-            <p id="modalMessage" class="text-sm text-brass/90 leading-relaxed font-mono whitespace-pre-line"></p>
-            <button onclick="closeModal()" class="steampunk-btn px-6 py-2.5 rounded text-sm w-full">ACKNOWLEDGE</button>
+            <h3 id="modalTitle" class="font-vogue text-sm font-bold tracking-widest text-vogueWhite uppercase">RAON NOTICE</h3>
+            <p id="modalMessage" class="text-xs text-vogueSilver font-mono leading-relaxed whitespace-pre-line"></p>
+            <button onclick="closeModal()" class="vogue-btn py-3 rounded-xl text-xs w-full">ACKNOWLEDGE</button>
         </div>
     </div>
 
-    <!-- Script Implementation -->
     <script>
-        // --- State Management ---
+        // --- System State ---
         let voiceEnabled = true;
         let isNavigating = false;
         
-        // Map viewport & navigation simulation state
         let mapScale = 1.0;
         let mapOffset = { x: 0, y: 0 };
-        let carProgress = 0.0; // 0.0 to 1.0 along the bezier route
-        let offRouteDeviated = false;
+        let carProgress = 0.0;
+        let isAlternateRouteActive = false;
         let isRecalculating = false;
 
-        // Structured Route Data (with traffic, toll info, and maneuvers)
+        // Structured Routes with Toll & Live Traffic Data
         const routesData = {
             "Senai International Airport": {
-                dist: "28.4 km",
-                time: "24 min",
+                dist: "28.4 KM",
+                time: "24 MIN",
                 tolls: 1,
-                tollName: "Skudai Plaza Toll Booth",
+                tollName: "Senai Utara Toll Plaza",
                 tollFee: "RM 2.50",
+                tollPosRatio: 0.52, // 52% along route
                 maneuvers: [
-                    { dist: "300 m", text: "Depart Johor Bahru Central via Jalan Skudai", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
-                    { dist: "4.2 km", text: "Merge onto AH2 Skudai Highway", icon: "fa-road", traffic: "moderate", hasToll: false },
-                    { dist: "12.5 km", text: "Pass Skudai Plaza Toll Booth (Toll: RM 2.50)", icon: "fa-ticket", traffic: "clear", hasToll: true },
-                    { dist: "18.1 km", text: "Take exit 253 toward Senai / Air Keroh", icon: "fa-arrow-right-long", traffic: "heavy", hasToll: false },
-                    { dist: "28.4 km", text: "Arrive at Senai International Airport Terminal", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
+                    { dist: "300 M", text: "Depart JB Hub via Jalan Skudai", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
+                    { dist: "4.2 KM", text: "Merge onto AH2 Skudai Highway", icon: "fa-road", traffic: "clear", hasToll: false },
+                    { dist: "12.5 KM", text: "Approach Senai Utara Toll Plaza", icon: "fa-receipt", traffic: "clear", hasToll: true },
+                    { dist: "18.1 KM", text: "Keep left at Exit 253 toward Airport", icon: "fa-arrow-right-long", traffic: "moderate", hasToll: false },
+                    { dist: "28.4 KM", text: "Arrive at Senai International Airport Terminal", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
                 ]
             },
             "Puteri Harbour Marina": {
-                dist: "21.6 km",
-                time: "19 min",
+                dist: "21.6 KM",
+                time: "19 MIN",
                 tolls: 1,
-                tollName: "Perling Plaza Toll Gate",
+                tollName: "Perling Toll Plaza",
                 tollFee: "RM 1.80",
+                tollPosRatio: 0.45,
                 maneuvers: [
-                    { dist: "200 m", text: "Depart Johor Bahru Central westward", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
-                    { dist: "5.0 km", text: "Enter Coastal Highway / Second Link Expressway", icon: "fa-road", traffic: "moderate", hasToll: false },
-                    { dist: "11.2 km", text: "Pass Perling Toll Plaza (Toll: RM 1.80)", icon: "fa-ticket", traffic: "clear", hasToll: true },
-                    { dist: "17.4 km", text: "Take Persiaran Laksamana exit toward Puteri Harbour", icon: "fa-arrow-left-long", traffic: "clear", hasToll: false },
-                    { dist: "21.6 km", text: "Arrive at Puteri Harbour Marina Pier", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
+                    { dist: "200 M", text: "Depart JB Hub westward via Coastal Highway", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
+                    { dist: "5.0 KM", text: "Enter Expressway Link", icon: "fa-road", traffic: "clear", hasToll: false },
+                    { dist: "11.2 KM", text: "Approach Perling Toll Plaza", icon: "fa-receipt", traffic: "clear", hasToll: true },
+                    { dist: "17.4 KM", text: "Take Persiaran Laksamana Exit", icon: "fa-arrow-left-long", traffic: "clear", hasToll: false },
+                    { dist: "21.6 KM", text: "Arrive at Puteri Harbour Pier", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
                 ]
             }
         };
 
         let activeRoute = routesData["Senai International Airport"];
 
-        // --- Custom Modal Helper ---
-        function showModal(title, message, iconClass = "fa-triangle-exclamation") {
+        function showModal(title, message, iconClass = "fa-compass") {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = message;
             document.getElementById('modalIcon').className = `fa-solid ${iconClass}`;
@@ -381,30 +380,28 @@
             document.getElementById('customModal').classList.add('hidden');
         }
 
-        // --- Deep Male Voice Synthesizer Module ---
+        // --- Upgraded Normal Male Robot Voice Synthesizer ---
         function speakGuidance(text) {
             if (!voiceEnabled) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Stop prior audio
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 
-                // Deep, authoritative male voice tuning
-                utterance.rate = 0.92;
-                utterance.pitch = 0.55; 
+                // Tuned parameters for a clear, precise male robot voice
+                utterance.rate = 1.0;
+                utterance.pitch = 0.75; // Neutral-low pitched robotic precision
                 utterance.volume = 1.0;
 
                 const voices = window.speechSynthesis.getVoices();
-                // Priority male voice selection
-                const maleVoice = voices.find(v => 
+                // Priority male voices for robotic clarity
+                const maleRobotVoice = voices.find(v => 
                     v.name.includes('Google UK English Male') || 
                     v.name.includes('Microsoft David') || 
-                    v.name.includes('Male') || 
-                    (v.lang.includes('en') && v.name.includes('Natural'))
+                    v.name.includes('Male') ||
+                    v.lang.startsWith('en')
                 );
 
-                if (maleVoice) {
-                    utterance.voice = maleVoice;
-                }
+                if (maleRobotVoice) utterance.voice = maleRobotVoice;
 
                 window.speechSynthesis.speak(utterance);
             }
@@ -412,20 +409,16 @@
 
         function toggleVoice() {
             voiceEnabled = !voiceEnabled;
-            const btn = document.getElementById('voiceToggleBtn');
             const txt = document.getElementById('voiceStatusText');
             if (voiceEnabled) {
-                txt.innerText = "VOICE: ON";
-                btn.classList.add('border-brass');
-                speakGuidance("Aether voice guidance online.");
+                txt.innerText = "VOICE: ROBOT MALE";
+                speakGuidance("Voice guidance active. Robot voice operational.");
             } else {
                 txt.innerText = "VOICE: OFF";
-                btn.classList.remove('border-brass');
                 window.speechSynthesis.cancel();
             }
         }
 
-        // --- Navigation Logic & Destination Setup ---
         function setDestination(destName) {
             document.getElementById('destInput').value = destName;
             calculateRoute();
@@ -436,35 +429,33 @@
             if (routesData[val]) {
                 activeRoute = routesData[val];
             } else {
-                // Fallback route configuration for custom inputs
                 activeRoute = {
-                    dist: "32.1 km",
-                    time: "29 min",
-                    tolls: 2,
-                    tollName: "Aether Express Toll Barrier",
-                    tollFee: "RM 3.50",
+                    dist: "31.2 KM",
+                    time: "28 MIN",
+                    tolls: 1,
+                    tollName: "Aether Highway Toll Gate",
+                    tollFee: "RM 3.00",
+                    tollPosRatio: 0.5,
                     maneuvers: [
-                        { dist: "400 m", text: "Depart origin via Brass Arterial Boulevard", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
-                        { dist: "8.5 km", text: "Pass Aether Toll Booth (Toll: RM 3.50)", icon: "fa-ticket", traffic: "moderate", hasToll: true },
-                        { dist: "19.0 km", text: "Merge onto Steamway Corridor", icon: "fa-road", traffic: "heavy", hasToll: false },
-                        { dist: "32.1 km", text: "Arrive at " + val, icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
+                        { dist: "400 M", text: "Proceed along Arterial Way", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
+                        { dist: "10.2 KM", text: "Pass Highway Toll Gate", icon: "fa-receipt", traffic: "clear", hasToll: true },
+                        { dist: "31.2 KM", text: "Arrive at " + val, icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
                     ]
                 };
             }
 
-            // Update Statistics
             document.getElementById('statTime').innerText = activeRoute.time;
             document.getElementById('statDist').innerText = activeRoute.dist;
-            document.getElementById('statTolls').innerText = `${activeRoute.tolls} Booth`;
+            document.getElementById('statTolls').innerText = `${activeRoute.tolls} PLAZA`;
             document.getElementById('tollGateName').innerText = activeRoute.tollName;
             document.getElementById('tollGateFee').innerText = activeRoute.tollFee;
 
             renderManeuvers();
             carProgress = 0.0;
-            offRouteDeviated = false;
+            isAlternateRouteActive = false;
 
-            speakGuidance(`Route calculated to ${val}. Distance ${activeRoute.dist}. ${activeRoute.tolls} toll booth on route.`);
-            showModal("Route Established", `New pathway plotted to ${val}.\nTransit: ${activeRoute.time} (${activeRoute.dist}).\nIncludes ${activeRoute.tolls} toll gate (${activeRoute.tollName} - ${activeRoute.tollFee}).`, "fa-compass");
+            speakGuidance(`Route calculated to ${val}. Distance ${activeRoute.dist}. Toll booth located on route.`);
+            showModal("Route Calculated", `Destination: ${val}\nDistance: ${activeRoute.dist} • Est. Time: ${activeRoute.time}\nToll Gate: ${activeRoute.tollName} (${activeRoute.tollFee})`, "fa-route");
         }
 
         function renderManeuvers() {
@@ -473,30 +464,22 @@
             
             activeRoute.maneuvers.forEach((m, idx) => {
                 const item = document.createElement('div');
-                item.className = `p-2.5 rounded border flex items-center justify-between text-xs ${idx === 0 ? 'bg-brass/15 border-brass' : 'bg-obsidian/60 border-copper/30'}`;
+                item.className = `p-3 rounded-xl border flex items-center justify-between text-xs font-mono ${idx === 0 ? 'bg-vogueWhite/15 border-white/40' : 'bg-vogueBlack/60 border-white/10'}`;
                 
-                let trafficBadge = 'bg-amber/20 text-amber border-amber/40';
-                if (m.traffic === 'moderate') trafficBadge = 'bg-bronze/20 text-bronze border-bronze/40';
-                if (m.traffic === 'heavy') trafficBadge = 'bg-crimson/20 text-crimson border-crimson/40';
-
                 item.innerHTML = `
                     <div class="flex items-center space-x-3">
-                        <div class="w-7 h-7 rounded bg-obsidian border border-copper flex items-center justify-center text-amber text-xs">
+                        <div class="w-7 h-7 rounded-lg bg-vogueWhite text-vogueBlack flex items-center justify-center font-bold text-xs">
                             <i class="fa-solid ${m.icon}"></i>
                         </div>
                         <div>
-                            <div class="font-bold text-brass">${m.text}</div>
-                            <div class="text-[10px] text-copper">Distance: ${m.dist} ${m.hasToll ? '• <span class="text-amber font-bold">[TOLL GATE]</span>' : ''}</div>
+                            <div class="font-bold text-vogueWhite">${m.text}</div>
+                            <div class="text-[10px] text-vogueSilver">${m.dist} ${m.hasToll ? '• <span class="text-vogueWhite font-bold">[TOLL BOOTH]</span>' : ''}</div>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="px-2 py-0.5 rounded uppercase text-[9px] border ${trafficBadge}">${m.traffic}</span>
                     </div>
                 `;
                 container.appendChild(item);
             });
 
-            // Update Top HUD Banner
             if (activeRoute.maneuvers.length > 0) {
                 document.getElementById('hudInstructionText').innerText = activeRoute.maneuvers[0].text;
                 document.getElementById('hudDistText').innerText = activeRoute.maneuvers[0].dist;
@@ -510,42 +493,42 @@
             const btn = document.getElementById('navActionBtn');
             
             if (isNavigating) {
-                btnText.innerText = "HALT STEAM GUIDANCE";
-                btn.style.background = "linear-gradient(to bottom, #990000 0%, #660000 100%)";
-                btn.style.borderColor = "#ffbf00";
-                speakGuidance("Steam guidance engaged. Speed and route telemetry active.");
+                btnText.innerText = "HALT GUIDANCE";
+                btn.style.background = "#ef4444";
+                btn.style.color = "#ffffff";
+                speakGuidance("Navigation engaged. Real-time traffic monitoring active.");
             } else {
-                btnText.innerText = "ENGAGE STEAM GUIDANCE";
+                btnText.innerText = "ENGAGE VOGUE GUIDANCE";
                 btn.style.background = "";
-                btn.style.borderColor = "";
-                speakGuidance("Navigation halted.");
+                btn.style.color = "";
+                speakGuidance("Navigation paused.");
             }
         }
 
-        // --- Off-Route Trigger & Automatic Recalculation ---
-        function triggerDevOffRoute() {
+        // --- Trigger Dynamic Alternate Route on Missed Lane ---
+        function triggerMissedLane() {
             if (isRecalculating) return;
-            offRouteDeviated = true;
             isRecalculating = true;
 
             const recalcAlert = document.getElementById('recalcAlert');
             recalcAlert.classList.remove('hidden');
 
-            speakGuidance("Off-route detected. Recalculating aether pathway.");
+            speakGuidance("Lane missed. Rerouting. Dynamic alternate path engaged.");
 
             setTimeout(() => {
-                offRouteDeviated = false;
+                isAlternateRouteActive = true;
                 isRecalculating = false;
                 recalcAlert.classList.add('hidden');
 
-                // Recalculate slightly modified times
-                activeRoute.time = "26 min";
-                document.getElementById('statTime').innerText = activeRoute.time;
-                speakGuidance("New pathway established. Proceed ahead.");
-            }, 3000);
+                document.getElementById('statTime').innerText = "26 MIN";
+                document.getElementById('routeConditionBadge').innerText = "ALT ROUTE";
+                document.getElementById('hudInstructionText').innerText = "TAKEOVER ALTERNATE BYPASS • REJOINING HIGHWAY";
+                
+                speakGuidance("Alternate route locked. Rejoining main corridor.");
+            }, 2500);
         }
 
-        // --- Interactive Steampunk Canvas Map Rendering ---
+        // --- Canvas Engine ---
         const canvas = document.getElementById('navigationCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -566,7 +549,6 @@
             mapOffset = { x: 0, y: 0 };
         }
 
-        // Map Pan Logic
         let isMouseDown = false;
         let dragStart = { x: 0, y: 0 };
 
@@ -581,6 +563,7 @@
         });
         window.addEventListener('mouseup', () => { isMouseDown = false; });
 
+        // Rendering Loop
         function drawMap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -588,10 +571,10 @@
             ctx.translate(canvas.width / 2 + mapOffset.x, canvas.height / 2 + mapOffset.y);
             ctx.scale(mapScale, mapScale);
 
-            // 1. Draw Steampunk Blueprint Grid
-            ctx.strokeStyle = 'rgba(184, 115, 51, 0.08)';
+            // 1. Subtle Glassmorphic Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
             ctx.lineWidth = 1;
-            const gridSize = 40;
+            const gridSize = 50;
             for (let x = -1000; x < 1000; x += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(x, -1000);
@@ -605,124 +588,104 @@
                 ctx.stroke();
             }
 
-            // 2. Define Route Waypoints
+            // Primary Bezier Points
             const p0 = { x: -220, y: 160 };
-            const p1 = { x: -90, y: -30 };
-            const p2 = { x: 110, y: -110 };
-            const p3 = { x: 260, y: -210 };
+            const p1 = { x: -90, y: -20 };
+            const p2 = { x: 100, y: -100 };
+            const p3 = { x: 260, y: -220 };
 
-            // Draw Base Road Underlay
-            ctx.strokeStyle = 'rgba(44, 22, 11, 0.95)';
-            ctx.lineWidth = 18;
+            // Alternate Route Loop Points (Bypass Path)
+            const altP1 = { x: -140, y: 80 };
+            const altP2 = { x: 20, y: -20 };
+
+            // 2. Draw Primary Route Underlay
+            ctx.strokeStyle = isAlternateRouteActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.9)';
+            ctx.lineWidth = 12;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(p0.x, p0.y);
             ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
             ctx.stroke();
 
-            // 3. Draw Traffic Segments (Amber = Clear, Bronze = Moderate, Crimson = Heavy)
-            // Segment 1: Clear
-            ctx.strokeStyle = '#ffbf00';
-            ctx.lineWidth = 6;
+            // 3. Draw Alternate Bypass Route if Triggered
+            ctx.strokeStyle = isAlternateRouteActive ? '#ffffff' : 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = isAlternateRouteActive ? 10 : 4;
+            ctx.setLineDash(isAlternateRouteActive ? [] : [6, 6]);
             ctx.beginPath();
             ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
+            ctx.bezierCurveTo(altP1.x, altP1.y, altP2.x, altP2.y, p2.x, p2.y);
             ctx.stroke();
+            ctx.setLineDash([]);
 
-            // Segment 2: Moderate
-            ctx.strokeStyle = '#cd7f32';
-            ctx.lineWidth = 6;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-
-            // Segment 3: Heavy Delay
-            ctx.strokeStyle = '#990000';
-            ctx.lineWidth = 6;
-            ctx.beginPath();
-            ctx.moveTo(p2.x, p2.y);
-            ctx.lineTo(p3.x, p3.y);
-            ctx.stroke();
-
-            // 4. Draw Toll Booth Marker
+            // 4. Draw Toll Gate Marker
             const tollPos = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-            ctx.fillStyle = '#120a06';
-            ctx.strokeStyle = '#d4af37';
+            ctx.fillStyle = '#050505';
+            ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(tollPos.x, tollPos.y, 15, 0, Math.PI * 2);
+            ctx.arc(tollPos.x, tollPos.y, 14, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
-            // Toll Booth Text / Badge
-            ctx.fillStyle = '#ffbf00';
-            ctx.font = 'bold 11px FontAwesome';
+            // Toll Gate Icon Indicator
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px FontAwesome';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('\uf3ff', tollPos.x, tollPos.y); // Ticket/Toll icon
+            ctx.fillText('\uf543', tollPos.x, tollPos.y); // Receipt/Toll icon
 
-            // Floating Toll Badge
-            ctx.fillStyle = 'rgba(28, 14, 8, 0.9)';
-            ctx.strokeStyle = '#b87333';
-            ctx.fillRect(tollPos.x - 55, tollPos.y - 36, 110, 18);
-            ctx.strokeRect(tollPos.x - 55, tollPos.y - 36, 110, 18);
-            ctx.fillStyle = '#ffbf00';
-            ctx.font = 'bold 9px Courier Prime';
-            ctx.fillText(activeRoute.tollFee + ' TOLL', tollPos.x, tollPos.y - 27);
+            // Floating Vogue Toll Badge
+            ctx.fillStyle = 'rgba(14, 14, 16, 0.9)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillRect(tollPos.x - 60, tollPos.y - 36, 120, 20);
+            ctx.strokeRect(tollPos.x - 60, tollPos.y - 36, 120, 20);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '600 9px JetBrains Mono';
+            ctx.fillText(activeRoute.tollName, tollPos.x, tollPos.y - 26);
 
-            // 5. Vehicle Motion Simulation
-            if (isNavigating && !offRouteDeviated) {
-                carProgress += 0.0025;
+            // 5. Vehicle Progress Animation
+            if (isNavigating) {
+                carProgress += 0.003;
                 if (carProgress > 1.0) carProgress = 0.0;
             }
 
-            // Calculate Vehicle Position along Bezier Curve
             const t = carProgress;
-            let cx = Math.pow(1-t, 3)*p0.x + 3*Math.pow(1-t, 2)*t*p1.x + 3*(1-t)*t*t*p2.x + t*t*t*p3.x;
-            let cy = Math.pow(1-t, 3)*p0.y + 3*Math.pow(1-t, 2)*t*p1.y + 3*(1-t)*t*t*p2.y + t*t*t*p3.y;
+            let cx, cy;
 
-            // If simulated off-route deviation happens, displace vehicle off curve
-            if (offRouteDeviated) {
-                cx += 45;
-                cy += 35;
+            if (isAlternateRouteActive) {
+                // Motion along alternate curve
+                cx = Math.pow(1-t, 3)*p0.x + 3*Math.pow(1-t, 2)*t*altP1.x + 3*(1-t)*t*t*altP2.x + t*t*t*p2.x;
+                cy = Math.pow(1-t, 3)*p0.y + 3*Math.pow(1-t, 2)*t*altP1.y + 3*(1-t)*t*t*altP2.y + t*t*t*p2.y;
+            } else {
+                // Motion along standard route
+                cx = Math.pow(1-t, 3)*p0.x + 3*Math.pow(1-t, 2)*t*p1.x + 3*(1-t)*t*t*p2.x + t*t*t*p3.x;
+                cy = Math.pow(1-t, 3)*p0.y + 3*Math.pow(1-t, 2)*t*p1.y + 3*(1-t)*t*t*p2.y + t*t*t*p3.y;
             }
 
-            // Vehicle Marker
-            ctx.fillStyle = '#d4af37';
-            ctx.shadowColor = '#ffbf00';
-            ctx.shadowBlur = 12;
+            // Vehicle Head Marker
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(255,255,255,0.8)';
+            ctx.shadowBlur = 15;
             ctx.beginPath();
-            ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+            ctx.arc(cx, cy, 8, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Origin Marker
-            ctx.fillStyle = '#ffbf00';
-            ctx.beginPath();
-            ctx.arc(p0.x, p0.y, 6, 0, Math.PI * 2);
-            ctx.fill();
-
             // Destination Marker
-            ctx.fillStyle = '#b87333';
+            ctx.fillStyle = '#10b981';
             ctx.beginPath();
-            ctx.arc(p3.x, p3.y, 8, 0, Math.PI * 2);
+            ctx.arc(p3.x, p3.y, 7, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
             requestAnimationFrame(drawMap);
         }
 
-        // --- Initialization ---
         window.onload = function() {
             resizeCanvas();
             renderManeuvers();
             requestAnimationFrame(drawMap);
-            
-            // Preload Voices for synthesized Speech API
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.getVoices();
-            }
+            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
         };
     </script>
 </body>
