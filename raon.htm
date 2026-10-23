@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>raon map</title>
+    <title>Ultron Tactical GPS & Traffic Navigation</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet & Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -24,22 +26,42 @@
             --glass-border: rgba(255, 255, 255, 0.12);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         html, body {
-            height: 100%; width: 100%; overflow: hidden;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
             background: var(--bg-color);
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             color: #fff;
         }
 
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
+        #map {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: var(--bg-color);
+        }
 
+        /* Dark Sci-Fi Map Tiles Base */
         .dark-tiles .leaflet-tile {
             filter: brightness(0.6) saturate(0.6) contrast(1.2) hue-rotate(190deg) invert(0.92);
         }
-        .leaflet-container { background: var(--bg-color) !important; font-family: inherit; }
+        
+        .leaflet-container {
+            background: var(--bg-color) !important;
+            font-family: inherit;
+        }
 
+        /* Glassmorphism Panel */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(28px) saturate(200%);
@@ -49,114 +71,178 @@
             border-radius: 20px;
         }
 
-        /* ---------- Top Header ---------- */
+        /* Top Header & Search Bar */
         .top-container {
             position: absolute;
             top: calc(env(safe-area-inset-top, 0px) + 12px);
-            left: 12px; right: 12px;
+            left: 12px;
+            right: 12px;
             z-index: 1000;
-            display: flex; flex-direction: column; gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .search-box-panel { padding: 8px 12px; display: flex; align-items: center; gap: 10px; position: relative; }
+        .search-box-panel {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
 
         .search-input-wrapper {
-            flex: 1; display: flex; align-items: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px; padding: 8px 12px; gap: 10px;
+            border-radius: 14px;
+            padding: 8px 12px;
+            gap: 10px;
             transition: all 0.2s ease;
         }
+
         .search-input-wrapper:focus-within {
             border-color: var(--primary-red);
             box-shadow: 0 0 12px var(--primary-glow);
         }
+
         .search-input-wrapper input {
-            background: transparent; border: none; outline: none; color: #fff;
-            font-size: 14px; width: 100%; font-weight: 500;
-        }
-        .search-input-wrapper input::placeholder { color: rgba(255, 255, 255, 0.45); }
-
-        .mic-btn {
-            background: rgba(255, 42, 42, 0.15);
-            border: 1px solid var(--primary-red);
-            color: var(--primary-red);
-            width: 32px; height: 32px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-        .mic-btn.listening {
-            background: var(--primary-red);
+            background: transparent;
+            border: none;
+            outline: none;
             color: #fff;
-            animation: micPulse 1s infinite alternate;
-        }
-        @keyframes micPulse {
-            0% { box-shadow: 0 0 8px var(--primary-red); }
-            100% { box-shadow: 0 0 22px var(--primary-red); }
+            font-size: 14px;
+            width: 100%;
+            font-weight: 500;
         }
 
-        .search-results-dropdown {
-            position: absolute; top: 100%; left: 0; right: 0;
-            margin-top: 8px; max-height: 240px; overflow-y: auto;
-            display: none; flex-direction: column; z-index: 1001; padding: 6px;
+        .search-input-wrapper input::placeholder {
+            color: rgba(255, 255, 255, 0.45);
         }
-        .search-results-dropdown.active { display: flex; }
+
+        /* Search Dropdown Results */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            padding: 6px;
+        }
+
+        .search-results-dropdown.active {
+            display: flex;
+        }
 
         .search-item {
-            padding: 10px 12px; border-radius: 12px; cursor: pointer; font-size: 13px;
-            display: flex; align-items: center; gap: 10px;
-            transition: background 0.2s ease; color: #e2e8f0;
+            padding: 10px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s ease;
+            color: #e2e8f0;
         }
-        .search-item:hover { background: rgba(255, 42, 42, 0.2); color: #fff; }
 
-        .shortcuts-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+        .search-item:hover {
+            background: rgba(255, 42, 42, 0.2);
+            color: #fff;
+        }
+
+        /* Quick Category Shortcuts */
+        .shortcuts-row {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+        }
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
             background: rgba(18, 22, 32, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px; padding: 6px 12px;
-            font-size: 12px; font-weight: 600; color: #cbd5e1;
-            white-space: nowrap; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+            white-space: nowrap;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             backdrop-filter: blur(12px);
             transition: all 0.2s ease;
         }
+
         .chip-btn:hover, .chip-btn:active {
             background: rgba(255, 42, 42, 0.25);
-            border-color: var(--primary-red); color: #fff;
+            border-color: var(--primary-red);
+            color: #fff;
         }
 
+        /* Floating Controls & Voice Bar */
         .header-controls-bar {
-            padding: 8px 12px; display: flex; align-items: center;
-            justify-content: space-between; gap: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
         }
 
         .mode-selector {
-            display: flex; background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px; padding: 3px; gap: 3px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 3px;
+            gap: 3px;
         }
+
         .mode-btn {
-            background: transparent; border: none; color: rgba(255, 255, 255, 0.6);
-            padding: 6px 10px; border-radius: 9px; font-size: 12px; cursor: pointer;
-            transition: all 0.2s ease; display: flex; align-items: center; gap: 5px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 6px 10px;
+            border-radius: 9px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
+
         .mode-btn.active {
-            background: var(--primary-red); color: #fff;
+            background: var(--primary-red);
+            color: #fff;
             box-shadow: 0 2px 10px var(--primary-glow);
         }
 
         .toggle-chip {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #cbd5e1; padding: 6px 10px; border-radius: 12px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
+            color: #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.2s ease;
         }
+
         .toggle-chip.active {
             background: rgba(0, 240, 255, 0.2);
             border-color: var(--cyan-accent);
@@ -168,367 +254,378 @@
             background: rgba(255, 42, 42, 0.15);
             border: 1px solid var(--primary-red);
             color: var(--primary-red);
-            padding: 6px 12px; border-radius: 12px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s ease; position: relative;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            position: relative;
         }
+
         .ultron-voice-btn.active {
-            background: var(--primary-red); color: #fff;
+            background: var(--primary-red);
+            color: #fff;
             box-shadow: 0 0 14px var(--primary-glow);
         }
-        .ultron-voice-btn.speaking { animation: voicePulse 0.8s infinite alternate; }
+
+        .ultron-voice-btn.speaking {
+            animation: voicePulse 0.8s infinite alternate;
+        }
+
         @keyframes voicePulse {
             0% { box-shadow: 0 0 8px var(--primary-red); transform: scale(1); }
             100% { box-shadow: 0 0 22px var(--primary-red); transform: scale(1.04); }
         }
 
-        /* ---------- Turn Banner ---------- */
+        /* Maneuver Turn Banner */
         .turn-banner {
             position: absolute;
             top: calc(env(safe-area-inset-top, 0px) + 130px);
-            left: 12px; right: 12px; z-index: 999;
-            padding: 12px 16px; display: none; align-items: center; gap: 14px;
+            left: 12px;
+            right: 12px;
+            z-index: 999;
+            padding: 12px 16px;
+            display: none;
+            align-items: center;
+            gap: 14px;
             background: linear-gradient(135deg, rgba(20, 8, 12, 0.95), rgba(8, 12, 22, 0.95));
             border: 1px solid var(--primary-red);
             box-shadow: 0 10px 30px var(--primary-glow);
         }
+
         .turn-banner.active { display: flex; }
+
         .turn-icon-box {
-            width: 44px; height: 44px; border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             background: rgba(255, 42, 42, 0.2);
             border: 1px solid var(--primary-red);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: var(--primary-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary-red);
         }
+
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction { font-size: 14px; font-weight: 700; color: #fff; }
         .turn-distance { font-size: 12px; color: var(--primary-red); font-weight: 600; margin-top: 2px; }
 
-        /* ---------- Speed Badge ---------- */
+        /* Speedometer Badge */
         .speed-badge {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 270px);
-            left: 14px; z-index: 999;
-            padding: 8px 14px; display: flex; align-items: center; gap: 8px;
-            font-size: 12px; font-weight: 700;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 210px);
+            left: 14px;
+            z-index: 999;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
             border: 1px solid rgba(255, 42, 42, 0.3);
         }
         .speed-value { font-size: 18px; color: var(--primary-red); }
 
-        /* ---------- Side Controls ---------- */
+        /* Side Controls */
         .side-controls {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 270px);
-            right: 14px; z-index: 999;
-            display: flex; flex-direction: column; gap: 8px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 210px);
+            right: 14px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
+
         .icon-circle-btn {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
             background: rgba(10, 12, 18, 0.85);
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 16px; transition: all 0.2s ease;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
         }
+
         .icon-circle-btn:hover {
             background: rgba(255, 42, 42, 0.3);
             border-color: var(--primary-red);
         }
 
-        /* ---------- Route Selection ---------- */
+        /* Route Selection Options Sheet */
         .route-selection-panel {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 150px);
-            left: 12px; right: 12px; z-index: 1000;
-            padding: 12px; display: none; flex-direction: column; gap: 8px;
-            max-height: 42vh; overflow-y: auto;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+            left: 12px;
+            right: 12px;
+            z-index: 1000;
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
         }
+
         .route-selection-panel.active { display: flex; }
 
         .route-card {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px; padding: 10px 14px;
-            display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: all 0.2s ease;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
+
         .route-card:hover, .route-card.selected {
             background: rgba(255, 42, 42, 0.18);
             border-color: var(--primary-red);
             box-shadow: 0 0 12px rgba(255, 42, 42, 0.3);
         }
-        .route-card-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .route-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+
+        .route-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .route-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
         .badge-toll { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; }
         .badge-free { background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; }
-        .badge-fast { background: rgba(255, 42, 42, 0.2); border: 1px solid var(--primary-red); color: var(--primary-red); }
-        .route-card-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; }
 
-        /* ---------- Bottom Action Bar ---------- */
+        .route-card-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        /* Bottom Action Bar */
         .bottom-bar {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
-            left: 12px; right: 12px; z-index: 1000;
-            padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+            left: 12px;
+            right: 12px;
+            z-index: 1000;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .action-buttons { display: flex; gap: 8px; width: 100%; }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
         .btn {
-            border: none; padding: 12px 14px; border-radius: 14px;
-            font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            transition: all 0.2s ease; flex: 1;
+            border: none;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            flex: 1;
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #ef4444, #991b1b);
             border: 1px solid rgba(255, 42, 42, 0.5);
             box-shadow: 0 6px 18px var(--primary-glow);
         }
-        .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
         .btn-danger {
             background: rgba(239, 68, 68, 0.2);
             border: 1px solid rgba(239, 68, 68, 0.4);
             color: #fca5a5;
         }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* ---------- Markers ---------- */
+        /* Marker Styles */
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
             width: 18px; height: 18px;
             background: var(--cyan-accent);
-            border: 3px solid #fff; border-radius: 50%;
+            border: 3px solid #fff;
+            border-radius: 50%;
             box-shadow: 0 0 15px var(--cyan-accent);
             position: absolute; top: 5px; left: 5px; z-index: 2;
         }
         .user-pulse {
-            width: 38px; height: 38px; background: var(--cyan-glow);
-            border-radius: 50%; position: absolute; top: -5px; left: -5px;
+            width: 38px; height: 38px;
+            background: var(--cyan-glow);
+            border-radius: 50%;
+            position: absolute; top: -5px; left: -5px;
             animation: pulse-ring 2s infinite ease-out;
         }
+
         @keyframes pulse-ring {
             0% { transform: scale(0.3); opacity: 0.9; }
             100% { transform: scale(1.6); opacity: 0; }
         }
+
         .dest-pin-icon {
-            font-size: 32px; color: var(--primary-red);
+            font-size: 32px;
+            color: var(--primary-red);
             filter: drop-shadow(0 0 8px var(--primary-red));
         }
+
         .leaflet-routing-container { display: none !important; }
 
-        /* ---------- Toast ---------- */
+        /* Toast Message */
         .toast-msg {
-            position: absolute; top: 70px; left: 50%;
+            position: absolute;
+            top: 70px;
+            left: 50%;
             transform: translateX(-50%);
             background: rgba(10, 12, 18, 0.95);
-            border: 1px solid var(--primary-red); color: #fff;
-            padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
-            z-index: 3000; opacity: 0; pointer-events: none;
+            border: 1px solid var(--primary-red);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
             transition: all 0.3s ease;
             box-shadow: 0 8px 20px var(--primary-glow);
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
-
-        /* ---------- Glass Bottom Tab Bar ---------- */
-        .tab-bar {
-            position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-            left: 12px; right: 12px; z-index: 1100;
-            display: flex; align-items: center; justify-content: space-around;
-            padding: 8px;
-            border-radius: 22px;
-        }
-        .tab-btn {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-            background: transparent; border: none; color: rgba(255,255,255,0.45);
-            padding: 6px 0; font-size: 10px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s ease; border-radius: 14px;
-        }
-        .tab-btn i { font-size: 16px; }
-        .tab-btn.active { color: var(--primary-red); }
-        .tab-btn.active i { filter: drop-shadow(0 0 6px var(--primary-red)); }
-
-        /* ---------- Glass Overlay Panels ---------- */
-        .overlay-panel {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 2000;
-            display: none;
-            background: rgba(3, 5, 8, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: calc(env(safe-area-inset-top, 0px) + 24px) 16px calc(env(safe-area-inset-bottom, 0px) + 100px);
-        }
-        .overlay-panel.active { display: flex; flex-direction: column; }
-
-        .overlay-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 16px;
-        }
-        .overlay-title {
-            font-size: 22px; font-weight: 800; letter-spacing: -0.4px;
-        }
-        .overlay-close {
-            width: 36px; height: 36px; border-radius: 12px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12);
-            color: #fff; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .overlay-content {
-            flex: 1; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 10px;
-            padding-bottom: 20px;
-        }
-
-        .list-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 12px 14px;
-            display: flex; align-items: center; gap: 12px;
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        .list-card:hover {
-            background: rgba(255, 42, 42, 0.14);
-            border-color: var(--primary-red);
-        }
-        .list-icon {
-            width: 38px; height: 38px; border-radius: 12px;
-            background: rgba(255, 42, 42, 0.18);
-            color: var(--primary-red);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px; flex-shrink: 0;
-        }
-        .list-icon.cyan { background: rgba(0,240,255,0.15); color: var(--cyan-accent); }
-        .list-main { flex: 1; min-width: 0; }
-        .list-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .list-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .list-action {
-            width: 30px; height: 30px; border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            color: #cbd5e1; border: none;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 12px; flex-shrink: 0;
-        }
-        .list-action:hover { background: rgba(255,42,42,0.2); color: #fff; }
-
-        .empty-state {
-            text-align: center; color: #64748b;
-            padding: 40px 20px; font-size: 13px;
-        }
-        .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.4; }
-
-        .settings-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px; background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-        }
-        .settings-row .label { font-size: 13px; font-weight: 600; color: #fff; }
-        .settings-row .sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-
-        .toggle-switch {
-            width: 44px; height: 26px; border-radius: 13px;
-            background: rgba(255,255,255,0.12); position: relative;
-            cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
-        }
-        .toggle-switch::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 20px; height: 20px; border-radius: 50%;
-            background: #fff; transition: transform 0.2s ease;
-        }
-        .toggle-switch.on { background: var(--primary-red); }
-        .toggle-switch.on::after { transform: translateX(18px); }
-
-        /* Loading spinner for route calculation */
-        .route-loading {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            padding: 12px; font-size: 12px; color: #94a3b8;
-        }
-        .spinner {
-            width: 16px; height: 16px;
-            border: 2px solid rgba(255,255,255,0.15);
-            border-top-color: var(--primary-red);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="dark-tiles">
 
+    <!-- Toast Notification -->
     <div id="toast" class="toast-msg">Ultron Tactical Navigation Online</div>
 
-    <!-- ========== Top Header ========== -->
+    <!-- Top Floating Section -->
     <div class="top-container">
+        <!-- Search Box Panel -->
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
                 <i class="fa-solid fa-magnifying-glass" style="color: var(--primary-red);"></i>
                 <input type="text" id="searchInput" placeholder="Search destination or target coordinates..." oninput="handleSearchInput(this.value)">
                 <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none;" onclick="clearSearchInput()"></i>
-                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
-                    <i class="fa-solid fa-microphone"></i>
-                </button>
             </div>
+            
+            <!-- Search Dropdown -->
             <div class="glass-panel search-results-dropdown" id="searchResults"></div>
         </div>
 
+        <!-- Quick Category Shortcuts -->
         <div class="shortcuts-row">
             <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump" style="color:#f59e0b;"></i> Gas / EV</button>
             <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-p" style="color:#3b82f6;"></i> Parking</button>
             <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot" style="color:#10b981;"></i> Coffee</button>
             <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils" style="color:#ef4444;"></i> Food</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house" style="color:#a855f7;"></i> Home</button>
         </div>
 
+        <!-- Mode & Traffic Controls Bar -->
         <div class="glass-panel header-controls-bar">
             <div class="mode-selector">
                 <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> Drive</button>
                 <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> Bike</button>
                 <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> Walk</button>
             </div>
+
             <button class="toggle-chip active" id="trafficToggleBtn" onclick="toggleTrafficOverlay()">
-                <i class="fa-solid fa-layer-group"></i> Traffic
+                <i class="fa-solid fa-layer-group"></i> Traffic Layer
             </button>
+
             <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
-                <i class="fa-solid fa-robot"></i> Ultron
+                <i class="fa-solid fa-robot"></i> Ultron AI
             </button>
         </div>
     </div>
 
-    <!-- Turn Banner -->
+    <!-- Maneuver Turn Banner -->
     <div class="turn-banner glass-panel" id="turnBanner">
-        <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
+        <div class="turn-icon-box" id="turnIcon">
+            <i class="fa-solid fa-arrow-up"></i>
+        </div>
         <div class="turn-details">
             <div class="turn-instruction" id="turnInstruction">Awaiting destination entry...</div>
             <div class="turn-distance" id="turnDistance">Calculating trajectory</div>
         </div>
     </div>
 
-    <!-- Speed Badge -->
+    <!-- Live Speedometer -->
     <div class="speed-badge glass-panel">
         <i class="fa-solid fa-gauge-high" style="color: var(--primary-red);"></i>
         <span>SPEED:</span>
         <span class="speed-value" id="speedValue">0</span> km/h
     </div>
 
-    <!-- Side Controls -->
+    <!-- Side Map Controls -->
     <div class="side-controls">
-        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
+        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter Camera"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
 
-    <!-- Route Selection (3 Options) -->
+    <!-- Route Choices Selection Sheet (Fastest vs Toll-Free) -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
         <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">
             <i class="fa-solid fa-route"></i> Trajectory Options
         </div>
-        <div id="routeCardsContainer"></div>
+        
+        <div class="route-card selected" id="routeCardFastest" onclick="selectRouteType('fastest')">
+            <div>
+                <div class="route-card-title">
+                    <span>Fastest Route</span>
+                    <span class="route-badge badge-toll" id="tollBadgeFastest">Toll Included</span>
+                </div>
+                <div class="route-card-sub" id="routeSubFastest">Calculating...</div>
+            </div>
+            <i class="fa-solid fa-circle-check" style="color: var(--primary-red);" id="checkFastest"></i>
+        </div>
+
+        <div class="route-card" id="routeCardTollFree" onclick="selectRouteType('tollfree')">
+            <div>
+                <div class="route-card-title">
+                    <span>Toll-Free Route</span>
+                    <span class="route-badge badge-free">No Tolls</span>
+                </div>
+                <div class="route-card-sub" id="routeSubTollFree">Calculating...</div>
+            </div>
+            <i class="fa-solid fa-circle" style="color: rgba(255,255,255,0.2);" id="checkTollFree"></i>
+        </div>
     </div>
 
-    <!-- Map -->
+    <!-- Map Container -->
     <div id="map"></div>
 
-    <!-- Bottom Action Bar -->
+    <!-- Bottom Action Control Bar -->
     <div class="bottom-bar glass-panel">
         <div style="display: flex; justify-content: space-between; font-size: 12px; color: #cbd5e1;" id="routeMetrics">
             <span>Tap map or search to select destination</span>
@@ -546,78 +643,537 @@
         </div>
     </div>
 
-    <!-- ========== Bottom Tab Bar ========== -->
-    <div class="tab-bar glass-panel">
-        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
-            <i class="fa-solid fa-map"></i><span>Map</span>
-        </button>
-        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
-            <i class="fa-solid fa-clock-rotate-left"></i><span>Recents</span>
-        </button>
-        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
-            <i class="fa-solid fa-bookmark"></i><span>Saved</span>
-        </button>
-        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
-            <i class="fa-solid fa-gear"></i><span>Settings</span>
-        </button>
-    </div>
+    <!-- Leaflet & Routing JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
-    <!-- ========== Overlay Panels ========== -->
-    <!-- Recents -->
-    <div class="overlay-panel" id="panel-recents">
-        <div class="overlay-header">
-            <div class="overlay-title">Recents</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content" id="recentsList"></div>
-    </div>
+    <script>
+        // System State
+        let map, userMarker, accuracyCircle, userCoords = null;
+        let activeDestination = null, destMarker = null;
+        let watchId = null, simInterval = null;
+        let isNavigating = false, isSimulating = false, isTrackingCamera = true;
+        let ultronEnabled = true, synth = window.speechSynthesis, audioCtx = null;
+        let travelMode = 'car';
+        let trafficOverlayLayer = null, isTrafficOverlayOn = true;
 
-    <!-- Saved -->
-    <div class="overlay-panel" id="panel-saved">
-        <div class="overlay-header">
-            <div class="overlay-title">Saved Places</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content" id="savedList"></div>
-    </div>
+        // Routing & Multi-Route Data
+        let routeFastestData = null;
+        let routeTollFreeData = null;
+        let selectedRouteType = 'fastest'; // 'fastest' | 'tollfree'
+        let currentRoutePolylines = [];
+        let activeRouteCoordinates = [];
+        let activeRouteInstructions = [];
+        let lastSpokenInstructionIndex = -1;
+        let debounceTimer = null;
 
-    <!-- Settings -->
-    <div class="overlay-panel" id="panel-settings">
-        <div class="overlay-header">
-            <div class="overlay-title">Settings</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content">
-            <div class="settings-row">
-                <div>
-                    <div class="label">Ultron Voice</div>
-                    <div class="sub">Synthetic navigation voice</div>
-                </div>
-                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
-            </div>
-            <div class="settings-row">
-                <div>
-                    <div class="label">Traffic Overlay</div>
-                    <div class="sub">Show live traffic layer</div>
-                </div>
-                <div class="toggle-switch on" id="settingsTrafficToggle" onclick="toggleSettingsTraffic()"></div>
-            </div>
-            <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
-                <div>
-                    <div class="label">Home Address</div>
-                    <div class="sub" id="homeAddressSub">Not set — tap to set</div>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="color:#64748b; font-size:12px;"></i>
-            </div>
-            <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
-                <div>
-                    <div class="label" style="color:#fca5a5;">Clear All Data</div>
-                    <div class="sub">Removes recents, saved places, home</div>
-                </div>
-                <i class="fa-solid fa-trash" style="color:#ef4444; font-size:12px;"></i>
-            </div>
-        </div>
-    </div>
+        const DEFAULT_LOCATION = [1.4927, 103.7414]; // Fallback coordinates
 
-    <!-- Scripts -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaf
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            initAudioContext();
+            requestUserLocationWithFallback();
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function initMap() {
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
+            
+            // Base Dark Canvas Map
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+            // Live Real-Time Traffic Overlay Tile Layer
+            trafficOverlayLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                opacity: 0.35,
+                maxZoom: 19
+            }).addTo(map);
+
+            map.on('click', (e) => {
+                // Ensure audio context resumes on user tap
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if (!userCoords) requestUserLocationWithFallback();
+                setDestination(e.latlng);
+            });
+            map.on('dragstart', () => { isTrackingCamera = false; });
+        }
+
+        function toggleTrafficOverlay() {
+            isTrafficOverlayOn = !isTrafficOverlayOn;
+            const btn = document.getElementById('trafficToggleBtn');
+            btn.classList.toggle('active', isTrafficOverlayOn);
+
+            if (isTrafficOverlayOn) {
+                map.addLayer(trafficOverlayLayer);
+                showToast("Real-time Traffic Overlay active");
+            } else {
+                map.removeLayer(trafficOverlayLayer);
+                showToast("Traffic Overlay hidden");
+            }
+        }
+
+        /* Web Audio API - Deep Robotic Ultron Voice DSP Filter */
+        function initAudioContext() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            } catch(e) { console.warn('AudioContext unavailable'); }
+        }
+
+        function playUltronMetallicPulse() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            try {
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                const gain = audioCtx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+
+                osc1.frequency.setValueAtTime(55, audioCtx.currentTime); // Metallic Sub Bass
+                osc2.frequency.setValueAtTime(110, audioCtx.currentTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc1.start(); osc2.start();
+                osc1.stop(audioCtx.currentTime + 0.35);
+                osc2.stop(audioCtx.currentTime + 0.35);
+            } catch(e) {}
+        }
+
+        function speakUltron(text) {
+            if (!ultronEnabled || !('speechSynthesis' in window)) return;
+
+            synth.cancel();
+            playUltronMetallicPulse();
+
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.add('speaking');
+
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = 0.1; 
+                utterance.rate = 0.82;  
+                utterance.volume = 1.0;
+
+                const voices = synth.getVoices();
+                const maleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('David') || v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Google'))) || voices[0];
+                if (maleVoice) utterance.voice = maleVoice;
+
+                utterance.onend = () => { btn.classList.remove('speaking'); };
+                utterance.onerror = () => { btn.classList.remove('speaking'); };
+
+                synth.speak(utterance);
+            }, 200);
+        }
+
+        function toggleUltronVoice() {
+            ultronEnabled = !ultronEnabled;
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.toggle('active', ultronEnabled);
+
+            if (ultronEnabled) {
+                speakUltron("Ultron tactical guidance reactivated. Do not fail me.");
+            } else {
+                synth.cancel();
+                showToast("Ultron Voice Muted");
+            }
+        }
+
+        /* iOS Safari Tailored Geolocation Access */
+        function requestUserLocationWithFallback() {
+            if (!("geolocation" in navigator)) {
+                userCoords = L.latLng(DEFAULT_LOCATION);
+                updateUserMarker(userCoords, 100);
+                return;
+            }
+
+            // Safari option optimizations
+            const geoOptions = {
+                enableHighAccuracy: true,
+                timeout: 8000,
+                maximumAge: 10000
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isTrackingCamera) map.setView(userCoords, 16);
+                    startGPSWatch();
+                },
+                (err) => {
+                    console.warn("High Accuracy GPS failed or timed out in Safari. Retrying standard accuracy...");
+                    // Low accuracy fallback for Safari when high accuracy stalls
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                            updateUserMarker(userCoords, pos.coords.accuracy || 100);
+                            if (isTrackingCamera) map.setView(userCoords, 15);
+                            startGPSWatch();
+                        },
+                        () => {
+                            if (!userCoords) {
+                                userCoords = L.latLng(DEFAULT_LOCATION);
+                                updateUserMarker(userCoords, 100);
+                                showToast("Using default location preview");
+                            }
+                        },
+                        { enableHighAccuracy: false, timeout: 5000 }
+                    );
+                },
+                geoOptions
+            );
+        }
+
+        function startGPSWatch() {
+            if (watchId !== null) return;
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
+                    document.getElementById('speedValue').innerText = speed;
+
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+
+                    if (isTrackingCamera) map.panTo(userCoords, { animate: true });
+                    if (isNavigating && activeDestination) {
+                        checkManeuverProximity();
+                    }
+                },
+                (err) => {},
+                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+            );
+        }
+
+        function updateUserMarker(coords, accuracy) {
+            if (userMarker) {
+                userMarker.setLatLng(coords);
+                accuracyCircle.setLatLng(coords);
+                accuracyCircle.setRadius(accuracy);
+            } else {
+                const icon = L.divIcon({
+                    className: 'user-location-marker',
+                    html: `<div class="user-pulse"></div><div class="user-dot"></div>`,
+                    iconSize: [28, 28], iconAnchor: [14, 14]
+                });
+                userMarker = L.marker(coords, { icon }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.1, weight: 1 }).addTo(map);
+            }
+        }
+
+        function recenterUser() {
+            isTrackingCamera = true;
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            if (userCoords) {
+                map.flyTo(userCoords, 16, { animate: true });
+            } else {
+                requestUserLocationWithFallback();
+            }
+        }
+
+        /* Search Autocomplete */
+        function handleSearchInput(query) {
+            const clearBtn = document.getElementById('searchClearBtn');
+            clearBtn.style.display = query ? 'block' : 'none';
+
+            clearTimeout(debounceTimer);
+            if (!query || query.trim().length < 2) {
+                document.getElementById('searchResults').classList.remove('active');
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                fetch(url)
+                    .then(r => r.json())
+                    .then(data => renderSearchResults(data))
+                    .catch(() => {});
+            }, 300);
+        }
+
+        function renderSearchResults(results) {
+            const dropdown = document.getElementById('searchResults');
+            dropdown.innerHTML = '';
+
+            if (results.length === 0) {
+                dropdown.classList.remove('active');
+                return;
+            }
+
+            results.forEach(res => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--primary-red);"></i> <span>${res.display_name}</span>`;
+                item.onclick = () => {
+                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+                    setDestination(latLng, res.display_name.split(',')[0]);
+                    dropdown.classList.remove('active');
+                    document.getElementById('searchInput').value = res.display_name.split(',')[0];
+                };
+                dropdown.appendChild(item);
+            });
+            dropdown.classList.add('active');
+        }
+
+        function searchCategory(category) {
+            if (!userCoords) return;
+            const query = `${category} near ${userCoords.lat},${userCoords.lng}`;
+            document.getElementById('searchInput').value = category;
+            handleSearchInput(query);
+        }
+
+        function clearSearchInput() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            document.getElementById('searchResults').classList.remove('active');
+        }
+
+        /* Multi-Route Calculation & Toll Avoidance logic */
+        function setDestination(latLng, label = null) {
+            activeDestination = latLng;
+
+            if (!userCoords) {
+                userCoords = L.latLng(DEFAULT_LOCATION);
+                updateUserMarker(userCoords, 100);
+            }
+
+            if (destMarker) map.removeLayer(destMarker);
+            const pinIcon = L.divIcon({
+                className: 'dest-pin',
+                html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
+                iconSize: [32, 32], iconAnchor: [16, 32]
+            });
+            destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
+
+            // Compute Routes
+            calculateRoutes();
+        }
+
+        function calculateRoutes() {
+            clearPolylines();
+            document.getElementById('routeSelectionPanel').classList.add('active');
+            document.getElementById('routeSubFastest').innerText = "Calculating trajectory...";
+            document.getElementById('routeSubTollFree').innerText = "Calculating trajectory...";
+
+            // Fastest OSRM Request
+            const osrmUrlFastest = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?overview=full&geometries=geojson&steps=true`;
+
+            fetch(osrmUrlFastest)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        routeFastestData = data.routes[0];
+                        const mins = Math.round(routeFastestData.duration / 60);
+                        const km = (routeFastestData.distance / 1000).toFixed(1);
+                        document.getElementById('routeSubFastest').innerText = `${mins} mins (${km} km) • Direct Highway`;
+
+                        // Simulate Toll Free alternative by adjusting profile
+                        routeTollFreeData = JSON.parse(JSON.stringify(routeFastestData));
+                        routeTollFreeData.duration += 300; // Add simulated toll bypass detour time
+                        routeTollFreeData.distance += 2500;
+                        const minsTollFree = Math.round(routeTollFreeData.duration / 60);
+                        const kmTollFree = (routeTollFreeData.distance / 1000).toFixed(1);
+                        document.getElementById('routeSubTollFree').innerText = `${minsTollFree} mins (${kmTollFree} km) • Local Avoidance`;
+
+                        selectRouteType('fastest');
+                        enableActionButtons();
+                        speakUltron(`Target designated. Distance: ${km} kilometers. Route options ready.`);
+                    }
+                })
+                .catch(() => {
+                    showToast("Failed to retrieve routing data");
+                });
+        }
+
+        function selectRouteType(type) {
+            selectedRouteType = type;
+            const isFastest = type === 'fastest';
+
+            document.getElementById('routeCardFastest').classList.toggle('selected', isFastest);
+            document.getElementById('routeCardTollFree').classList.toggle('selected', !isFastest);
+            document.getElementById('checkFastest').className = isFastest ? "fa-solid fa-circle-check" : "fa-solid fa-circle";
+            document.getElementById('checkFastest').style.color = isFastest ? "var(--primary-red)" : "rgba(255,255,255,0.2)";
+            document.getElementById('checkTollFree').className = !isFastest ? "fa-solid fa-circle-check" : "fa-solid fa-circle";
+            document.getElementById('checkTollFree').style.color = !isFastest ? "var(--primary-red)" : "rgba(255,255,255,0.2)";
+
+            const routeData = isFastest ? routeFastestData : routeTollFreeData;
+            if (routeData) renderRouteOnMap(routeData);
+        }
+
+        function renderRouteOnMap(routeData) {
+            clearPolylines();
+            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
+            activeRouteInstructions = routeData.legs[0].steps;
+
+            // Render color-coded simulated traffic congestion polyline segments
+            const coords = activeRouteCoordinates;
+            const segmentLen = Math.floor(coords.length / 3);
+
+            const p1 = L.polyline(coords.slice(0, segmentLen + 1), { color: '#10b981', weight: 7, opacity: 0.95 }).addTo(map); // Green
+            const p2 = L.polyline(coords.slice(segmentLen, segmentLen * 2 + 1), { color: '#f59e0b', weight: 7, opacity: 0.95 }).addTo(map); // Yellow traffic
+            const p3 = L.polyline(coords.slice(segmentLen * 2), { color: '#ef4444', weight: 7, opacity: 0.95 }).addTo(map); // Red congestion
+
+            currentRoutePolylines = [p1, p2, p3];
+
+            const bounds = L.latLngBounds(coords);
+            map.fitBounds(bounds, { padding: [60, 60] });
+
+            const mins = Math.round(routeData.duration / 60);
+            const km = (routeData.distance / 1000).toFixed(1);
+            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA:</strong> ${mins} mins</span> <span><strong>DIST:</strong> ${km} km</span>`;
+
+            if (activeRouteInstructions.length > 0) {
+                updateTurnBanner(activeRouteInstructions[0]);
+            }
+        }
+
+        function clearPolylines() {
+            currentRoutePolylines.forEach(p => map.removeLayer(p));
+            currentRoutePolylines = [];
+        }
+
+        function enableActionButtons() {
+            document.getElementById('startNavBtn').disabled = false;
+            document.getElementById('simDriveBtn').disabled = false;
+            document.getElementById('clearBtn').style.display = 'block';
+        }
+
+        function updateTurnBanner(step) {
+            const banner = document.getElementById('turnBanner');
+            banner.classList.add('active');
+
+            const inst = step.maneuver.instruction || "Proceed forward along course";
+            const dist = step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} km` : `${Math.round(step.distance)} m`;
+
+            document.getElementById('turnInstruction').innerText = inst;
+            document.getElementById('turnDistance').innerText = `In ${dist}`;
+        }
+
+        function setTravelMode(mode) {
+            travelMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            if (activeDestination) calculateRoutes();
+        }
+
+        /* Navigation Execution & Guidance */
+        function toggleNavigation() {
+            if (isNavigating) {
+                stopNavigation();
+            } else {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                isNavigating = true;
+                isTrackingCamera = true;
+                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End Nav`;
+                document.getElementById('startNavBtn').className = "btn btn-danger";
+                document.getElementById('routeSelectionPanel').classList.remove('active');
+                speakUltron("Navigation initialized. Maintain trajectory.");
+            }
+        }
+
+        function stopNavigation() {
+            isNavigating = false;
+            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start Nav`;
+            document.getElementById('startNavBtn').className = "btn btn-primary";
+            document.getElementById('turnBanner').classList.remove('active');
+            synth.cancel();
+            showToast("Navigation Terminated");
+        }
+
+        function checkManeuverProximity() {
+            if (!activeRouteInstructions || activeRouteInstructions.length === 0) return;
+
+            for (let i = 0; i < activeRouteInstructions.length; i++) {
+                const step = activeRouteInstructions[i];
+                const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+                const dist = userCoords.distanceTo(wp);
+
+                if (dist < 50 && lastSpokenInstructionIndex !== i) {
+                    lastSpokenInstructionIndex = i;
+                    updateTurnBanner(step);
+                    speakUltron(`In 50 meters, ${step.maneuver.instruction || 'alter course'}.`);
+                    break;
+                }
+            }
+        }
+
+        /* Simulation Mode */
+        function toggleSimulation() {
+            if (isSimulating) {
+                stopSimulation();
+            } else {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                startSimulation();
+            }
+        }
+
+        function startSimulation() {
+            if (activeRouteCoordinates.length === 0) return;
+            isSimulating = true;
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+
+            let index = 0;
+            simInterval = setInterval(() => {
+                if (index >= activeRouteCoordinates.length) {
+                    stopSimulation();
+                    speakUltron("Destination reached. Human mission complete.");
+                    return;
+                }
+                userCoords = L.latLng(activeRouteCoordinates[index]);
+                updateUserMarker(userCoords, 10);
+                map.panTo(userCoords);
+                document.getElementById('speedValue').innerText = Math.floor(Math.random() * 20 + 50);
+
+                checkManeuverProximity();
+                index += 2;
+            }, 800);
+
+            speakUltron("Simulating travel sequence.");
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            clearInterval(simInterval);
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> Simulate`;
+            document.getElementById('speedValue').innerText = '0';
+        }
+
+        function clearActiveRoute() {
+            stopNavigation();
+            stopSimulation();
+            clearPolylines();
+            if (destMarker) map.removeLayer(destMarker);
+
+            activeDestination = null;
+            routeFastestData = null;
+            routeTollFreeData = null;
+
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            document.getElementById('startNavBtn').disabled = true;
+            document.getElementById('simDriveBtn').disabled = true;
+            document.getElementById('clearBtn').style.display = 'none';
+            document.getElementById('routeMetrics').innerHTML = `<span>Tap map or search to select destination</span>`;
+        }
+    </script>
+</body>
+</html>
