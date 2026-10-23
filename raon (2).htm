@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>raon // dark vogue nav</title>
+    <title>raon // map</title>
 
-    <!-- Vogue Typography -->
+    <!-- Vogue & Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         :root {
-            /* Dark Muted Vogue Aesthetics */
-            --bg-color: #0f1115;
-            --bg-deep: #090a0d;
-            --ink: #e2e8f0;
-            --ink-soft: rgba(226, 232, 240, 0.65);
-            --ink-faint: rgba(226, 232, 240, 0.35);
+            /* Dark Vogue Aesthetics */
+            --bg-color: #0c0e12;
+            --bg-deep: #07080a;
+            --ink: #f1f5f9;
+            --ink-soft: rgba(241, 245, 249, 0.70);
+            --ink-faint: rgba(241, 245, 249, 0.40);
 
-            /* Accents */
-            --accent-white: #ffffff;
-            --accent-toll: #d97706;
-            --accent-red: #f43f5e;
+            /* Vibrant Neon Accents */
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff2a85;
+            --neon-yellow: #ffd000;
+            --neon-green: #10b981;
+            --accent-toll: #f59e0b;
 
-            /* Half See-Through / 50% Translucent Glass */
-            --glass-bg: rgba(22, 26, 33, 0.52);
-            --glass-bg-deep: rgba(15, 17, 21, 0.65);
-            --glass-card: rgba(30, 35, 45, 0.45);
-            --hairline: rgba(255, 255, 255, 0.08);
-            --hairline-strong: rgba(255, 255, 255, 0.16);
-
-            /* Route Polyline */
-            --route-main: #e2e8f0;
+            /* 50% Translucent Glass */
+            --glass-bg: rgba(18, 22, 30, 0.52);
+            --glass-bg-deep: rgba(12, 14, 18, 0.68);
+            --glass-card: rgba(28, 34, 46, 0.48);
+            --hairline: rgba(255, 255, 255, 0.10);
+            --hairline-strong: rgba(255, 255, 255, 0.22);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -50,20 +49,20 @@
 
         #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-deep); }
 
-        /* Dark Muted Map Tile Filter */
+        /* Dark Desaturated Map Tiles */
         .vogue-dark-tiles .leaflet-tile {
-            filter: brightness(0.55) contrast(1.1) saturate(0.25) invert(0.92) hue-rotate(180deg);
+            filter: brightness(0.55) contrast(1.15) saturate(0.2) invert(0.92) hue-rotate(180deg);
         }
         .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
 
-        /* 50% Translucent Frosted Glass Overlay */
+        /* Translucent Frosted Glass */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(28px) saturate(180%);
             -webkit-backdrop-filter: blur(28px) saturate(180%);
             border: 1px solid var(--hairline);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+            border-radius: 14px;
             position: relative;
         }
 
@@ -83,34 +82,40 @@
 
         .search-input-wrapper {
             flex: 1; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid transparent;
-            border-radius: 8px; padding: 10px 14px; gap: 10px;
+            border-radius: 10px; padding: 10px 14px; gap: 12px;
             transition: all 0.25s ease;
         }
         .search-input-wrapper:focus-within {
-            border-color: var(--hairline-strong);
+            border-color: var(--neon-cyan);
             background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
         }
         .search-input-wrapper input {
             background: transparent; border: none; outline: none; color: var(--ink);
             font-family: 'Inter', sans-serif;
-            font-size: 13px; width: 100%; font-weight: 400;
-            letter-spacing: 0.3px;
+            font-size: 14px; width: 100%; font-weight: 400;
         }
         .search-input-wrapper input::placeholder {
             color: var(--ink-faint); font-weight: 300;
         }
 
+        /* Neon Icons */
+        .neon-icon-cyan { color: var(--neon-cyan); filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.6)); }
+        .neon-icon-magenta { color: var(--neon-magenta); filter: drop-shadow(0 0 6px rgba(255, 42, 133, 0.6)); }
+        .neon-icon-yellow { color: var(--neon-yellow); filter: drop-shadow(0 0 6px rgba(255, 208, 0, 0.6)); }
+        .neon-icon-green { color: var(--neon-green); filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6)); }
+
         .mic-btn {
-            background: transparent; border: none; color: var(--ink-soft);
-            width: 32px; height: 32px; border-radius: 6px;
+            background: transparent; border: none; color: var(--neon-cyan);
+            width: 36px; height: 36px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px; transition: all 0.2s ease; flex-shrink: 0;
+            cursor: pointer; font-size: 16px; transition: all 0.2s ease; flex-shrink: 0;
         }
-        .mic-btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.06); }
-        .mic-btn.listening { color: var(--accent-red); animation: pulseListening 1.2s infinite; }
-        @keyframes pulseListening { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .mic-btn:hover { background: rgba(0, 240, 255, 0.1); }
+        .mic-btn.listening { color: var(--neon-magenta); animation: pulseListening 1.2s infinite; }
+        @keyframes pulseListening { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         .search-results-dropdown {
             position: absolute; top: calc(100% + 8px); left: 0; right: 0;
@@ -131,10 +136,10 @@
             border-bottom: 1px solid var(--hairline); font-weight: 400;
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover { background: rgba(255, 255, 255, 0.06); border-radius: 6px; }
+        .search-item:hover { background: rgba(255, 255, 255, 0.08); border-radius: 8px; }
 
         .shortcuts-row {
-            display: flex; gap: 6px; overflow-x: auto;
+            display: flex; gap: 8px; overflow-x: auto;
             padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
         }
         .shortcuts-row::-webkit-scrollbar { display: none; }
@@ -144,11 +149,12 @@
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--hairline); border-radius: 20px;
             padding: 8px 16px; font-family: 'Inter', sans-serif;
-            font-size: 11px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase;
+            font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
             color: var(--ink-soft); white-space: nowrap; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
         }
-        .chip-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--ink); border-color: var(--hairline-strong); }
+        .chip-btn i { font-size: 14px; }
+        .chip-btn:hover { background: rgba(255, 255, 255, 0.12); color: var(--ink); border-color: var(--hairline-strong); }
 
         .header-controls-bar {
             padding: 6px 10px; display: flex; align-items: center;
@@ -156,56 +162,59 @@
         }
 
         .mode-selector {
-            display: flex; background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px; padding: 2px; gap: 2px;
+            display: flex; background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px; padding: 2px; gap: 2px;
             border: 1px solid var(--hairline);
         }
         .mode-btn {
             background: transparent; border: none; color: var(--ink-faint);
-            padding: 6px 12px; border-radius: 6px;
+            padding: 6px 12px; border-radius: 8px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
             cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
         }
+        .mode-btn i { font-size: 13px; }
         .mode-btn.active {
             background: rgba(255, 255, 255, 0.12); color: var(--ink); font-weight: 600;
         }
 
         .toll-toggle-btn, .ultron-voice-btn {
             background: transparent; border: 1px solid var(--hairline);
-            color: var(--ink-soft); padding: 7px 14px; border-radius: 8px;
+            color: var(--ink-soft); padding: 7px 14px; border-radius: 10px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
-            letter-spacing: 0.5px; cursor: pointer;
-            display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
         }
+        .toll-toggle-btn i, .ultron-voice-btn i { font-size: 13px; }
         .toll-toggle-btn.active, .ultron-voice-btn.active {
             background: rgba(255, 255, 255, 0.12); color: var(--ink); border-color: var(--hairline-strong);
         }
 
+        /* Turn Guidance Banner */
         .turn-banner {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 148px);
             left: 14px; right: 14px; z-index: 999; padding: 16px 20px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
             backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
-            border: 1px solid var(--hairline-strong); border-radius: 12px;
+            border: 1px solid var(--hairline-strong); border-radius: 14px;
             box-shadow: 0 20px 48px rgba(0,0,0,0.5);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12); border: 1px solid var(--hairline-strong);
+            width: 48px; height: 48px; border-radius: 50%;
+            background: rgba(0, 240, 255, 0.12); border: 1px solid var(--neon-cyan);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: var(--ink); flex-shrink: 0;
+            font-size: 22px; color: var(--neon-cyan); flex-shrink: 0;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
         }
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction {
-            font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600;
+            font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600;
             color: var(--ink); line-height: 1.2;
         }
         .turn-distance {
-            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
-            letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; color: var(--neon-cyan); margin-top: 4px;
         }
 
         .speed-badge {
@@ -216,35 +225,41 @@
             letter-spacing: 1px; color: var(--ink-faint);
         }
         .speed-value {
-            font-family: 'Playfair Display', serif; font-size: 22px;
+            font-family: 'Playfair Display', serif; font-size: 24px;
             color: var(--ink); font-weight: 700;
         }
 
+        /* Large Side Control Buttons */
         .side-controls {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
-            right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
+            right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 10px;
         }
         .icon-circle-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            border: 1px solid var(--hairline); background: var(--glass-bg);
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 1px solid var(--hairline-strong); background: var(--glass-bg);
             backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-            color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px; transition: all 0.2s ease;
+            color: var(--ink); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
-        .icon-circle-btn:hover { background: rgba(255, 255, 255, 0.12); color: var(--ink); border-color: var(--hairline-strong); }
+        .icon-circle-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .icon-circle-btn.following { color: var(--neon-cyan); border-color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.3); }
 
+        /* Floating Recentre Button */
         .recenter-pill {
             position: absolute; left: 50%; transform: translateX(-50%);
             bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 1001;
-            display: none; align-items: center; gap: 8px; padding: 10px 20px;
-            background: var(--glass-bg-deep); color: var(--ink);
-            border: 1px solid var(--hairline-strong); border-radius: 30px; cursor: pointer;
-            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+            display: none; align-items: center; gap: 10px; padding: 12px 24px;
+            background: var(--glass-bg-deep); color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan); border-radius: 30px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase;
             backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); transition: all 0.2s ease;
         }
+        .recenter-pill i { font-size: 15px; }
         .recenter-pill.show { display: flex; }
+        .recenter-pill:hover { background: rgba(0, 240, 255, 0.15); }
 
         .route-selection-panel {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
@@ -256,12 +271,12 @@
 
         .route-card {
             background: var(--glass-card);
-            border: 1px solid var(--hairline); border-radius: 10px;
+            border: 1px solid var(--hairline); border-radius: 12px;
             padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.2s ease;
         }
         .route-card:hover { border-color: var(--hairline-strong); background: rgba(255, 255, 255, 0.08); }
-        .route-card.selected { border-color: var(--hairline-strong); background: rgba(255, 255, 255, 0.12); }
+        .route-card.selected { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.08); }
         .route-card-title {
             font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600;
             display: flex; align-items: center; gap: 10px; color: var(--ink);
@@ -272,8 +287,8 @@
             border-radius: 4px; border: 1px solid var(--hairline);
             color: var(--ink-soft); background: transparent;
         }
-        .badge-toll { border-color: var(--accent-toll); color: var(--accent-toll); background: rgba(217, 119, 6, 0.12); }
-        .badge-notoll { border-color: var(--hairline-strong); color: var(--ink-soft); }
+        .badge-toll { border-color: var(--accent-toll); color: var(--accent-toll); background: rgba(245, 158, 11, 0.12); }
+        .badge-notoll { border-color: var(--neon-cyan); color: var(--neon-cyan); background: rgba(0, 240, 255, 0.08); }
 
         .route-card-sub {
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400;
@@ -288,17 +303,18 @@
         .action-buttons { display: flex; gap: 8px; width: 100%; }
 
         .btn {
-            border: 1px solid var(--hairline); padding: 12px 18px; border-radius: 8px;
+            border: 1px solid var(--hairline-strong); padding: 12px 18px; border-radius: 10px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
             letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink);
             background: rgba(255, 255, 255, 0.06); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: all 0.2s ease; flex: 1;
         }
+        .btn i { font-size: 14px; }
         .btn:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--hairline-strong); }
-        .btn-primary { background: rgba(255, 255, 255, 0.18); color: var(--ink); border-color: var(--hairline-strong); }
-        .btn-primary:hover { background: rgba(255, 255, 255, 0.28); }
-        .btn-danger { background: rgba(244, 63, 94, 0.12); border-color: var(--accent-red); color: var(--accent-red); }
+        .btn-primary { background: rgba(0, 240, 255, 0.16); color: var(--neon-cyan); border-color: var(--neon-cyan); }
+        .btn-primary:hover { background: rgba(0, 240, 255, 0.28); }
+        .btn-danger { background: rgba(255, 42, 133, 0.15); border-color: var(--neon-magenta); color: var(--neon-magenta); }
 
         #routeMetrics {
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
@@ -307,22 +323,22 @@
         }
         #routeMetrics strong { color: var(--ink); font-weight: 700; }
 
-        /* Minimal Dark User Marker */
-        .user-location-marker { position: relative; width: 24px; height: 24px; }
+        /* Minimal User Marker */
+        .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
-            width: 14px; height: 14px; background: var(--ink);
-            border: 2px solid var(--bg-deep); border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-            position: absolute; top: 5px; left: 5px; z-index: 2;
+            width: 16px; height: 16px; background: var(--neon-cyan);
+            border: 3px solid var(--bg-deep); border-radius: 50%;
+            box-shadow: 0 0 16px var(--neon-cyan);
+            position: absolute; top: 6px; left: 6px; z-index: 2;
         }
-        .dest-pin-icon { font-size: 24px; color: var(--ink); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); }
+        .dest-pin-icon { font-size: 26px; color: var(--neon-magenta); filter: drop-shadow(0 0 10px var(--neon-magenta)); }
 
-        /* Toll Marker Styling */
+        /* Neon Toll Marker */
         .toll-marker-icon {
-            background: rgba(22, 26, 33, 0.85); border: 1.5px solid var(--accent-toll);
-            color: var(--accent-toll); border-radius: 50%; width: 26px; height: 26px;
-            display: flex; align-items: center; justify-content: center; font-size: 11px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); backdrop-filter: blur(12px);
+            background: rgba(12, 14, 18, 0.85); border: 1.5px solid var(--accent-toll);
+            color: var(--accent-toll); border-radius: 50%; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); backdrop-filter: blur(12px);
         }
 
         .leaflet-routing-container { display: none !important; }
@@ -344,7 +360,7 @@
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             left: 14px; right: 14px; z-index: 1100;
             display: flex; align-items: center; justify-content: space-around;
-            padding: 8px; border-radius: 12px;
+            padding: 8px; border-radius: 14px;
         }
         .tab-btn {
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -352,13 +368,13 @@
             padding: 6px 0; font-family: 'Inter', sans-serif;
             font-size: 10px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
         }
-        .tab-btn i { font-size: 15px; }
-        .tab-btn.active { color: var(--ink); font-weight: 600; }
+        .tab-btn i { font-size: 16px; }
+        .tab-btn.active { color: var(--neon-cyan); font-weight: 600; filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4)); }
 
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 3000; display: none;
-            background: rgba(15, 17, 21, 0.72);
+            background: rgba(12, 14, 18, 0.75);
             backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
             padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px calc(env(safe-area-inset-bottom, 0px) + 90px);
         }
@@ -372,15 +388,15 @@
             font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--ink);
         }
         .overlay-close {
-            width: 36px; height: 36px; border-radius: 50%; background: transparent;
+            width: 38px; height: 38px; border-radius: 50%; background: transparent;
             border: 1px solid var(--hairline); color: var(--ink);
-            font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
         .overlay-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 
         .list-card {
-            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 10px;
+            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 12px;
             padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
         }
         .list-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--ink); }
@@ -388,7 +404,7 @@
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 10px;
+            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 12px;
         }
 
         .toggle-switch {
@@ -399,8 +415,8 @@
             content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
             border-radius: 50%; background: var(--ink-soft); transition: all 0.2s ease;
         }
-        .toggle-switch.on { background: rgba(255, 255, 255, 0.25); }
-        .toggle-switch.on::after { transform: translateX(20px); background: var(--ink); }
+        .toggle-switch.on { background: rgba(0, 240, 255, 0.3); }
+        .toggle-switch.on::after { transform: translateX(20px); background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
 
         .route-loading {
             display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
@@ -408,7 +424,7 @@
         }
         .spinner {
             width: 16px; height: 16px; border: 2px solid var(--hairline);
-            border-top-color: var(--ink); border-radius: 50%; animation: spin 0.8s linear infinite;
+            border-top-color: var(--neon-cyan); border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -420,9 +436,9 @@
     <div class="top-container">
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink-faint); font-size: 13px;"></i>
+                <i class="fa-solid fa-magnifying-glass neon-icon-cyan" style="font-size: 15px;"></i>
                 <input type="text" id="searchInput" placeholder="Search destination..." oninput="handleSearchInput(this.value)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;" onclick="clearSearchInput()"></i>
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 14px;" onclick="clearSearchInput()"></i>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
@@ -431,26 +447,26 @@
         </div>
 
         <div class="shortcuts-row">
-            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> Fuel</button>
-            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> Park</button>
-            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> Cafe</button>
-            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> Dining</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home</button>
+            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump neon-icon-cyan"></i> Fuel</button>
+            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking neon-icon-green"></i> Park</button>
+            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot neon-icon-yellow"></i> Cafe</button>
+            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils neon-icon-magenta"></i> Dining</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house neon-icon-cyan"></i> Home</button>
         </div>
 
         <div class="glass-panel header-controls-bar">
             <div class="mode-selector">
-                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> <span>Drive</span></button>
-                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>Bike</span></button>
-                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
+                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car neon-icon-cyan"></i> <span>Drive</span></button>
+                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle neon-icon-green"></i> <span>Bike</span></button>
+                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking neon-icon-yellow"></i> <span>Walk</span></button>
             </div>
 
             <button class="toll-toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
-                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">Tolls</span>
+                <i class="fa-solid fa-road-barrier neon-icon-yellow"></i> <span id="tollBtnLabel">Tolls</span>
             </button>
 
             <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
-                <i class="fa-solid fa-volume-high"></i> <span>Voice</span>
+                <i class="fa-solid fa-volume-high neon-icon-cyan"></i> <span>Voice</span>
             </button>
         </div>
     </div>
@@ -469,9 +485,9 @@
     </div>
 
     <div class="side-controls">
-        <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus"></i></button>
-        <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
-        <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus neon-icon-cyan"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus neon-icon-cyan"></i></button>
+        <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs neon-icon-cyan"></i></button>
     </div>
 
     <button class="recenter-pill" id="recenterPill" onclick="recenterUser()">
@@ -496,7 +512,7 @@
                 <i class="fa-solid fa-location-arrow"></i> Start
             </button>
             <button class="btn" id="simDriveBtn" onclick="toggleSimulation()" disabled>
-                <i class="fa-solid fa-play"></i> Sim
+                <i class="fa-solid fa-play neon-icon-yellow"></i> Sim
             </button>
             <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none; flex: 0.4;">
                 <i class="fa-solid fa-xmark"></i>
@@ -602,21 +618,28 @@
 
         function initMap() {
             map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.5 }).setView(DEFAULT_LOCATION, 15);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
             map.on('click', (e) => {
                 if (!userCoords) requestLocationWithSafariFallback();
                 setDestination(e.latlng);
             });
 
+            // Pause auto-tracking on manual drag/pan
             map.on('dragstart', () => {
                 isTrackingCamera = false;
                 updateRecenterUI();
                 if (isNavigating) {
                     clearTimeout(autoRecenterTimer);
-                    autoRecenterTimer = setTimeout(() => { if (isNavigating) recenterUser(); }, 10000);
+                    autoRecenterTimer = setTimeout(() => { if (isNavigating) recenterUser(); }, 12000);
+                }
+            });
+
+            // Pause auto-tracking when pinch-zooming manually
+            map.on('zoomstart', (e) => {
+                if (e.originalEvent) {
+                    isTrackingCamera = false;
+                    updateRecenterUI();
                 }
             });
         }
@@ -705,22 +728,25 @@
                 const icon = L.divIcon({
                     className: 'user-location-marker',
                     html: `<div class="user-dot"></div>`,
-                    iconSize: [24, 24], iconAnchor: [12, 12]
+                    iconSize: [28, 28], iconAnchor: [14, 14]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#e2e8f0', fillColor: '#e2e8f0', fillOpacity: 0.05, weight: 1 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.05, weight: 1 }).addTo(map);
             }
         }
 
         function recenterUser() {
             isTrackingCamera = true;
+            clearTimeout(autoRecenterTimer);
             if (userCoords) map.flyTo(userCoords, 16, { animate: true });
             updateRecenterUI();
         }
 
         function updateRecenterUI() {
             const pill = document.getElementById('recenterPill');
-            if (pill) pill.classList.toggle('show', isNavigating && !isTrackingCamera);
+            const btn = document.getElementById('recenterBtn');
+            if (pill) pill.classList.toggle('show', !isTrackingCamera);
+            if (btn) btn.classList.toggle('following', isTrackingCamera);
         }
 
         function zoomBy(delta) {
@@ -753,7 +779,7 @@
             results.forEach(res => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--ink-soft)"></i> <span>${res.display_name}</span>`;
+                item.innerHTML = `<i class="fa-solid fa-location-dot neon-icon-cyan"></i> <span>${res.display_name}</span>`;
                 item.onclick = () => {
                     const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
                     const name = res.display_name.split(',')[0];
@@ -785,7 +811,7 @@
             const pinIcon = L.divIcon({
                 className: 'dest-pin',
                 html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
-                iconSize: [24, 24], iconAnchor: [12, 24]
+                iconSize: [26, 26], iconAnchor: [13, 26]
             });
             destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
             calculateRoutes(label);
@@ -864,7 +890,7 @@
                         </div>
                         <div class="route-card-sub">${mins} min · ${km} km</div>
                     </div>
-                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" style="font-size:12px;"></i>
+                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check neon-icon-cyan' : 'fa-circle'}" style="font-size:14px;"></i>
                 `;
                 container.appendChild(card);
             });
@@ -883,7 +909,7 @@
             activeRouteInstructions = routeData.legs[0].steps;
 
             const mainPolyline = L.polyline(activeRouteCoordinates, {
-                color: '#e2e8f0', weight: 5, opacity: 0.85
+                color: '#00f0ff', weight: 6, opacity: 0.85
             }).addTo(map);
             currentRoutePolylines.push(mainPolyline);
 
@@ -892,7 +918,7 @@
                     const icon = L.divIcon({
                         className: 'toll-marker-wrapper',
                         html: `<div class="toll-marker-icon" title="Toll Booth: ${toll.name}"><i class="fa-solid fa-road-barrier"></i></div>`,
-                        iconSize: [26, 26], iconAnchor: [13, 13]
+                        iconSize: [28, 28], iconAnchor: [14, 14]
                     });
                     const marker = L.marker(toll.coords, { icon }).addTo(map)
                         .bindPopup(`<b>Toll Plaza</b><br>${toll.name}`);
@@ -905,8 +931,8 @@
             const mins = Math.round(routeData.duration / 60);
             const km = (routeData.distance / 1000).toFixed(1);
             const tollText = routeData.hasToll
-                ? `<span style="color:var(--accent-toll);"><i class="fa-solid fa-road-barrier"></i> ${routeData.tollPoints.length} Toll Gate(s) on route</span>`
-                : `<span style="color:var(--ink);"><i class="fa-solid fa-check"></i> Toll-Free Route</span>`;
+                ? `<span style="color:var(--accent-toll);"><i class="fa-solid fa-road-barrier"></i> ${routeData.tollPoints.length} Toll Gate(s)</span>`
+                : `<span style="color:var(--neon-cyan);"><i class="fa-solid fa-check"></i> Toll-Free</span>`;
 
             document.getElementById('routeMetrics').innerHTML = `
                 <span><strong>ETA</strong> ${mins} mins &nbsp; <strong>Distance</strong> ${km} km</span>
@@ -980,6 +1006,7 @@
             document.getElementById('startNavBtn').className = "btn btn-primary";
             document.getElementById('turnBanner').classList.remove('active');
             synth.cancel();
+            updateRecenterUI();
         }
 
         function checkManeuverProximity() {
@@ -1026,6 +1053,7 @@
             isSimulating = false;
             isNavigating = false;
             clearInterval(simInterval);
+            updateRecenterUI();
         }
 
         function clearActiveRoute() {
