@@ -5,46 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>raon map</title>
 
-    <!-- Google Fonts: Cormorant Garamond, Inter, Orbitron -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
-    <!-- Leaflet & Font Awesome Icons -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            /* Midway Luxury "Coquette Glassmorphism" Color Palette */
             --bg-deep: #140d18;
             --bg-mid: #1c1322;
             --ink-primary: #f8f2f6;
             --ink-soft: rgba(248, 242, 246, 0.82);
             --ink-faint: rgba(220, 200, 215, 0.52);
 
-            /* Coquette Rose Gold & Champagne Accents */
             --rose-accent: #e5b3c3;
             --rose-accent-soft: rgba(229, 179, 195, 0.16);
             --gold-accent: #d8b280;
             --gold-soft: rgba(216, 178, 128, 0.15);
 
-            /* Villain / Mandroid Crimson-Rose Accent */
             --evil-crimson: #e04a68;
             --evil-crimson-soft: rgba(224, 74, 104, 0.22);
 
-            /* Frosted Coquette Glass Borders & Panels */
             --glass-bg: rgba(28, 20, 32, 0.55);
             --glass-bg-deep: rgba(22, 15, 26, 0.82);
             --hairline-rose: rgba(240, 205, 215, 0.28);
             --hairline-strong: rgba(255, 225, 235, 0.45);
             --inner-glow: inset 0 1px 1px rgba(255, 235, 242, 0.25);
 
-            /* Muted Traffic Palette */
-            --traffic-clear: #bfa5d8;     /* Soft Muted Lavender */
-            --traffic-moderate: #d8b280;  /* Warm Champagne Gold */
-            --traffic-jammed: #a83852;    /* Deep Burgundy Rose */
+            --traffic-clear: #bfa5d8;
+            --traffic-moderate: #d8b280;
+            --traffic-jammed: #a83852;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -61,14 +54,12 @@
             background: #18121d;
         }
 
-        /* Midway Mauve-Plum Filtered Map Tiles */
         .leaflet-tile {
             filter: brightness(0.68) contrast(1.18) hue-rotate(240deg) saturate(0.52) sepia(0.22) !important;
             transition: filter 0.5s ease;
         }
         .leaflet-container { background: #18121d !important; font-family: inherit; }
 
-        /* Coquette Glassmorphism Glass Panel */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(28px) saturate(180%);
@@ -83,7 +74,6 @@
             overflow: hidden;
         }
 
-        /* Subtle Coquette Lace Watermark Overlay */
         .glass-panel::before {
             content: '';
             position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
@@ -148,10 +138,10 @@
             100% { box-shadow: 0 0 0 10px rgba(224, 74, 104, 0); }
         }
 
-        /* Search Results Dropdown Suggestions */
+        /* ===== Search Suggestions Dropdown ===== */
         .search-results-dropdown {
             position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-            max-height: 310px; overflow-y: auto;
+            max-height: 340px; overflow-y: auto;
             display: none; flex-direction: column; z-index: 4000; padding: 6px;
             background: rgba(24, 17, 28, 0.92);
             backdrop-filter: blur(35px) saturate(180%);
@@ -165,17 +155,50 @@
         .search-item {
             padding: 12px 14px; cursor: pointer; font-size: 13px;
             display: flex; align-items: center; gap: 12px;
-            transition: all 0.2s ease; color: var(--ink-soft);
+            transition: all 0.15s ease; color: var(--ink-soft);
             border-bottom: 1px solid rgba(229,179,195,0.08);
             border-radius: 12px;
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item:active { background: var(--rose-accent-soft); color: var(--ink-primary); }
-        .search-item i { color: var(--rose-accent); font-size: 14px; }
-        .search-item-text { display: flex; flex-direction: column; gap: 2px; }
-        .search-item-main { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 16px; color: var(--ink-primary); }
-        .search-item-sub { font-size: 11px; color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+        .search-item:hover, .search-item:active,
+        .search-item.highlighted { background: var(--rose-accent-soft); color: var(--ink-primary); }
+        .search-item i { color: var(--rose-accent); font-size: 14px; flex-shrink: 0; }
+        .search-item-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+        .search-item-main {
+            font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 16px;
+            color: var(--ink-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-item-main mark {
+            background: transparent;
+            color: var(--rose-accent);
+            font-weight: 700;
+        }
+        .search-item-sub {
+            font-size: 11px; color: var(--ink-faint);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+        }
 
+        /* Loading + empty states inside dropdown */
+        .search-loading, .search-empty {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--rose-accent);
+            border-radius: 12px;
+        }
+        .search-spinner {
+            width: 14px; height: 14px;
+            border: 2px solid var(--hairline-strong);
+            border-top-color: var(--rose-accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== Shortcuts ===== */
         .shortcuts-row {
             display: flex; gap: 6px; overflow-x: auto;
             padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
@@ -246,7 +269,6 @@
             100% { box-shadow: 0 0 0 10px rgba(224,74,104,0); }
         }
 
-        /* Banner & Speedometer Controls */
         .turn-banner {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 158px);
             left: 12px; right: 12px; z-index: 999; padding: 14px 18px;
@@ -306,7 +328,6 @@
             box-shadow: 0 0 18px rgba(229,179,195,0.35);
         }
 
-        /* Route Selection Panel */
         .route-selection-panel {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
             left: 12px; right: 12px; z-index: 1000; padding: 12px;
@@ -346,7 +367,6 @@
         .route-card i { color: var(--ink-faint); font-size: 13px; }
         .route-card.selected i { color: var(--rose-accent); }
 
-        /* Bottom Console & Actions */
         .bottom-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
             left: 12px; right: 12px; z-index: 1000; padding: 12px 16px;
@@ -376,7 +396,6 @@
         }
         #routeMetrics strong { color: var(--rose-accent); font-weight: 700; }
 
-        /* Custom Markers */
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
             width: 14px; height: 14px; background: var(--evil-crimson);
@@ -414,7 +433,6 @@
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
-        /* Navigation Tab Bar */
         .tab-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             left: 12px; right: 12px; z-index: 1100;
@@ -432,7 +450,6 @@
         .tab-btn.active { color: var(--rose-accent); font-weight: 700; }
         .tab-btn.active i { filter: drop-shadow(0 2px 6px rgba(229,179,195,0.6)); }
 
-        /* Overlay Drawer Panels */
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 3000; display: none; background: rgba(20, 13, 24, 0.94);
@@ -528,7 +545,6 @@
             width: 16px; height: 16px; border: 2px solid var(--hairline-strong);
             border-top-color: var(--rose-accent); border-radius: 50%; animation: spin 0.9s linear infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 480px) {
             .mode-btn span { display: none; }
@@ -541,13 +557,20 @@
 
     <div id="toast" class="toast-msg">Mandroid Matrix Engaged</div>
 
-    <!-- Top Navigation & Search Container -->
     <div class="top-container">
-        <div class="glass-panel search-box-panel">
+        <div class="glass-panel search-box-panel" id="searchBoxPanel">
             <div class="search-input-wrapper">
                 <i class="fa-solid fa-magnifying-glass" style="color: var(--rose-accent); font-size: 13px;"></i>
-                <input type="text" id="searchInput" placeholder="Search destination or address..." oninput="handleSearchInput(this.value)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;" onclick="clearSearchInput()"></i>
+                <input type="text"
+                       id="searchInput"
+                       placeholder="Search destination or address..."
+                       autocomplete="off"
+                       oninput="handleSearchInput(this.value)"
+                       onfocus="handleSearchInput(this.value)"
+                       onkeydown="handleSearchKeydown(event)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn"
+                   style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;"
+                   onclick="clearSearchInput()"></i>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
@@ -580,7 +603,6 @@
         </div>
     </div>
 
-    <!-- Turn-by-Turn Instruction Banner -->
     <div class="turn-banner" id="turnBanner">
         <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
         <div class="turn-details">
@@ -589,19 +611,16 @@
         </div>
     </div>
 
-    <!-- Speed Badge -->
     <div class="speed-badge glass-panel">
         <i class="fa-solid fa-bolt"></i>
         <span class="speed-value" id="speedValue">0</span>
         <span>KM/H</span>
     </div>
 
-    <!-- Side Map Floating Controls -->
     <div class="side-controls">
         <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
 
-    <!-- Route Selection Options Overlay -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
         <div style="font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--rose-accent); padding: 2px 4px 6px;">
             Calculated Trajectories
@@ -609,10 +628,8 @@
         <div id="routeCardsContainer"></div>
     </div>
 
-    <!-- Leaflet Map Element -->
     <div id="map"></div>
 
-    <!-- Bottom Action Console Bar -->
     <div class="bottom-bar glass-panel">
         <div id="routeMetrics">
             <span>Designate destination...</span>
@@ -630,7 +647,6 @@
         </div>
     </div>
 
-    <!-- Tab Bar -->
     <div class="tab-bar glass-panel">
         <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
             <i class="fa-solid fa-map"></i><span>Map</span>
@@ -646,7 +662,6 @@
         </button>
     </div>
 
-    <!-- Overlay Panels -->
     <div class="overlay-panel" id="panel-recents">
         <div class="overlay-header">
             <div class="overlay-title">Recents</div>
@@ -723,6 +738,11 @@
         let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
         let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
 
+        /* Search suggestion state */
+        let currentSuggestions = [];
+        let highlightedSuggestionIndex = -1;
+        let activeSearchController = null; // abort previous request
+
         const DEFAULT_LOCATION = [1.4927, 103.7414];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -732,9 +752,9 @@
             updateHomeSubLabel();
 
             document.addEventListener('click', (e) => {
-                const searchBox = document.querySelector('.search-box-panel');
+                const searchBox = document.getElementById('searchBoxPanel');
                 if (searchBox && !searchBox.contains(e.target)) {
-                    document.getElementById('searchResults').classList.remove('active');
+                    closeSuggestions();
                 }
             });
         });
@@ -768,7 +788,6 @@
             } catch(e) {}
         }
 
-        /* Metallic Dark Synth Pulse Effect */
         function playUltronMetallicPulse() {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -802,7 +821,6 @@
             } catch(e) {}
         }
 
-        /* Mandroid Speech Matrix */
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
@@ -916,75 +934,225 @@
             }
         }
 
+        /* =====================================================
+           LIVE SEARCH SUGGESTIONS
+           ===================================================== */
+
         function handleSearchInput(query) {
             const clearBtn = document.getElementById('searchClearBtn');
             clearBtn.style.display = query ? 'block' : 'none';
+
             clearTimeout(debounceTimer);
 
+            // If query is too short, close dropdown immediately
             if (!query || query.trim().length < 2) {
-                document.getElementById('searchResults').classList.remove('active');
+                closeSuggestions();
                 return;
             }
 
+            // Show loading immediately so user sees it reacting
+            showSearchLoading();
+
             debounceTimer = setTimeout(() => {
+                fetchSuggestions(query.trim());
+            }, 150);
+        }
+
+        function showSearchLoading() {
+            const dropdown = document.getElementById('searchResults');
+            dropdown.innerHTML = `
+                <div class="search-loading">
+                    <div class="search-spinner"></div>
+                    Scanning coordinates
+                </div>
+            `;
+            dropdown.classList.add('active');
+        }
+
+        async function fetchSuggestions(query) {
+            // Abort previous request if still running
+            if (activeSearchController) activeSearchController.abort();
+            activeSearchController = new AbortController();
+
+            try {
+                // Primary search — biased to user's area
                 let url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=6`;
                 if (userCoords) {
                     const lat = userCoords.lat, lng = userCoords.lng;
-                    const viewbox = `${lng-0.5},${lat+0.5},${lng+0.5},${lat-0.5}`;
-                    url += `&viewbox=${viewbox}`;
+                    const viewbox = `${lng-0.3},${lat+0.3},${lng+0.3},${lat-0.3}`;
+                    url += `&viewbox=${viewbox}&bounded=0`;
                 }
 
-                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
-            }, 250);
+                let response = await fetch(url, {
+                    signal: activeSearchController.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+                let data = await response.json();
+
+                // Fallback: global search if local bias returned nothing
+                if (!data || data.length === 0) {
+                    const fallbackUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=6`;
+                    const fallbackResp = await fetch(fallbackUrl, {
+                        signal: activeSearchController.signal,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    data = await fallbackResp.json();
+                }
+
+                renderSearchResults(data || [], query);
+            } catch (err) {
+                if (err.name === 'AbortError') return; // expected
+                renderSearchResults([], query);
+            }
         }
 
-        function renderSearchResults(results) {
+        function renderSearchResults(results, query = '') {
             const dropdown = document.getElementById('searchResults');
             dropdown.innerHTML = '';
+            currentSuggestions = [];
+            highlightedSuggestionIndex = -1;
 
             if (!results || results.length === 0) {
-                dropdown.classList.remove('active');
+                dropdown.innerHTML = `
+                    <div class="search-empty">
+                        <i class="fa-solid fa-radar" style="opacity:0.6;"></i>
+                        No targets located
+                    </div>
+                `;
+                dropdown.classList.add('active');
                 return;
             }
 
-            results.forEach(res => {
+            results.forEach((res, index) => {
                 const nameParts = res.display_name.split(',');
                 const mainName = nameParts[0].trim();
                 const subName = nameParts.slice(1).join(',').trim();
 
                 const item = document.createElement('div');
                 item.className = 'search-item';
+                item.dataset.index = index;
                 item.innerHTML = `
                     <i class="fa-solid fa-location-dot"></i>
                     <div class="search-item-text">
-                        <span class="search-item-main">${mainName}</span>
+                        <span class="search-item-main">${highlightMatch(mainName, query)}</span>
                         <span class="search-item-sub">${subName || 'Target Sector'}</span>
                     </div>
                 `;
                 item.onclick = (e) => {
                     e.stopPropagation();
-                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
-                    setDestination(latLng, mainName);
-                    dropdown.classList.remove('active');
-                    document.getElementById('searchInput').value = mainName;
-                    addRecent({ name: mainName, lat: latLng.lat, lng: latLng.lng });
+                    selectSuggestion(res, mainName);
+                };
+                item.onmouseenter = () => {
+                    highlightedSuggestionIndex = index;
+                    updateHighlight();
                 };
                 dropdown.appendChild(item);
+
+                currentSuggestions.push({ data: res, name: mainName });
             });
+
             dropdown.classList.add('active');
         }
 
+        function highlightMatch(text, query) {
+            if (!query) return escapeHtml(text);
+            const safeText = escapeHtml(text);
+            const safeQuery = escapeHtml(query);
+            // Case-insensitive highlight of the first match
+            const regex = new RegExp(`(${safeQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i');
+            return safeText.replace(regex, '<mark>$1</mark>');
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function selectSuggestion(res, mainName) {
+            const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+            setDestination(latLng, mainName);
+            closeSuggestions();
+            document.getElementById('searchInput').value = mainName;
+            document.getElementById('searchClearBtn').style.display = 'block';
+            addRecent({ name: mainName, lat: latLng.lat, lng: latLng.lng });
+        }
+
+        function closeSuggestions() {
+            document.getElementById('searchResults').classList.remove('active');
+            currentSuggestions = [];
+            highlightedSuggestionIndex = -1;
+            if (activeSearchController) {
+                activeSearchController.abort();
+                activeSearchController = null;
+            }
+        }
+
+        function updateHighlight() {
+            const items = document.querySelectorAll('#searchResults .search-item');
+            items.forEach((el, i) => {
+                el.classList.toggle('highlighted', i === highlightedSuggestionIndex);
+            });
+        }
+
+        function handleSearchKeydown(event) {
+            const dropdown = document.getElementById('searchResults');
+            if (!dropdown.classList.contains('active') || currentSuggestions.length === 0) {
+                if (event.key === 'Enter') {
+                    // If no suggestions but user presses enter, do a direct search
+                    const query = document.getElementById('searchInput').value.trim();
+                    if (query.length >= 2) fetchSuggestions(query);
+                }
+                return;
+            }
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                highlightedSuggestionIndex = Math.min(highlightedSuggestionIndex + 1, currentSuggestions.length - 1);
+                updateHighlight();
+                scrollHighlightedIntoView();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                highlightedSuggestionIndex = Math.max(highlightedSuggestionIndex - 1, 0);
+                updateHighlight();
+                scrollHighlightedIntoView();
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                if (highlightedSuggestionIndex >= 0 && currentSuggestions[highlightedSuggestionIndex]) {
+                    const s = currentSuggestions[highlightedSuggestionIndex];
+                    selectSuggestion(s.data, s.name);
+                }
+            } else if (event.key === 'Escape') {
+                closeSuggestions();
+            }
+        }
+
+        function scrollHighlightedIntoView() {
+            const items = document.querySelectorAll('#searchResults .search-item');
+            if (items[highlightedSuggestionIndex]) {
+                items[highlightedSuggestionIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
         function searchCategory(cat) {
-            if (!userCoords) return;
             document.getElementById('searchInput').value = cat;
-            handleSearchInput(`${cat}`);
+            document.getElementById('searchClearBtn').style.display = 'block';
+            // Trigger the normal input handler
+            handleSearchInput(cat);
         }
 
         function clearSearchInput() {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchClearBtn').style.display = 'none';
-            document.getElementById('searchResults').classList.remove('active');
+            closeSuggestions();
         }
+
+        /* =====================================================
+           ROUTING / MAP / NAV (unchanged from your original)
+           ===================================================== */
 
         function setDestination(latLng, label = "Target Sector") {
             activeDestination = latLng;
@@ -1396,6 +1564,7 @@
             recognition.onresult = (e) => {
                 const text = e.results[0][0].transcript;
                 document.getElementById('searchInput').value = text;
+                document.getElementById('searchClearBtn').style.display = 'block';
                 handleSearchInput(text);
                 micBtn.classList.remove('listening');
             };
