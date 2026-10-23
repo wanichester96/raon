@@ -1,1615 +1,693 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>raon // nav</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAON Navigation - Steampunk Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brass: '#d4af37',
+                        copper: '#b87333',
+                        bronze: '#cd7f32',
+                        amber: '#ffbf00',
+                        crimson: '#990000',
+                        mahogany: '#2c160b',
+                        obsidian: '#120a06',
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        elite: ['Special Elite', 'cursive'],
+                        mono: ['Courier Prime', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            /* Hyper-Glass & Deep Cyberpunk Palette */
-            --bg-color: #05020c;
-            --bg-deep: #020106;
-            --ink: #f0f7ff;
-            --ink-soft: rgba(240, 247, 255, 0.72);
-            --ink-faint: rgba(240, 247, 255, 0.38);
-
-            /* Iridescent Neon Accents */
-            --magenta: #ff2a85;
-            --magenta-soft: rgba(255, 42, 133, 0.18);
-            --magenta-glow: rgba(255, 42, 133, 0.55);
-            --cyan: #00f5ff;
-            --cyan-soft: rgba(0, 245, 255, 0.16);
-            --cyan-glow: rgba(0, 245, 255, 0.5);
-            --yellow: #ffd60a;
-            --yellow-soft: rgba(255, 214, 10, 0.16);
-            --purple: #b833ff;
-            --purple-soft: rgba(184, 51, 255, 0.18);
-
-            /* Liquid Hyper-Glass Tokens */
-            --glass-bg: rgba(12, 6, 24, 0.55);
-            --glass-bg-deep: rgba(8, 4, 18, 0.82);
-            --glass-border: rgba(0, 245, 255, 0.24);
-            --glass-border-magenta: rgba(255, 42, 133, 0.35);
-            --glass-highlight: rgba(255, 255, 255, 0.08);
-            --shadow-hyper: 0 30px 90px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 245, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        body {
+            background-color: #0b0604;
+            color: #d4af37;
+            font-family: 'Courier Prime', monospace;
+            overflow-x: hidden;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        html, body {
-            height: 100%; width: 100%; overflow: hidden;
-            background: var(--bg-color);
-            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--ink);
-            position: relative;
+        /* Steampunk Glassmorphism */
+        .steampunk-glass {
+            background: rgba(28, 14, 8, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(184, 115, 51, 0.15);
         }
-
-        /* Subtle cyber scanlines */
-        body::after {
-            content: '';
-            position: fixed; inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 245, 255, 0.015) 0px,
-                rgba(0, 245, 255, 0.015) 1px,
-                transparent 1px,
-                transparent 4px
-            );
-            pointer-events: none; z-index: 9999;
-            mix-blend-mode: screen;
+        .steampunk-card {
+            background: linear-gradient(135deg, rgba(44, 22, 11, 0.9) 0%, rgba(18, 10, 6, 0.95) 100%);
+            border: 1px solid #b87333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(212, 175, 55, 0.1);
         }
-
-        /* Ambient Iridescent Gradient Mesh */
-        body::before {
-            content: '';
-            position: fixed; inset: -30%;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(255, 42, 133, 0.15) 0%, transparent 45%),
-                radial-gradient(circle at 85% 80%, rgba(0, 245, 255, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(184, 51, 255, 0.08) 0%, transparent 60%);
-            pointer-events: none; z-index: 0;
-            animation: ambientDrift 16s ease-in-out infinite alternate;
+        .steampunk-btn {
+            background: linear-gradient(to bottom, #d4af37 0%, #b87333 50%, #8c5825 100%);
+            color: #120a06;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            border: 1px solid #ffbf00;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+            transition: all 0.2s ease;
         }
-        @keyframes ambientDrift {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.08) translate(-2%, 2%); }
-        }
-
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-deep); }
-
-        /* Sophisticated dark tactical map filter */
-        .dark-tiles .leaflet-tile {
-            filter: brightness(0.5) contrast(1.3) saturate(0.3) hue-rotate(210deg) invert(0.92);
-        }
-        .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
-
-        /* Liquid Hyper-Glass Panel */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(36px) saturate(200%);
-            -webkit-backdrop-filter: blur(36px) saturate(200%);
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-hyper);
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Specular light highlight on glass */
-        .glass-panel::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
-            pointer-events: none;
-        }
-
-        .top-container {
-            position: absolute;
-            top: calc(env(safe-area-inset-top, 0px) + 14px);
-            left: 14px; right: 14px;
-            z-index: 2000;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-
-        .search-box-panel {
-            padding: 8px;
-            display: flex; align-items: center; gap: 10px;
-            position: relative; z-index: 2500;
-        }
-
-        .search-input-wrapper {
-            flex: 1; display: flex; align-items: center;
-            background: rgba(0, 245, 255, 0.04);
-            border: 1px solid rgba(0, 245, 255, 0.12);
-            border-radius: 8px; padding: 10px 14px; gap: 12px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .search-input-wrapper:focus-within {
-            border-color: var(--cyan);
-            background: rgba(0, 245, 255, 0.08);
-            box-shadow: 0 0 20px rgba(0, 245, 255, 0.25), inset 0 0 10px rgba(0, 245, 255, 0.1);
-        }
-        .search-input-wrapper input {
-            background: transparent; border: none; outline: none; color: var(--ink);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px; width: 100%; font-weight: 400;
-            letter-spacing: 0.8px;
-        }
-        .search-input-wrapper input::placeholder {
-            color: var(--ink-faint); letter-spacing: 1.5px;
-        }
-
-        .mic-btn {
-            background: rgba(0, 245, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--cyan);
-            width: 36px; height: 36px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px; transition: all 0.3s ease; flex-shrink: 0;
-        }
-        .mic-btn:hover {
-            border-color: var(--cyan); color: var(--ink); background: var(--cyan-soft);
-            box-shadow: 0 0 16px var(--cyan-glow);
-        }
-        .mic-btn.listening {
-            background: var(--magenta-soft); color: var(--magenta); border-color: var(--magenta);
-            animation: micPulse 1s infinite alternate;
-        }
-        @keyframes micPulse {
-            0% { box-shadow: 0 0 0 0 var(--magenta-glow); }
-            100% { box-shadow: 0 0 0 10px transparent; }
-        }
-
-        .search-results-dropdown {
-            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-            max-height: 300px; overflow-y: auto;
-            display: none; flex-direction: column; z-index: 4000; padding: 6px;
-            background: var(--glass-bg-deep);
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid var(--cyan);
-            box-shadow: 0 0 35px rgba(0, 245, 255, 0.35), 0 30px 90px rgba(0,0,0,0.95);
-            border-radius: 10px;
-        }
-        .search-results-dropdown.active { display: flex; }
-
-        .search-item {
-            padding: 12px 16px; cursor: pointer; font-size: 14px;
-            display: flex; align-items: center; gap: 12px;
-            transition: all 0.2s ease; color: var(--ink-soft);
-            border-bottom: 1px solid rgba(0, 245, 255, 0.06);
-            border-radius: 6px;
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item:active {
-            background: var(--cyan-soft); color: var(--ink);
-            border-left: 3px solid var(--cyan);
-            padding-left: 18px;
-        }
-        .search-item i { color: var(--cyan); }
-
-        .shortcuts-row {
-            display: flex; gap: 8px; overflow-x: auto;
-            padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
-        }
-        .shortcuts-row::-webkit-scrollbar { display: none; }
-
-        .chip-btn {
-            background: var(--glass-bg);
-            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 9px 16px; font-family: 'Rajdhani', sans-serif;
-            font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-            color: var(--ink-soft); white-space: nowrap; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: all 0.25s ease;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        }
-        .chip-btn:hover, .chip-btn:active {
-            background: var(--cyan-soft);
-            border-color: var(--cyan);
-            color: var(--ink);
-            transform: translateY(-1px);
-            box-shadow: 0 0 20px var(--cyan-glow);
-        }
-        .chip-btn i { color: var(--cyan); }
-
-        .header-controls-bar {
-            padding: 8px; display: flex; align-items: center;
-            justify-content: space-between; gap: 8px; z-index: 1000;
-            border-radius: 12px;
-        }
-
-        .mode-selector {
-            display: flex; background: rgba(0, 245, 255, 0.04);
-            border: 1px solid var(--glass-border); border-radius: 8px; padding: 3px; gap: 3px;
-        }
-        .mode-btn {
-            background: transparent; border: none; color: var(--ink-faint);
-            padding: 7px 12px; border-radius: 6px;
-            font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
-            transition: all 0.25s ease; display: flex; align-items: center; gap: 6px;
-        }
-        .mode-btn.active {
-            background: var(--magenta-soft);
-            color: var(--magenta);
-            box-shadow: inset 0 0 0 1px var(--magenta), 0 0 15px var(--magenta-glow);
-        }
-
-        .toll-toggle-btn {
-            background: transparent; border: 1px solid var(--glass-border);
-            color: var(--ink-soft); padding: 9px 16px; border-radius: 8px;
-            font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
-            display: flex; align-items: center; gap: 7px; transition: all 0.25s ease;
-        }
-        .toll-toggle-btn:hover { border-color: var(--cyan); color: var(--ink); background: rgba(0,245,255,0.04); }
-        .toll-toggle-btn.active {
-            background: var(--cyan-soft);
-            color: var(--cyan);
-            border-color: var(--cyan);
-            box-shadow: 0 0 18px var(--cyan-glow);
-        }
-
-        .ultron-voice-btn {
-            background: transparent; border: 1px solid var(--glass-border);
-            color: var(--ink-soft); padding: 9px 16px; border-radius: 8px;
-            font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
-            display: flex; align-items: center; gap: 7px; transition: all 0.25s ease; position: relative;
-        }
-        .ultron-voice-btn.active {
-            background: var(--magenta-soft);
-            color: var(--magenta);
-            border-color: var(--magenta);
-            box-shadow: 0 0 18px var(--magenta-glow);
-        }
-        .ultron-voice-btn.speaking { animation: voicePulse 0.7s infinite alternate; }
-        @keyframes voicePulse {
-            0% { box-shadow: 0 0 0 0 var(--magenta-glow); }
-            100% { box-shadow: 0 0 20px var(--magenta-glow); }
-        }
-
-        .turn-banner {
-            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 160px);
-            left: 14px; right: 14px; z-index: 999; padding: 16px 20px;
-            display: none; align-items: center; gap: 16px;
-            background: var(--glass-bg-deep);
-            backdrop-filter: blur(45px) saturate(200%); -webkit-backdrop-filter: blur(45px) saturate(200%);
-            border: 1px solid var(--magenta); border-radius: 12px;
-            box-shadow: 0 0 40px var(--magenta-glow), 0 30px 90px rgba(0,0,0,0.9);
-            animation: bannerSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes bannerSlideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .turn-banner.active { display: flex; }
-
-        .turn-icon-box {
-            width: 48px; height: 48px; border-radius: 10px;
-            background: var(--magenta-soft); border: 1px solid var(--magenta);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: var(--magenta); flex-shrink: 0;
-            box-shadow: 0 0 20px var(--magenta-glow);
-        }
-        .turn-details { flex: 1; min-width: 0; }
-        .turn-instruction {
-            font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700;
-            color: var(--ink); letter-spacing: 0.5px; line-height: 1.35;
-            text-transform: uppercase;
-        }
-        .turn-distance {
-            font-family: 'Share Tech Mono', monospace; font-size: 10px; font-weight: 400;
-            letter-spacing: 1.8px; text-transform: uppercase; color: var(--cyan); margin-top: 5px;
-        }
-
-        .speed-badge {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 245px);
-            left: 14px; z-index: 999; padding: 12px 18px;
-            display: flex; align-items: center; gap: 12px; border-radius: 12px;
-            font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 400;
-            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
-        }
-        .speed-value {
-            font-family: 'Orbitron', sans-serif; font-size: 24px;
-            color: var(--cyan); letter-spacing: 0px; font-weight: 700;
-            text-shadow: 0 0 16px var(--cyan-glow);
-        }
-        .speed-badge i { color: var(--magenta); font-size: 14px; }
-
-        .side-controls {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 245px);
-            right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 10px;
-        }
-        .icon-circle-btn {
-            width: 44px; height: 44px; border-radius: 12px;
-            border: 1px solid var(--glass-border); background: var(--glass-bg);
-            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-            color: var(--cyan); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 14px; transition: all 0.25s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .icon-circle-btn:hover {
-            background: var(--cyan-soft); border-color: var(--cyan); color: var(--ink);
-            box-shadow: 0 0 22px var(--cyan-glow);
-            transform: scale(1.05);
-        }
-
-        .recenter-pill {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 165px); z-index: 1001;
-            display: none; align-items: center; gap: 8px; padding: 11px 20px;
-            background: var(--glass-bg-deep); color: var(--cyan);
-            border: 1px solid var(--cyan); border-radius: 30px; cursor: pointer;
-            font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase;
-            box-shadow: 0 0 25px var(--cyan-glow), 0 20px 50px rgba(0,0,0,0.8);
-            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            transition: all 0.25s ease;
-        }
-        .recenter-pill.show { display: flex; }
-        .recenter-pill:hover { background: var(--cyan-soft); box-shadow: 0 0 35px var(--cyan-glow); }
-        .icon-circle-btn.following { color: var(--magenta); border-color: var(--magenta); box-shadow: 0 0 18px var(--magenta-glow); }
-
-        .route-selection-panel {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 155px);
-            left: 14px; right: 14px; z-index: 1000; padding: 12px;
-            display: none; flex-direction: column; gap: 8px;
-            max-height: 40vh; overflow-y: auto; border-radius: 16px;
-        }
-        .route-selection-panel.active { display: flex; }
-
-        .route-card {
-            background: rgba(14, 6, 28, 0.65);
-            border: 1px solid var(--glass-border); border-radius: 10px;
-            padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: all 0.25s ease; gap: 14px;
-        }
-        .route-card:hover {
-            border-color: var(--cyan);
-            background: var(--cyan-soft);
-            box-shadow: 0 0 22px var(--cyan-glow);
+        .steampunk-btn:hover {
+            background: linear-gradient(to bottom, #ffbf00 0%, #d4af37 50%, #b87333 100%);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255,255,255,0.6);
             transform: translateY(-1px);
         }
-        .route-card.selected {
-            border-color: var(--magenta);
-            background: var(--magenta-soft);
-            box-shadow: 0 0 22px var(--magenta-glow);
+        .steampunk-input {
+            background: rgba(18, 10, 6, 0.8);
+            border: 1px solid #b87333;
+            color: #ffbf00;
+            font-family: 'Courier Prime', monospace;
         }
-        .route-card-title {
-            font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700;
-            display: flex; align-items: center; gap: 10px; color: var(--ink); letter-spacing: 0.5px;
-            text-transform: uppercase;
+        .steampunk-input:focus {
+            border-color: #d4af37;
+            outline: none;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
         }
-        .route-badge {
-            font-family: 'Share Tech Mono', monospace; font-size: 8px; font-weight: 400;
-            letter-spacing: 1.2px; text-transform: uppercase; padding: 4px 8px;
-            border-radius: 6px; border: 1px solid var(--glass-border);
-            color: var(--ink-soft); background: transparent;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .badge-fast { border-color: var(--magenta); color: var(--magenta); background: var(--magenta-soft); }
-        .badge-free { border-color: var(--glass-border); color: var(--ink-soft); }
-        .badge-toll { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-soft); }
-        .badge-notoll { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-soft); }
-        .route-card-sub {
-            font-family: 'Share Tech Mono', monospace; font-size: 10px; font-weight: 400;
-            letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-faint); margin-top: 5px;
+        ::-webkit-scrollbar-track {
+            background: #120a06;
+            border-left: 1px solid #b87333;
         }
-        .route-card i { color: var(--ink-faint); font-size: 12px; }
-        .route-card.selected i { color: var(--magenta); text-shadow: 0 0 10px var(--magenta-glow); }
-
-        .bottom-bar {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
-            left: 14px; right: 14px; z-index: 1000; padding: 14px 18px;
-            display: flex; flex-direction: column; gap: 12px; border-radius: 16px;
+        ::-webkit-scrollbar-thumb {
+            background: #b87333;
+            border-radius: 4px;
+            border: 1px solid #d4af37;
         }
-        .action-buttons { display: flex; gap: 8px; width: 100%; }
-
-        .btn {
-            border: 1px solid var(--glass-border); padding: 13px 16px; border-radius: 10px;
-            font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft);
-            background: var(--glass-bg); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.25s ease; flex: 1; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
         }
-        .btn:hover {
-            border-color: var(--cyan);
-            color: var(--cyan);
-            background: var(--cyan-soft);
-            box-shadow: 0 0 20px var(--cyan-glow);
-            transform: translateY(-1px);
+        /* Gear spin animation */
+        @keyframes slow-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-        .btn-primary {
-            background: var(--magenta);
-            color: #05020c;
-            border-color: var(--magenta);
-            box-shadow: 0 0 25px var(--magenta-glow);
+        .animate-gear {
+            animation: slow-spin 20s linear infinite;
         }
-        .btn-primary:hover {
-            background: #ff529c;
-            color: #05020c;
-            box-shadow: 0 0 35px var(--magenta-glow);
-        }
-        .btn-secondary { background: var(--glass-bg); }
-        .btn-danger {
-            background: var(--glass-bg);
-            border-color: var(--yellow);
-            color: var(--yellow);
-        }
-        .btn-danger:hover {
-            background: var(--yellow-soft);
-            box-shadow: 0 0 20px rgba(255, 214, 10, 0.5);
-        }
-        .btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; transform: none !important; }
-
-        #routeMetrics {
-            font-family: 'Share Tech Mono', monospace; font-size: 10px;
-            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        #routeMetrics strong { color: var(--cyan); font-weight: 400; text-shadow: 0 0 10px var(--cyan-glow); }
-
-        .user-location-marker { position: relative; width: 32px; height: 32px; }
-        .user-dot {
-            width: 16px; height: 16px; background: var(--cyan);
-            border: 2px solid var(--bg-deep); border-radius: 50%;
-            box-shadow: 0 0 0 2px var(--cyan), 0 0 25px var(--cyan), 0 0 40px var(--cyan-glow);
-            position: absolute; top: 8px; left: 8px; z-index: 2;
-        }
-        .user-pulse {
-            width: 44px; height: 44px;
-            background: radial-gradient(circle, var(--cyan-glow) 0%, transparent 70%);
-            border-radius: 50%; position: absolute; top: -6px; left: -6px;
-            animation: pulse-ring 2s infinite ease-out;
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.3); opacity: 0.95; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-        .dest-pin-icon {
-            font-size: 28px; color: var(--magenta);
-            filter: drop-shadow(0 0 12px var(--magenta)) drop-shadow(0 0 22px var(--magenta-glow));
-        }
-        .leaflet-routing-container { display: none !important; }
-
-        .toast-msg {
-            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 64px);
-            left: 50%; transform: translateX(-50%) translateY(-10px);
-            background: var(--glass-bg-deep); backdrop-filter: blur(35px) saturate(200%);
-            -webkit-backdrop-filter: blur(35px) saturate(200%);
-            border: 1px solid var(--cyan); color: var(--cyan);
-            padding: 11px 22px; border-radius: 30px;
-            font-family: 'Share Tech Mono', monospace; font-size: 10px; font-weight: 400;
-            letter-spacing: 1.8px; text-transform: uppercase;
-            z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 0 30px var(--cyan-glow), 0 20px 60px rgba(0,0,0,0.9); white-space: nowrap;
-        }
-        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        .tab-bar {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-            left: 14px; right: 14px; z-index: 1100;
-            display: flex; align-items: center; justify-content: space-around;
-            padding: 10px; border-radius: 16px;
-        }
-        .tab-btn {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
-            background: transparent; border: none; color: var(--ink-faint);
-            padding: 8px 0; font-family: 'Share Tech Mono', monospace;
-            font-size: 9px; font-weight: 400; letter-spacing: 1.8px; text-transform: uppercase;
-            cursor: pointer; transition: all 0.25s ease; border-radius: 10px;
-        }
-        .tab-btn i { font-size: 15px; }
-        .tab-btn.active {
-            color: var(--cyan); background: rgba(0,245,255,0.06);
-            text-shadow: 0 0 10px var(--cyan-glow);
-        }
-        .tab-btn.active i { filter: drop-shadow(0 0 8px var(--cyan-glow)); }
-
-        .overlay-panel {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 3000; display: none;
-            background: rgba(5, 2, 12, 0.92);
-            backdrop-filter: blur(35px) saturate(200%); -webkit-backdrop-filter: blur(35px) saturate(200%);
-            padding: calc(env(safe-area-inset-top, 0px) + 36px) 20px calc(env(safe-area-inset-bottom, 0px) + 95px);
-            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .overlay-panel.active { display: flex; flex-direction: column; }
-
-        .overlay-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; padding-bottom: 16px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        .overlay-title {
-            font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 700;
-            letter-spacing: 2px; color: var(--cyan); text-transform: uppercase;
-            text-shadow: 0 0 15px var(--cyan-glow);
-        }
-        .overlay-close {
-            width: 38px; height: 38px; border-radius: 10px; background: var(--glass-bg);
-            border: 1px solid var(--glass-border); color: var(--ink-soft);
-            font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.25s ease;
-        }
-        .overlay-close:hover {
-            border-color: var(--magenta); color: var(--magenta); background: var(--magenta-soft);
-            box-shadow: 0 0 16px var(--magenta-glow);
-        }
-
-        .overlay-content {
-            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;
-        }
-
-        .list-card {
-            background: rgba(14, 6, 28, 0.55);
-            border: 1px solid var(--glass-border); border-radius: 12px;
-            padding: 15px 18px; display: flex; align-items: center; gap: 16px;
-            cursor: pointer; transition: all 0.25s ease;
-        }
-        .list-card:hover {
-            background: var(--cyan-soft);
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px var(--cyan-glow);
-            transform: translateY(-1px);
-        }
-        .list-icon {
-            width: 40px; height: 40px; border-radius: 10px; background: var(--cyan-soft);
-            color: var(--cyan); display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0; border: 1px solid var(--cyan);
-        }
-        .list-main { flex: 1; min-width: 0; }
-        .list-title {
-            font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700;
-            color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            letter-spacing: 0.5px; text-transform: uppercase;
-        }
-        .list-sub {
-            font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 400;
-            letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-faint);
-            margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .list-action {
-            width: 36px; height: 36px; border-radius: 10px; background: transparent;
-            color: var(--magenta); border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 12px; flex-shrink: 0; transition: all 0.25s ease;
-        }
-        .list-action:hover {
-            color: var(--ink); border-color: var(--magenta); background: var(--magenta-soft);
-            box-shadow: 0 0 16px var(--magenta-glow);
-        }
-
-        .empty-state {
-            text-align: center; color: var(--ink-faint); padding: 70px 20px;
-            font-family: 'Share Tech Mono', monospace; font-size: 12px; line-height: 1.8;
-            letter-spacing: 1.2px;
-        }
-        .empty-state i { font-size: 36px; display: block; margin-bottom: 20px; opacity: 0.4; color: var(--cyan); }
-
-        .settings-row {
-            display: flex; align-items: center; justify-content: space-between; padding: 18px 20px;
-            background: rgba(14, 6, 28, 0.55);
-            border: 1px solid var(--glass-border); border-radius: 12px; transition: all 0.25s ease;
-        }
-        .settings-row[onclick]:hover {
-            background: var(--cyan-soft);
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px var(--cyan-glow);
-        }
-        .settings-row .label {
-            font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink);
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .settings-row .sub {
-            font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 400;
-            letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-faint); margin-top: 5px;
-        }
-
-        .toggle-switch {
-            width: 46px; height: 26px; border-radius: 13px; background: rgba(0, 245, 255, 0.08);
-            border: 1px solid var(--glass-border); position: relative; cursor: pointer; transition: all 0.25s ease; flex-shrink: 0;
-        }
-        .toggle-switch::after {
-            content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
-            border-radius: 50%; background: var(--ink-faint); transition: all 0.25s ease;
-        }
-        .toggle-switch.on {
-            background: var(--magenta-soft);
-            border-color: var(--magenta);
-            box-shadow: 0 0 16px var(--magenta-glow);
-        }
-        .toggle-switch.on::after {
-            transform: translateX(20px);
-            background: var(--magenta);
-            box-shadow: 0 0 10px var(--magenta-glow);
-        }
-
-        .route-loading {
-            display: flex; align-items: center; justify-content: center; gap: 12px; padding: 24px;
-            font-family: 'Share Tech Mono', monospace; font-size: 10px; font-weight: 400;
-            letter-spacing: 1.8px; text-transform: uppercase; color: var(--cyan);
-        }
-        .spinner {
-            width: 16px; height: 16px; border: 2px solid rgba(0,245,255,0.2);
-            border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.8s linear infinite;
-            box-shadow: 0 0 10px var(--cyan-glow);
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media (max-width: 480px) {
-            .mode-btn span { display: none; }
-            .ultron-voice-btn span { display: none; }
-            .toll-toggle-btn span { display: none; }
-            .overlay-title { font-size: 20px; }
+        .animate-gear-reverse {
+            animation: slow-spin 25s linear infinite reverse;
         }
     </style>
 </head>
-<body class="dark-tiles">
+<body class="h-full flex flex-col justify-between selection:bg-amber selection:text-obsidian">
 
-    <div id="toast" class="toast-msg">// SYSTEM ONLINE</div>
+    <!-- Top Navigation Header -->
+    <header class="steampunk-glass border-b border-brass/40 px-6 py-4 flex items-center justify-between z-20">
+        <div class="flex items-center space-x-4">
+            <div class="relative w-12 h-12 flex items-center justify-center">
+                <i class="fa-solid fa-gear text-3xl text-brass absolute animate-gear"></i>
+                <i class="fa-solid fa-cogs text-xl text-copper absolute animate-gear-reverse"></i>
+                <i class="fa-solid fa-compass text-amber text-lg z-10"></i>
+            </div>
+            <div>
+                <h1 class="font-cinzel text-2xl font-bold tracking-wider text-brass drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">RAON NAVIGATION</h1>
+                <p class="font-elite text-xs text-copper tracking-widest">AETHER-POWERED GUIDANCE SYSTEM • MK-IV</p>
+            </div>
+        </div>
 
-    <div class="top-container">
-        <div class="glass-panel search-box-panel">
-            <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--cyan); font-size: 13px;"></i>
-                <input type="text" id="searchInput" placeholder="ENTER DESTINATION..." oninput="handleSearchInput(this.value)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;" onclick="clearSearchInput()"></i>
-                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
-                    <i class="fa-solid fa-microphone"></i>
+        <div class="flex items-center space-x-6">
+            <!-- System Status -->
+            <div class="hidden md:flex items-center space-x-3 steampunk-card px-4 py-2 rounded-lg text-xs">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber animate-pulse"></span>
+                <span class="text-brass font-mono">STEAM PRESSURE: <strong class="text-amber">120 PSI</strong></span>
+                <span class="text-copper/50">|</span>
+                <span class="text-brass font-mono">AETHER SIGNAL: <strong class="text-amber">EXCELLENT</strong></span>
+            </div>
+
+            <!-- Voice Toggle -->
+            <button id="voiceToggleBtn" onclick="toggleVoice()" class="steampunk-btn px-4 py-2 rounded text-xs flex items-center space-x-2">
+                <i class="fa-solid fa-microphone text-obsidian"></i>
+                <span id="voiceStatusText">VOICE: ON</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Workspace -->
+    <main class="flex-1 flex flex-col lg:flex-row relative overflow-hidden">
+        
+        <!-- Left Sidebar: Controls & Route Details -->
+        <aside class="w-full lg:w-96 steampunk-glass border-r border-brass/30 p-6 flex flex-col justify-between z-10 overflow-y-auto space-y-6">
+            <div class="space-y-6">
+                <!-- Navigation Query Card -->
+                <div class="steampunk-card p-5 rounded-xl space-y-4">
+                    <h2 class="font-cinzel text-lg text-brass border-b border-copper/40 pb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-route mr-2 text-amber"></i>Destination Set</span>
+                        <i class="fa-solid fa-gauge-high text-xs text-copper"></i>
+                    </h2>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs uppercase text-copper font-bold mb-1">Current Position</label>
+                            <div class="flex items-center steampunk-input px-3 py-2 rounded text-sm">
+                                <i class="fa-solid fa-circle-dot text-amber mr-2 text-xs"></i>
+                                <span id="currentLocText" class="truncate text-brass">Johor Bahru Central Station</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase text-copper font-bold mb-1">Destination</label>
+                            <div class="relative">
+                                <input type="text" id="destInput" value="Senai International Airport" class="w-full steampunk-input px-3 py-2 rounded text-sm pr-10">
+                                <button onclick="calculateRoute()" class="absolute right-1 top-1 bottom-1 px-3 bg-brass text-obsidian rounded hover:bg-amber transition">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2 pt-2">
+                            <button onclick="setDestination('Senai International Airport')" class="flex-1 bg-mahogany border border-copper/60 text-brass text-xs py-1.5 px-2 rounded hover:bg-copper/20 transition truncate">
+                                Senai Airport
+                            </button>
+                            <button onclick="setDestination('Puteri Harbour Marina')" class="flex-1 bg-mahogany border border-copper/60 text-brass text-xs py-1.5 px-2 rounded hover:bg-copper/20 transition truncate">
+                                Puteri Marina
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Traffic & Route Stats -->
+                <div class="steampunk-card p-5 rounded-xl space-y-4">
+                    <h3 class="font-cinzel text-md text-brass border-b border-copper/40 pb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-gauge text-amber mr-2"></i>Aether Traffic Flow</span>
+                        <span id="trafficBadge" class="text-xs px-2 py-0.5 rounded bg-amber/20 text-amber border border-amber/40 font-mono">MODERATE</span>
+                    </h3>
+
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-obsidian/60 p-2.5 rounded border border-copper/30">
+                            <div class="text-[10px] text-copper uppercase">Est. Time</div>
+                            <div id="statTime" class="text-lg font-bold text-brass font-cinzel">24 min</div>
+                        </div>
+                        <div class="bg-obsidian/60 p-2.5 rounded border border-copper/30">
+                            <div class="text-[10px] text-copper uppercase">Distance</div>
+                            <div id="statDist" class="text-lg font-bold text-brass font-cinzel">28.4 km</div>
+                        </div>
+                        <div class="bg-obsidian/60 p-2.5 rounded border border-copper/30">
+                            <div class="text-[10px] text-copper uppercase">Tolls</div>
+                            <div id="statTolls" class="text-lg font-bold text-amber font-cinzel">1 Booth</div>
+                        </div>
+                    </div>
+
+                    <!-- Traffic Legend Bar -->
+                    <div class="space-y-1 pt-1">
+                        <div class="flex justify-between text-[10px] text-copper">
+                            <span>Clear (Amber)</span>
+                            <span>Moderate (Gold)</span>
+                            <span>Heavy (Crimson)</span>
+                        </div>
+                        <div class="h-2 w-full bg-obsidian rounded overflow-hidden flex border border-copper/40">
+                            <div class="w-1/2 bg-amber"></div>
+                            <div class="w-1/3 bg-bronze"></div>
+                            <div class="w-1/6 bg-crimson"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Turn-by-Turn Navigation Queue with Toll & Traffic Info -->
+                <div class="steampunk-card p-5 rounded-xl space-y-3">
+                    <h3 class="font-cinzel text-md text-brass border-b border-copper/40 pb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-list-ul text-amber mr-2"></i>Maneuvers & Tolls</span>
+                        <button onclick="replayVoiceGuidance()" class="text-xs text-amber hover:underline flex items-center space-x-1">
+                            <i class="fa-solid fa-volume-high"></i><span>Repeat</span>
+                        </button>
+                    </h3>
+
+                    <div id="maneuversList" class="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button Footer -->
+            <div class="pt-4 border-t border-brass/30">
+                <button onclick="startNavigationSession()" id="navActionBtn" class="w-full steampunk-btn py-3 rounded-lg text-sm tracking-widest flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-compass text-obsidian"></i>
+                    <span id="navActionText">ENGAGE STEAM GUIDANCE</span>
                 </button>
             </div>
-            <div class="search-results-dropdown" id="searchResults"></div>
-        </div>
+        </aside>
 
-        <div class="shortcuts-row">
-            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> FUEL</button>
-            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> PARK</button>
-            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> CAFE</button>
-            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> FOOD</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> HOME</button>
-        </div>
-
-        <div class="glass-panel header-controls-bar">
-            <div class="mode-selector">
-                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> <span>DRIVE</span></button>
-                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>BIKE</span></button>
-                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>WALK</span></button>
-            </div>
-
-            <button class="toll-toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
-                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">TOLLS</span>
-            </button>
-
-            <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
-                <i class="fa-solid fa-volume-high"></i> <span>VOICE</span>
-            </button>
-        </div>
-    </div>
-
-    <div class="turn-banner" id="turnBanner">
-        <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
-        <div class="turn-details">
-            <div class="turn-instruction" id="turnInstruction">AWAITING TARGET</div>
-            <div class="turn-distance" id="turnDistance">CALCULATING ROUTE</div>
-        </div>
-    </div>
-
-    <div class="speed-badge glass-panel">
-        <i class="fa-solid fa-gauge-high"></i>
-        <span class="speed-value" id="speedValue">0</span>
-        <span>KM/H</span>
-    </div>
-
-    <div class="side-controls">
-        <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus"></i></button>
-        <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
-        <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs"></i></button>
-    </div>
-
-    <button class="recenter-pill" id="recenterPill" onclick="recenterUser()">
-        <i class="fa-solid fa-location-crosshairs"></i> RE-CENTRE
-    </button>
-
-    <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); padding: 4px 6px 8px;">
-            // ROUTE OPTIONS
-        </div>
-        <div id="routeCardsContainer"></div>
-    </div>
-
-    <div id="map"></div>
-
-    <div class="bottom-bar glass-panel">
-        <div id="routeMetrics">
-            <span>TAP MAP OR SEARCH</span>
-        </div>
-        <div class="action-buttons">
-            <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
-                <i class="fa-solid fa-location-arrow"></i> START
-            </button>
-            <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
-                <i class="fa-solid fa-play"></i> SIM
-            </button>
-            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none;">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="tab-bar glass-panel">
-        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
-            <i class="fa-solid fa-map"></i><span>MAP</span>
-        </button>
-        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
-            <i class="fa-solid fa-clock-rotate-left"></i><span>RECENT</span>
-        </button>
-        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
-            <i class="fa-solid fa-bookmark"></i><span>SAVED</span>
-        </button>
-        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
-            <i class="fa-solid fa-sliders"></i><span>CONFIG</span>
-        </button>
-    </div>
-
-    <div class="overlay-panel" id="panel-recents">
-        <div class="overlay-header">
-            <div class="overlay-title">// Recents</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content" id="recentsList"></div>
-    </div>
-
-    <div class="overlay-panel" id="panel-saved">
-        <div class="overlay-header">
-            <div class="overlay-title">// Saved</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content" id="savedList"></div>
-    </div>
-
-    <div class="overlay-panel" id="panel-settings">
-        <div class="overlay-header">
-            <div class="overlay-title">// Config</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content">
-            <div class="settings-row">
-                <div>
-                    <div class="label">Voice Module</div>
-                    <div class="sub">Vocal navigation synthesis</div>
-                </div>
-                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
-            </div>
-            <div class="settings-row">
-                <div>
-                    <div class="label">Avoid Tolls</div>
-                    <div class="sub">Filter routes with toll booths</div>
-                </div>
-                <div class="toggle-switch" id="settingsTollToggle" onclick="toggleAvoidTolls()"></div>
-            </div>
-            <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
-                <div>
-                    <div class="label">Home Sector</div>
-                    <div class="sub" id="homeAddressSub">Unset — tap to calibrate</div>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint); font-size:10px;"></i>
-            </div>
-            <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
-                <div>
-                    <div class="label">Purge Data</div>
-                    <div class="sub">Wipe recents, saved, home</div>
-                </div>
-                <i class="fa-solid fa-trash" style="color:var(--magenta); font-size:10px;"></i>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-
-    <script>
-        let map, userMarker, accuracyCircle, userCoords = null;
-        let activeDestination = null, destMarker = null;
-        let watchId = null, simInterval = null;
-        let isNavigating = false, isSimulating = false, isTrackingCamera = true;
-        let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis, audioCtx = null;
-        let nextStepIdx = 1, announced300 = -1, simSpeedKmh = 0;
-        let autoZooming = false, manualZoomUntil = 0, lastNavZoom = 17, autoRecenterTimer = null;
-        let robotVoice = null;
-        let travelMode = 'car';
-
-        let routesList = [];
-        let selectedRouteIndex = 0;
-        let currentRoutePolylines = [];
-        let activeRouteCoordinates = [];
-        let activeRouteInstructions = [];
-        let lastSpokenInstructionIndex = -1;
-        let debounceTimer = null;
-
-        let recents = JSON.parse(localStorage.getItem('raon_recents') || '[]');
-        let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
-        let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
-
-        const DEFAULT_LOCATION = [1.4927, 103.7414];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            initAudioContext();
-            pickRobotVoice();
-            if (synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = pickRobotVoice;
-            requestLocationWithSafariFallback();
-            updateHomeSubLabel();
-        });
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.5, zoomDelta: 1 }).setView(DEFAULT_LOCATION, 15);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
-            map.on('click', (e) => {
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                if (!userCoords) requestLocationWithSafariFallback();
-                setDestination(e.latlng);
-            });
-            map.on('dragstart', () => {
-                isTrackingCamera = false;
-                updateRecenterUI();
-                if (isNavigating) {
-                    clearTimeout(autoRecenterTimer);
-                    autoRecenterTimer = setTimeout(() => { if (isNavigating) recenterUser(); }, 10000);
-                }
-            });
-            map.on('zoomend', () => {
-                if (autoZooming) { autoZooming = false; return; }
-                if (isNavigating) manualZoomUntil = Date.now() + 8000;
-            });
-        }
-
-        function initAudioContext() {
-            try {
-                const AC = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AC();
-            } catch(e) {}
-        }
-
-        function playUltronMetallicPulse() {
-            if (!audioCtx) return;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            try {
-                const osc1 = audioCtx.createOscillator();
-                const osc2 = audioCtx.createOscillator();
-                const filter = audioCtx.createBiquadFilter();
-                const gain = audioCtx.createGain();
-                osc1.type = 'sawtooth'; osc2.type = 'square';
-                osc1.frequency.setValueAtTime(85, audioCtx.currentTime);
-                osc1.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.25);
-                osc2.frequency.setValueAtTime(170, audioCtx.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.25);
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
-                filter.Q.setValueAtTime(4, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc1.connect(filter); osc2.connect(filter);
-                filter.connect(gain); gain.connect(audioCtx.destination);
-                osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.3);
-                osc2.stop(audioCtx.currentTime + 0.3);
-            } catch(e) {}
-        }
-
-        const MALE_VOICE_HINTS = ['fred', 'google uk english male', 'microsoft guy', 'microsoft david', 'microsoft mark',
-                                  'david', 'mark', 'daniel', 'alex', 'tom', 'aaron', 'arthur', 'ralph', 'rishi', 'male'];
-        const FEMALE_VOICE_HINTS = ['zira', 'female', 'samantha', 'victoria', 'karen', 'susan', 'hazel', 'aria', 'jenny',
-                                    'moira', 'tessa', 'fiona', 'allison', 'ava', 'serena', 'kate', 'siri'];
-        function pickRobotVoice() {
-            if (!synth) return;
-            const voices = synth.getVoices() || [];
-            const en = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-            const notFemale = en.filter(v => !FEMALE_VOICE_HINTS.some(h => v.name.toLowerCase().includes(h)));
-            for (const hint of MALE_VOICE_HINTS) {
-                const m = notFemale.find(v => v.name.toLowerCase().includes(hint));
-                if (m) { robotVoice = m; return; }
-            }
-            robotVoice = notFemale[0] || en[0] || voices[0] || null;
-        }
-
-        function speakUltron(text) {
-            if (!ultronEnabled || !('speechSynthesis' in window)) return;
-            synth.cancel();
-            playUltronMetallicPulse();
-            const btn = document.getElementById('ultronVoiceBtn');
-            btn.classList.add('speaking');
-            setTimeout(() => {
-                const robotText = String(text).replace(/,\s*/g, '. ');
-                const utterance = new SpeechSynthesisUtterance(robotText);
-                if (!robotVoice) pickRobotVoice();
-                if (robotVoice) { utterance.voice = robotVoice; utterance.lang = robotVoice.lang; }
-                utterance.pitch = 0.1;
-                utterance.rate = 0.88;
-                utterance.volume = 1.0;
-                utterance.onend = () => btn.classList.remove('speaking');
-                utterance.onerror = () => btn.classList.remove('speaking');
-                synth.speak(utterance);
-            }, 140);
-        }
-
-        function requestLocationWithSafariFallback() {
-            if (!("geolocation" in navigator)) {
-                userCoords = L.latLng(DEFAULT_LOCATION);
-                updateUserMarker(userCoords, 100);
-                return;
-            }
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
-                    if (isTrackingCamera) map.setView(userCoords, 16);
-                    startGPSWatch();
-                },
-                () => {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                            userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                            updateUserMarker(userCoords, pos.coords.accuracy || 100);
-                            if (isTrackingCamera) map.setView(userCoords, 15);
-                            startGPSWatch();
-                        },
-                        () => {
-                            if (!userCoords) {
-                                userCoords = L.latLng(DEFAULT_LOCATION);
-                                updateUserMarker(userCoords, 100);
-                                showToast("// USING DEFAULT COORDS");
-                            }
-                        },
-                        { enableHighAccuracy: false, timeout: 6000 }
-                    );
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
-            );
-        }
-
-        function startGPSWatch() {
-            if (watchId !== null) return;
-            watchId = navigator.geolocation.watchPosition(
-                (pos) => {
-                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
-                    document.getElementById('speedValue').innerText = speed;
-                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
-                    if (isNavigating) {
-                        simSpeedKmh = speed;
-                        followCamera();
-                        checkManeuverProximity();
-                    } else if (isTrackingCamera) {
-                        map.panTo(userCoords, { animate: true });
-                    }
-                },
-                () => {},
-                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
-            );
-        }
-
-        function updateUserMarker(coords, accuracy) {
-            if (userMarker) {
-                userMarker.setLatLng(coords);
-                accuracyCircle.setLatLng(coords);
-                accuracyCircle.setRadius(accuracy);
-            } else {
-                const icon = L.divIcon({
-                    className: 'user-location-marker',
-                    html: `<div class="user-pulse"></div><div class="user-dot"></div>`,
-                    iconSize: [32, 32], iconAnchor: [16, 16]
-                });
-                userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f5ff', fillColor: '#00f5ff', fillOpacity: 0.05, weight: 0.5 }).addTo(map);
-            }
-        }
-
-        function recenterUser() {
-            isTrackingCamera = true;
-            clearTimeout(autoRecenterTimer);
-            manualZoomUntil = 0;
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            if (userCoords) {
-                const targetZoom = isNavigating ? computeNavZoom() : 16;
-                if (isNavigating) { lastNavZoom = targetZoom; autoZooming = (map.getZoom() !== targetZoom); }
-                map.flyTo(userCoords, targetZoom, { animate: true, duration: 0.8 });
-            } else {
-                requestLocationWithSafariFallback();
-            }
-            updateRecenterUI();
-        }
-
-        function updateRecenterUI() {
-            const pill = document.getElementById('recenterPill');
-            const btn = document.getElementById('recenterBtn');
-            if (pill) pill.classList.toggle('show', isNavigating && !isTrackingCamera);
-            if (btn) btn.classList.toggle('following', isTrackingCamera);
-        }
-
-        function zoomBy(delta) {
-            manualZoomUntil = Date.now() + 8000;
-            map.setZoom(Math.max(3, Math.min(19, map.getZoom() + delta)));
-        }
-
-        function computeNavZoom() {
-            let z = 17;
-            const v = simSpeedKmh || 0;
-            if (v > 90) z = 15.5;
-            else if (v > 60) z = 16;
-            else if (v > 35) z = 16.5;
-            if (userCoords && activeRouteInstructions[nextStepIdx]) {
-                const s = activeRouteInstructions[nextStepIdx];
-                const d = userCoords.distanceTo(L.latLng(s.maneuver.location[1], s.maneuver.location[0]));
-                if (d < 120) z = Math.max(z, 18);
-                else if (d < 300) z = Math.max(z, 17.5);
-            }
-            return z;
-        }
-
-        function followCamera() {
-            if (!isTrackingCamera || !userCoords) return;
-            let z = map.getZoom();
-            if (Date.now() > manualZoomUntil) {
-                const target = computeNavZoom();
-                if (Math.abs(target - z) >= 0.5) { autoZooming = true; z = target; lastNavZoom = target; }
-            }
-            map.setView(userCoords, z, { animate: true, duration: 0.8 });
-        }
-
-        function handleSearchInput(query) {
-            const clearBtn = document.getElementById('searchClearBtn');
-            clearBtn.style.display = query ? 'block' : 'none';
-            clearTimeout(debounceTimer);
-            if (!query || query.trim().length < 2) {
-                document.getElementById('searchResults').classList.remove('active');
-                return;
-            }
-            debounceTimer = setTimeout(() => {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
-                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
-            }, 300);
-        }
-
-        function renderSearchResults(results) {
-            const dropdown = document.getElementById('searchResults');
-            dropdown.innerHTML = '';
-            if (results.length === 0) { dropdown.classList.remove('active'); return; }
-            results.forEach(res => {
-                const item = document.createElement('div');
-                item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${res.display_name}</span>`;
-                item.onclick = () => {
-                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
-                    const name = res.display_name.split(',')[0];
-                    setDestination(latLng, name);
-                    dropdown.classList.remove('active');
-                    document.getElementById('searchInput').value = name;
-                    addRecent({ name, lat: latLng.lat, lng: latLng.lng });
-                };
-                dropdown.appendChild(item);
-            });
-            dropdown.classList.add('active');
-        }
-
-        function searchCategory(cat) {
-            if (!userCoords) return;
-            document.getElementById('searchInput').value = cat;
-            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
-        }
-
-        function clearSearchInput() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchClearBtn').style.display = 'none';
-            document.getElementById('searchResults').classList.remove('active');
-        }
-
-        function setDestination(latLng, label = "TARGET") {
-            activeDestination = latLng;
-            if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
-            if (destMarker) map.removeLayer(destMarker);
-            const pinIcon = L.divIcon({
-                className: 'dest-pin',
-                html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
-                iconSize: [32, 32], iconAnchor: [16, 32]
-            });
-            destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
-            calculateRoutes(label);
-        }
-
-        function calculateRoutes(label) {
-            clearPolylines();
-            const panel = document.getElementById('routeSelectionPanel');
-            const container = document.getElementById('routeCardsContainer');
-            panel.classList.add('active');
-            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> CALCULATING...</div>`;
-
-            const base = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
-
-            /* FIXED PRECISE TOLL DETECTION:
-               Only check OSRM step intersection classes array for explicit "toll" tag.
-               Avoids all false positives from matching substrings like 'tol' or general highway names.
-            */
-            const detectToll = (r) => {
-                const steps = (r.legs || []).flatMap(l => l.steps || []);
-                return steps.some(step => {
-                    const intersections = step.intersections || [];
-                    return intersections.some(i => {
-                        const classes = i.classes || [];
-                        return classes.includes('toll');
-                    });
-                });
-            };
-
-            const fetchRoutes = (url) => fetch(url).then(r => r.json());
-
-            const first = avoidTolls ? fetchRoutes(base + '&exclude=toll').catch(() => null) : fetchRoutes(base);
-
-            first
-                .then(data => {
-                    if (avoidTolls && (!data || data.code !== 'Ok' || !data.routes || !data.routes.length)) {
-                        return fetchRoutes(base);
-                    }
-                    return data;
-                })
-                .then(data => {
-                    if (data.routes && data.routes.length > 0) {
-                        let all = data.routes.map(r => ({ ...r, hasToll: detectToll(r) }));
-                        if (avoidTolls) {
-                            const free = all.filter(r => !r.hasToll);
-                            if (free.length > 0) all = free;
-                            else showToast("// NO TOLL-FREE ROUTE FOUND");
-                        }
-                        routesList = all;
-                        selectedRouteIndex = 0;
-                        renderRouteCards(label);
-                        selectRoute(0);
-                        enableActionButtons();
-                        speakUltron("Route calculated.");
-                    } else {
-                        container.innerHTML = `<div class="empty-state">NO ROUTE FOUND</div>`;
-                    }
-                })
-                .catch(() => {
-                    container.innerHTML = `<div class="empty-state">ROUTING ERROR</div>`;
-                });
-        }
-
-        function renderRouteCards(label) {
-            const container = document.getElementById('routeCardsContainer');
-            container.innerHTML = '';
-            routesList.forEach((r, idx) => {
-                const mins = Math.round(r.duration / 60);
-                const km = (r.distance / 1000).toFixed(1);
-                let primaryBadge = idx === 0 ? '<span class="route-badge badge-fast">FAST</span>' : '<span class="route-badge badge-free">ALT</span>';
-                let tollBadge = r.hasToll
-                    ? '<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> TOLL</span>'
-                    : '<span class="route-badge badge-notoll"><i class="fa-solid fa-shield-halved"></i> FREE</span>';
-
-                const card = document.createElement('div');
-                card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
-                card.id = `routeCard-${idx}`;
-                card.onclick = () => selectRoute(idx);
-                card.innerHTML = `
+        <!-- Right Map Canvas & Live HUD -->
+        <div class="flex-1 relative flex flex-col bg-obsidian">
+            
+            <!-- Map Overlay HUD -->
+            <div class="absolute top-4 left-4 right-4 z-10 flex flex-col md:flex-row justify-between items-start md:items-center pointer-events-none gap-3">
+                <!-- Current Instruction HUD Banner -->
+                <div class="steampunk-glass px-5 py-3 rounded-xl pointer-events-auto flex items-center space-x-4 border border-brass/50 shadow-2xl max-w-xl">
+                    <div id="hudIconContainer" class="w-12 h-12 rounded-lg bg-brass/20 border border-brass flex items-center justify-center text-amber text-xl">
+                        <i id="hudTurnIcon" class="fa-solid fa-arrow-up"></i>
+                    </div>
                     <div>
-                        <div class="route-card-title">
-                            <span>${label}</span>
-                            ${primaryBadge}
-                            ${tollBadge}
-                        </div>
-                        <div class="route-card-sub">${mins} MIN · ${km} KM</div>
+                        <div class="text-[10px] uppercase font-bold text-copper tracking-wider">Next Maneuver in <span id="hudDistText" class="text-brass">300m</span></div>
+                        <div id="hudInstructionText" class="text-base font-cinzel font-bold text-brass">Proceed north along Jalan Skudai</div>
                     </div>
-                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" id="checkRoute-${idx}" style="font-size:10px;"></i>
-                `;
-                container.appendChild(card);
-            });
-        }
+                </div>
 
-        function selectRoute(idx) {
-            selectedRouteIndex = idx;
-            routesList.forEach((_, i) => {
-                const card = document.getElementById(`routeCard-${i}`);
-                const icon = document.getElementById(`checkRoute-${i}`);
-                if (card && icon) {
-                    card.classList.toggle('selected', i === idx);
-                    icon.className = i === idx ? 'fa-solid fa-check' : 'fa-solid fa-circle';
-                    icon.style.fontSize = '10px';
-                }
-            });
-            renderRouteOnMap(routesList[idx]);
-        }
+                <!-- Map Controls -->
+                <div class="steampunk-glass p-2 rounded-xl pointer-events-auto flex items-center space-x-2">
+                    <button onclick="zoomMap(1.2)" class="w-9 h-9 steampunk-btn rounded flex items-center justify-center text-xs" title="Zoom In">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button onclick="zoomMap(0.8)" class="w-9 h-9 steampunk-btn rounded flex items-center justify-center text-xs" title="Zoom Out">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <button onclick="recenterMap()" class="w-9 h-9 steampunk-btn rounded flex items-center justify-center text-xs" title="Recenter">
+                        <i class="fa-solid fa-crosshairs"></i>
+                    </button>
+                </div>
+            </div>
 
-        function toggleAvoidTolls() {
-            avoidTolls = !avoidTolls;
-            const btn = document.getElementById('tollToggleBtn');
-            const label = document.getElementById('tollBtnLabel');
-            const settingsToggle = document.getElementById('settingsTollToggle');
-            btn.classList.toggle('active', avoidTolls);
-            settingsToggle.classList.toggle('on', avoidTolls);
-            label.innerText = avoidTolls ? "NO TOLL" : "TOLLS";
-            showToast(avoidTolls ? "// AVOIDING TOLLS" : "// TOLLS ALLOWED");
-            if (activeDestination) calculateRoutes("TARGET");
-        }
+            <!-- Interactive Steampunk Map Canvas -->
+            <div class="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing" id="mapContainer">
+                <canvas id="navigationCanvas" class="w-full h-full block"></canvas>
+            </div>
 
-        function renderRouteOnMap(routeData) {
-            clearPolylines();
-            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
-            activeRouteInstructions = routeData.legs[0].steps;
+            <!-- Bottom Live Telemetry Bar -->
+            <div class="steampunk-glass border-t border-brass/30 px-6 py-3 flex flex-wrap items-center justify-between z-10 text-xs">
+                <div class="flex items-center space-x-6">
+                    <div><span class="text-copper">SPEED:</span> <strong id="telemetrySpeed" class="text-brass font-mono">64 km/h</strong></div>
+                    <div><span class="text-copper">BOILER TEMP:</span> <strong class="text-amber font-mono">312°C</strong></div>
+                    <div><span class="text-copper">TRAFFIC STATUS:</span> <strong id="telemetryTraffic" class="text-amber font-mono">FLOW CLEAR (GOLDEN CORRIDOR)</strong></div>
+                </div>
+                <div class="flex items-center space-x-2 text-copper font-elite">
+                    <i class="fa-solid fa-gear animate-gear text-brass"></i>
+                    <span>RAON MECHANICAL COG-NAV v4.2</span>
+                </div>
+            </div>
+        </div>
+    </main>
 
-            const totalPoints = activeRouteCoordinates.length;
-            if (totalPoints > 1) {
-                const clearEnd = Math.floor(totalPoints * 0.55);
-                const jamEnd = Math.floor(totalPoints * 0.85);
+    <!-- Custom Modal for Notifications (Replacing alert) -->
+    <div id="customModal" class="fixed inset-0 bg-obsidian/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="steampunk-card p-6 rounded-2xl max-w-md w-full mx-4 border-2 border-brass text-center space-y-4 shadow-2xl">
+            <div class="w-16 h-16 mx-auto rounded-full bg-brass/20 border-2 border-brass flex items-center justify-center text-amber text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="modalTitle" class="font-cinzel text-xl font-bold text-brass">Aether Notice</h3>
+            <p id="modalMessage" class="text-sm text-brass/90 leading-relaxed font-mono"></p>
+            <button onclick="closeModal()" class="steampunk-btn px-6 py-2.5 rounded text-sm w-full">ACKNOWLEDGE</button>
+        </div>
+    </div>
 
-                const clearSegment = activeRouteCoordinates.slice(0, clearEnd + 1);
-                const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
-                const jammedSegment = activeRouteCoordinates.slice(jamEnd);
+    <!-- Application Script -->
+    <script>
+        // --- State Management ---
+        let voiceEnabled = true;
+        let isNavigating = false;
+        let currentDest = "Senai International Airport";
+        
+        // Map viewport & simulation state
+        let mapScale = 1.0;
+        let mapOffset = { x: 0, y: 0 };
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let carProgress = 0.0; // 0 to 1 along route
 
-                if (clearSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(clearSegment, {
-                        color: '#00f5ff', weight: 6, opacity: 0.95
-                    }).addTo(map));
-                }
-                if (moderateSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(moderateSegment, {
-                        color: '#ffd60a', weight: 6, opacity: 0.95
-                    }).addTo(map));
-                }
-                if (jammedSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(jammedSegment, {
-                        color: '#ff2a85', weight: 6, opacity: 0.95
-                    }).addTo(map));
-                }
+        // Route & Traffic Data Structure
+        const routesData = {
+            "Senai International Airport": {
+                dist: "28.4 km",
+                time: "24 min",
+                tolls: 1,
+                tollName: "Skudai Plaza Toll Booth",
+                tollFee: "RM 2.50",
+                maneuvers: [
+                    { dist: "0 m", text: "Depart Johor Bahru Central via Jalan Skudai", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
+                    { dist: "4.2 km", text: "Merge onto AH2 Skudai Highway (Moderate Traffic)", icon: "fa-road", traffic: "moderate", hasToll: false },
+                    { dist: "12.5 km", text: "Approach Skudai Toll Booth (Toll: RM 2.50)", icon: "fa-ticket", traffic: "clear", hasToll: true },
+                    { dist: "18.1 km", text: "Take exit 253 toward Senai / Air Keroh", icon: "fa-arrow-right-long", traffic: "heavy", hasToll: false },
+                    { dist: "28.4 km", text: "Arrive at Senai International Airport Terminal", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
+                ]
+            },
+            "Puteri Harbour Marina": {
+                dist: "21.6 km",
+                time: "19 min",
+                tolls: 1,
+                tollName: "Perling Plaza Toll Gate",
+                tollFee: "RM 1.80",
+                maneuvers: [
+                    { dist: "0 m", text: "Depart Johor Bahru Central westward", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
+                    { dist: "5.0 km", text: "Enter Second Link Expressway / Coastal Highway", icon: "fa-road", traffic: "moderate", hasToll: false },
+                    { dist: "11.2 km", text: "Pass Perling Toll Plaza (Toll: RM 1.80)", icon: "fa-ticket", traffic: "clear", hasToll: true },
+                    { dist: "17.4 km", text: "Take Persiaran Laksamana exit toward Puteri Harbour", icon: "fa-arrow-left-long", traffic: "clear", hasToll: false },
+                    { dist: "21.6 km", text: "Arrive at Puteri Harbour Marina Pier", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
+                ]
             }
+        };
 
-            map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
-            const mins = Math.round(routeData.duration / 60);
-            const km = (routeData.distance / 1000).toFixed(1);
-            const tollStatus = routeData.hasToll
-                ? `<span style="color:var(--yellow);"><i class="fa-solid fa-receipt"></i> TOLL</span>`
-                : `<span style="color:var(--cyan);"><i class="fa-solid fa-shield-halved"></i> FREE</span>`;
+        let activeRoute = routesData["Senai International Airport"];
 
-            document.getElementById('routeMetrics').innerHTML = `
-                <span><strong>ETA</strong> ${mins}M &nbsp; <strong>DIST</strong> ${km}KM</span>
-                ${tollStatus}
-            `;
-
-            nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1;
-            if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
+        // --- Custom Modal Helper ---
+        function showModal(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
         }
 
-        function clearPolylines() {
-            currentRoutePolylines.forEach(p => map.removeLayer(p));
-            currentRoutePolylines = [];
-        }
+        // --- Natural Male Robot Voice Synthesizer ---
+        function speakGuidance(text) {
+            if (!voiceEnabled) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop prior speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95; // Steady, measured mechanical cadence
+                utterance.pitch = 0.65; // Deep, rich male robotic tone
+                utterance.volume = 1.0;
 
-        function enableActionButtons() {
-            document.getElementById('startNavBtn').disabled = false;
-            document.getElementById('simDriveBtn').disabled = false;
-            document.getElementById('clearBtn').style.display = 'block';
-        }
+                // Attempt to select a dignified male or robotic voice
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Microsoft David') || v.name.includes('Male') || v.lang.includes('en'));
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
 
-        function buildInstruction(step) {
-            const m = step.maneuver || {};
-            const mod = m.modifier ? m.modifier.replace('slight ', 'slight ').replace('sharp ', 'sharp ') : '';
-            const road = step.name ? ` onto ${step.name}` : '';
-            switch (m.type) {
-                case 'depart': return `Head ${mod || 'straight'}${step.name ? ' on ' + step.name : ''}`;
-                case 'arrive': return 'You have arrived at your destination';
-                case 'turn': return `Turn ${mod}${road}`;
-                case 'end of road': return `Turn ${mod} at the end of the road${road}`;
-                case 'fork': return `Keep ${mod || 'straight'} at the fork${road}`;
-                case 'merge': return `Merge ${mod || ''}${road}`.trim();
-                case 'on ramp': return `Take the ramp${road}`;
-                case 'off ramp': return `Take the exit${road}`;
-                case 'roundabout': case 'rotary':
-                    return `At the roundabout, take exit ${m.exit || ''}${road}`.replace('exit ', m.exit ? 'exit ' : 'the exit');
-                case 'roundabout turn': return `At the roundabout, turn ${mod}${road}`;
-                case 'new name': case 'continue': return `Continue ${mod || 'straight'}${step.name ? ' on ' + step.name : ''}`;
-                default: return `Continue${road}`;
+                window.speechSynthesis.speak(utterance);
             }
         }
 
-        function updateTurnBanner(step, liveDist) {
-            const banner = document.getElementById('turnBanner');
-            banner.classList.add('active');
-            const inst = buildInstruction(step);
-            const d = (liveDist !== undefined) ? liveDist : step.distance;
-            const dist = d > 1000 ? `${(d / 1000).toFixed(1)} KM` : `${Math.round(d)} M`;
-            document.getElementById('turnInstruction').innerText = inst.toUpperCase();
-            document.getElementById('turnDistance').innerText = (liveDist !== undefined) ? `IN ${dist}` : `NEXT ${dist}`;
-        }
-
-        function setTravelMode(mode) {
-            travelMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.mode === mode);
-            });
-            if (activeDestination) calculateRoutes("TARGET");
-        }
-
-        function toggleUltronVoice() {
-            ultronEnabled = !ultronEnabled;
-            const btn = document.getElementById('ultronVoiceBtn');
-            btn.classList.toggle('active', ultronEnabled);
-            document.getElementById('settingsVoiceToggle').classList.toggle('on', ultronEnabled);
-            if (ultronEnabled) speakUltron("Voice online.");
-            else synth.cancel();
-        }
-
-        function toggleNavigation() {
-            if (isNavigating) {
-                stopNavigation();
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const btn = document.getElementById('voiceToggleBtn');
+            const txt = document.getElementById('voiceStatusText');
+            if (voiceEnabled) {
+                txt.innerText = "VOICE: ON";
+                btn.classList.add('border-brass');
+                speakGuidance("Aether audio voice synthesis activated.");
             } else {
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                isNavigating = true;
-                isTrackingCamera = true;
-                nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1; manualZoomUntil = 0;
-                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> END`;
-                document.getElementById('startNavBtn').className = "btn btn-danger";
-                document.getElementById('routeSelectionPanel').classList.remove('active');
-                if (userCoords) { autoZooming = true; map.flyTo(userCoords, computeNavZoom(), { animate: true, duration: 1 }); }
-                updateRecenterUI();
-                speakUltron("Navigation started.");
+                txt.innerText = "VOICE: OFF";
+                btn.classList.remove('border-brass');
+                window.speechSynthesis.cancel();
             }
         }
 
-        function stopNavigation() {
-            isNavigating = false;
-            clearTimeout(autoRecenterTimer);
-            isTrackingCamera = true;
-            updateRecenterUI();
-            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> START`;
-            document.getElementById('startNavBtn').className = "btn btn-primary";
-            document.getElementById('turnBanner').classList.remove('active');
-            synth.cancel();
-            if (userCoords) map.flyTo(userCoords, 15, { animate: true });
-        }
-
-        function checkManeuverProximity() {
-            if (!activeRouteInstructions || activeRouteInstructions.length === 0 || !userCoords) return;
-            const step = activeRouteInstructions[nextStepIdx];
-            if (!step) return;
-            const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
-            const dist = userCoords.distanceTo(wp);
-            updateTurnBanner(step, dist);
-
-            if (step.maneuver.type === 'arrive') {
-                if (dist < 30 && lastSpokenInstructionIndex !== nextStepIdx) {
-                    lastSpokenInstructionIndex = nextStepIdx;
-                    speakUltron("Destination reached.");
-                }
-                return;
-            }
-            if (dist < 320 && dist >= 80 && announced300 !== nextStepIdx) {
-                announced300 = nextStepIdx;
-                speakUltron(`In ${Math.round(dist / 50) * 50} meters, ${buildInstruction(step)}.`);
-            } else if (dist < 40) {
-                if (lastSpokenInstructionIndex !== nextStepIdx) {
-                    lastSpokenInstructionIndex = nextStepIdx;
-                    speakUltron(`${buildInstruction(step)} now.`);
-                }
-                if (dist < 25 && nextStepIdx < activeRouteInstructions.length - 1) nextStepIdx++;
+        function replayVoiceGuidance() {
+            if (activeRoute && activeRoute.maneuvers.length > 0) {
+                speakGuidance(activeRoute.maneuvers[0].text);
             }
         }
 
-        function toggleSimulation() {
-            if (isSimulating) stopSimulation();
-            else startSimulation();
+        // --- Navigation Logic & Destination Switching ---
+        function setDestination(destName) {
+            document.getElementById('destInput').value = destName;
+            calculateRoute();
         }
 
-        function startSimulation() {
-            if (activeRouteCoordinates.length === 0) return;
-            isSimulating = true;
-            isNavigating = true;
-            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> HOLD`;
-            document.getElementById('routeSelectionPanel').classList.remove('active');
-            let index = 0;
-            nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1; lastSpokenInstructionIndex = -1;
-            isTrackingCamera = true; manualZoomUntil = 0;
-            updateRecenterUI();
-            simInterval = setInterval(() => {
-                if (index >= activeRouteCoordinates.length) {
-                    stopSimulation();
-                    speakUltron("Destination reached.");
-                    return;
-                }
-                const prev = userCoords;
-                userCoords = L.latLng(activeRouteCoordinates[index]);
-                updateUserMarker(userCoords, 10);
-                if (prev) simSpeedKmh = Math.min(120, Math.round((prev.distanceTo(userCoords) / 0.8) * 3.6));
-                document.getElementById('speedValue').innerText = simSpeedKmh;
-                followCamera();
-                checkManeuverProximity();
-                index += 2;
-            }, 800);
-            speakUltron("Simulation started.");
-        }
-
-        function stopSimulation() {
-            isSimulating = false;
-            isNavigating = false;
-            clearInterval(simInterval);
-            simSpeedKmh = 0;
-            updateRecenterUI();
-            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> SIM`;
-            document.getElementById('speedValue').innerText = '0';
-        }
-
-        function clearActiveRoute() {
-            stopNavigation();
-            stopSimulation();
-            clearPolylines();
-            if (destMarker) map.removeLayer(destMarker);
-            activeDestination = null;
-            routesList = [];
-            document.getElementById('routeSelectionPanel').classList.remove('active');
-            document.getElementById('startNavBtn').disabled = true;
-            document.getElementById('simDriveBtn').disabled = true;
-            document.getElementById('clearBtn').style.display = 'none';
-            document.getElementById('routeMetrics').innerHTML = `<span>TAP MAP OR SEARCH</span>`;
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
-            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-            if (btn) btn.classList.add('active');
-            if (tabName !== 'map') {
-                const panel = document.getElementById(`panel-${tabName}`);
-                if (panel) panel.classList.add('active');
-                if (tabName === 'recents') renderRecentsList();
-                if (tabName === 'saved') renderSavedList();
+        function calculateRoute() {
+            const val = document.getElementById('destInput').value.trim();
+            if (routesData[val]) {
+                activeRoute = routesData[val];
+            } else {
+                // Dynamic fallback for custom destination
+                activeRoute = {
+                    dist: "32.1 km",
+                    time: "29 min",
+                    tolls: 2,
+                    tollName: "Aether Highway Main Gate & Plaza",
+                    tollFee: "RM 4.00",
+                    maneuvers: [
+                        { dist: "0 m", text: "Depart origin point via Main Brass Boulevard", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
+                        { dist: "8.5 km", text: "Approach Main Gate Toll Booth (Toll: RM 4.00)", icon: "fa-ticket", traffic: "moderate", hasToll: true },
+                        { dist: "19.0 km", text: "Merge onto Grand Steamway arterial", icon: "fa-road", traffic: "heavy", hasToll: false },
+                        { dist: "32.1 km", text: "Arrive at " + val, icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
+                    ]
+                };
             }
+
+            // Update UI Stats
+            document.getElementById('statTime').innerText = activeRoute.time;
+            document.getElementById('statDist').innerText = activeRoute.dist;
+            document.getElementById('statTolls').innerText = `${activeRoute.tolls} Booth`;
+
+            renderManeuvers();
+            carProgress = 0.0;
+            speakGuidance(`Route recalculated to ${val}. Distance ${activeRoute.dist}. ${activeRoute.tolls} toll booth ahead.`);
+            showModal("Route Calculated", `New aether route established to ${val}.\nEstimated transit: ${activeRoute.time} (${activeRoute.dist}). Includes ${activeRoute.tolls} toll booth (${activeRoute.tollName}).`);
         }
 
-        function closeTab() {
-            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('.tab-btn[data-tab="map"]').classList.add('active');
-        }
+        function renderManeuvers() {
+            const container = document.getElementById('maneuversList');
+            container.innerHTML = '';
+            activeRoute.maneuvers.forEach((m, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-2.5 rounded border flex items-center justify-between text-xs ${idx === 0 ? 'bg-brass/10 border-brass' : 'bg-obsidian/40 border-copper/30'}`;
+                
+                let trafficColorClass = 'text-amber';
+                if (m.traffic === 'moderate') trafficColorClass = 'text-bronze';
+                if (m.traffic === 'heavy') trafficColorClass = 'text-crimson';
 
-        function addRecent(place) {
-            recents = recents.filter(r => r.lat !== place.lat || r.lng !== place.lng);
-            recents.unshift(place);
-            if (recents.length > 20) recents.pop();
-            localStorage.setItem('raon_recents', JSON.stringify(recents));
-        }
-
-        function renderRecentsList() {
-            const list = document.getElementById('recentsList');
-            list.innerHTML = '';
-            if (recents.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>NO RECENT TARGETS</div>`;
-                return;
-            }
-            recents.forEach(r => {
-                const card = document.createElement('div');
-                card.className = 'list-card';
-                card.innerHTML = `
-                    <div class="list-icon"><i class="fa-solid fa-location-dot"></i></div>
-                    <div class="list-main">
-                        <div class="list-title">${r.name}</div>
-                        <div class="list-sub">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</div>
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded bg-obsidian border border-copper flex items-center justify-center text-amber">
+                            <i class="fa-solid ${m.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-brass">${m.text}</div>
+                            <div class="text-[10px] text-copper">Distance: ${m.dist} ${m.hasToll ? '• <span class="text-amber font-bold">[TOLL BOOTH]</span>' : ''}</div>
+                        </div>
                     </div>
-                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${r.lat}, ${r.lng}, '${r.name.replace(/'/g,"\\'")}')">
-                        <i class="fa-solid fa-location-arrow"></i>
-                    </button>
-                `;
-                card.onclick = () => { closeTab(); setDestination(L.latLng(r.lat, r.lng), r.name); };
-                list.appendChild(card);
-            });
-        }
-
-        function navigateToPlace(lat, lng, name) {
-            closeTab();
-            setDestination(L.latLng(lat, lng), name);
-        }
-
-        function renderSavedList() {
-            const list = document.getElementById('savedList');
-            list.innerHTML = '';
-            if (savedPlaces.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>NO SAVED TARGETS</div>`;
-                return;
-            }
-            savedPlaces.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'list-card';
-                card.innerHTML = `
-                    <div class="list-icon"><i class="fa-solid fa-bookmark"></i></div>
-                    <div class="list-main">
-                        <div class="list-title">${s.name}</div>
-                        <div class="list-sub">${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}</div>
+                    <div class="text-right">
+                        <span class="px-2 py-0.5 rounded uppercase text-[9px] border border-copper/40 ${trafficColorClass}">${m.traffic}</span>
                     </div>
-                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${s.lat}, ${s.lng}, '${s.name.replace(/'/g,"\\'")}')">
-                        <i class="fa-solid fa-location-arrow"></i>
-                    </button>
                 `;
-                card.onclick = () => { closeTab(); setDestination(L.latLng(s.lat, s.lng), s.name); };
-                list.appendChild(card);
+                container.appendChild(item);
             });
-        }
 
-        function routeHome() {
-            if (!homeLocation) {
-                showToast("// HOME SECTOR UNSET");
-                switchTab('settings');
-                return;
-            }
-            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "HOME");
-        }
-
-        function promptSetHome() {
-            if (!userCoords) { showToast("// AWAITING GPS FIX"); return; }
-            homeLocation = { lat: userCoords.lat, lng: userCoords.lng };
-            localStorage.setItem('raon_home', JSON.stringify(homeLocation));
-            updateHomeSubLabel();
-            showToast("// HOME UPDATED");
-        }
-
-        function updateHomeSubLabel() {
-            const sub = document.getElementById('homeAddressSub');
-            if (homeLocation) sub.innerText = `${homeLocation.lat.toFixed(4)}, ${homeLocation.lng.toFixed(4)}`;
-            else sub.innerText = "Unset — tap to calibrate";
-        }
-
-        function toggleSettingsVoice() { toggleUltronVoice(); }
-
-        function clearAllData() {
-            if (confirm("Purge all recents and saved places?")) {
-                localStorage.removeItem('raon_recents');
-                localStorage.removeItem('raon_saved');
-                localStorage.removeItem('raon_home');
-                recents = []; savedPlaces = []; homeLocation = null;
-                updateHomeSubLabel();
-                showToast("// DATA PURGED");
+            // Update HUD top banner with first maneuver
+            if (activeRoute.maneuvers.length > 0) {
+                document.getElementById('hudInstructionText').innerText = activeRoute.maneuvers[0].text;
+                document.getElementById('hudDistText').innerText = activeRoute.maneuvers[0].dist;
+                document.getElementById('hudTurnIcon').className = `fa-solid ${activeRoute.maneuvers[0].icon}`;
             }
         }
 
-        let recognition = null;
-        function toggleVoiceSearch() {
-            const micBtn = document.getElementById('micBtn');
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) { showToast("// VOICE UNSUPPORTED"); return; }
-            if (recognition) { recognition.stop(); recognition = null; micBtn.classList.remove('listening'); return; }
-            recognition = new SR();
-            recognition.lang = 'en-US';
-            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("// LISTENING"); };
-            recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById('searchInput').value = text;
-                handleSearchInput(text);
-                micBtn.classList.remove('listening');
-            };
-            recognition.onerror = () => { micBtn.classList.remove('listening'); };
-            recognition.onend = () => { micBtn.classList.remove('listening'); recognition = null; };
-            recognition.start();
+        function startNavigationSession() {
+            isNavigating = !isNavigating;
+            const btnText = document.getElementById('navActionText');
+            const btn = document.getElementById('navActionBtn');
+            if (isNavigating) {
+                btnText.innerText = "HALT STEAM GUIDANCE";
+                btn.style.background = "linear-gradient(to bottom, #990000 0%, #660000 100%)";
+                btn.style.borderColor = "#ffbf00";
+                speakGuidance("Navigation engaged. Steam pressure nominal. Proceed with caution.");
+                showModal("Navigation Engaged", "Aether guidance system active. Live traffic flow monitoring and toll booth proximity alerts enabled.");
+            } else {
+                btnText.innerText = "ENGAGE STEAM GUIDANCE";
+                btn.style.background = "";
+                btn.style.borderColor = "";
+                speakGuidance("Navigation halted.");
+            }
         }
+
+        // --- Interactive Map Canvas Rendering with Real-Time Traffic & Toll Booth Markers ---
+        const canvas = document.getElementById('navigationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const container = document.getElementById('mapContainer');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function zoomMap(factor) {
+            mapScale = Math.max(0.5, Math.min(2.5, mapScale * factor));
+        }
+
+        function recenterMap() {
+            mapScale = 1.0;
+            mapOffset = { x: 0, y: 0 };
+        }
+
+        // Mouse Drag to Pan Map
+        let isMouseDown = false;
+        canvas.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            dragStart = { x: e.clientX - mapOffset.x, y: e.clientY - mapOffset.y };
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            mapOffset.x = e.clientX - dragStart.x;
+            mapOffset.y = e.clientY - dragStart.y;
+        });
+        window.addEventListener('mouseup', () => { isMouseDown = false; });
+
+        function drawMap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2 + mapOffset.x, canvas.height / 2 + mapOffset.y);
+            ctx.scale(mapScale, mapScale);
+
+            // Draw Steampunk Blueprint Grid Background
+            ctx.strokeStyle = 'rgba(184, 115, 51, 0.08)';
+            ctx.lineWidth = 1;
+            const gridSize = 40;
+            for (let x = -1000; x < 1000; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, -1000);
+                ctx.lineTo(x, 1000);
+                ctx.stroke();
+            }
+            for (let y = -1000; y < 1000; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(-1000, y);
+                ctx.lineTo(1000, y);
+                ctx.stroke();
+            }
+
+            // Draw Decorative Compass Rose in Corner
+            ctx.save();
+            ctx.translate(-canvas.width/2 + 80, -canvas.height/2 + 80);
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, 35, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = '#d4af37';
+            ctx.font = '10px Cinzel';
+            ctx.fillText('N', -3, -24);
+            ctx.fillText('S', -3, 30);
+            ctx.fillText('E', 20, 3);
+            ctx.fillText('W', -26, 3);
+            ctx.restore();
+
+            // Define Route Waypoints (Bezier Curve Path)
+            const p0 = { x: -200, y: 150 };
+            const p1 = { x: -80, y: -40 };
+            const p2 = { x: 100, y: -120 };
+            const p3 = { x: 250, y: -200 };
+
+            // 1. Draw Background Arterial Road Glow
+            ctx.strokeStyle = 'rgba(44, 22, 11, 0.9)';
+            ctx.lineWidth = 18;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+            ctx.stroke();
+
+            // 2. Draw Color-Coded Traffic Flow Segments
+            // Segment 1: Clear (Amber)
+            ctx.strokeStyle = '#ffbf00';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+
+            // Segment 2: Moderate Traffic (Gold/Bronze)
+            ctx.strokeStyle = '#cd7f32';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+
+            // Segment 3: Heavy Congestion (Copper-Crimson)
+            ctx.strokeStyle = '#990000';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.stroke();
+
+            // 3. Draw Toll Booth Marker Icon on Route
+            // Toll booth positioned at midpoint of segment 2 (p1 to p2)
+            const tollPos = { x: (p1.x + p2.x)/2, y: (p1.y + p2.y)/2 };
+            ctx.fillStyle = '#120a06';
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(tollPos.x, tollPos.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Toll Booth Ticket Icon / Symbol
+            ctx.fillStyle = '#ffbf00';
+            ctx.font = '14px FontAwesome';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('\uf3ff', tollPos.x, tollPos.y); // Ticket/Toll icon representation
+
+            // Toll Booth Floating Label
+            ctx.fillStyle = 'rgba(28, 14, 8, 0.85)';
+            ctx.strokeStyle = '#b87333';
+            ctx.fillRect(tollPos.x - 60, tollPos.y - 38, 120, 20);
+            ctx.strokeRect(tollPos.x - 60, tollPos.y - 38, 120, 20);
+            ctx.fillStyle = '#ffbf00';
+            ctx.font = 'bold 9px Courier Prime';
+            ctx.fillText('TOLL BOOTH: RM 2.50', tollPos.x, tollPos.y - 28);
+
+            // 4. Draw Animated Vehicle / Steam Carriage along Route
+            if (isNavigating) {
+                carProgress += 0.003;
+                if (carProgress > 1.0) carProgress = 0.0;
+            }
+            // Cubic bezier formula for vehicle position
+            const t = carProgress;
+            const cx = Math.pow(1-t, 3)*p0.x + 3*Math.pow(1-t, 2)*t*p1.x + 3*(1-t)*t*t*p2.x + t*t*t*p3.x;
+            const cy = Math.pow(1-t, 3)*p0.y + 3*Math.pow(1-t, 2)*t*p1.y + 3*(1-t)*t*t*p2.y + t*t*t*p3.y;
+
+            // Carriage Pin
+            ctx.fillStyle = '#d4af37';
+            ctx.shadowColor = '#ffbf00';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+
+            // Origin Pin
+            ctx.fillStyle = '#ffbf00';
+            ctx.beginPath();
+            ctx.arc(p0.x, p0.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#d4af37';
+            ctx.font = '10px Cinzel';
+            ctx.fillText('ORIGIN', p0.x, p0.y + 18);
+
+            // Destination Pin
+            ctx.fillStyle = '#b87333';
+            ctx.beginPath();
+            ctx.arc(p3.x, p3.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffbf00';
+            ctx.font = 'bold 11px Cinzel';
+            ctx.fillText('DESTINATION', p3.x, p3.y - 16);
+
+            ctx.restore();
+            requestAnimationFrame(drawMap);
+        }
+
+        // --- Initialization ---
+        window.onload = function() {
+            resizeCanvas();
+            renderManeuvers();
+            requestAnimationFrame(drawMap);
+            // Preload voices
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
+        };
     </script>
 </body>
 </html>
