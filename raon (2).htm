@@ -5,333 +5,454 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>raon // vogue nav</title>
 
+    <!-- Refined Vogue Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            /* Vogue Monochrome Glass Palette */
-            --bg-deep: #030304;
-            --ink: #ffffff;
-            --ink-soft: rgba(255, 255, 255, 0.75);
-            --ink-faint: rgba(255, 255, 255, 0.4);
+            /* Vogue Glass White Theme */
+            --bg-color: #f8f9fa;
+            --ink: #111111;
+            --ink-soft: rgba(17, 17, 17, 0.65);
+            --ink-faint: rgba(17, 17, 17, 0.38);
 
-            /* Accents */
-            --white-glow: rgba(255, 255, 255, 0.5);
-            --traffic-jam: #ff3b30;
-            --traffic-mod: #ffcc00;
-            --traffic-clear: #ffffff;
+            /* Minimal Accents */
+            --accent-black: #000000;
+            --accent-gold: #c5a059;
+            --accent-toll: #d97706;
+            --accent-red: #e11d48;
 
-            /* Glassmorphism */
-            --glass-bg: rgba(18, 18, 22, 0.65);
-            --glass-bg-deep: rgba(10, 10, 12, 0.88);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-border-strong: rgba(255, 255, 255, 0.45);
-            --shadow-vogue: 0 30px 90px rgba(0, 0, 0, 0.95), 0 0 40px rgba(255, 255, 255, 0.05);
+            /* Pure White Glass */
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-bg-deep: rgba(255, 255, 255, 0.92);
+            --hairline: rgba(0, 0, 0, 0.08);
+            --hairline-strong: rgba(0, 0, 0, 0.18);
+
+            /* Route Colors */
+            --route-main: #111111;
+            --route-alt: #71717a;
+            --route-toll: #d97706;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
             height: 100%; width: 100%; overflow: hidden;
-            background: var(--bg-deep);
-            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--ink);
             position: relative;
         }
 
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-deep); }
+        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: #f0f0f0; }
 
-        /* High-contrast Vogue monochrome dark tile filter */
+        /* Subtle desaturated minimal light map tiles */
         .vogue-tiles .leaflet-tile {
-            filter: brightness(0.65) contrast(1.4) saturate(0) invert(0.92);
+            filter: grayscale(0.85) contrast(1.05) brightness(1.02);
         }
-        .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
+        .leaflet-container { background: #f0f0f0 !important; font-family: inherit; }
 
+        /* Vogue Glass Panel */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(36px) saturate(180%);
-            -webkit-backdrop-filter: blur(36px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-vogue);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid var(--hairline);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
             border-radius: 12px;
             position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
         }
 
         .top-container {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 0px) + 14px);
+            top: calc(env(safe-area-inset-top, 0px) + 12px);
             left: 14px; right: 14px;
             z-index: 2000;
-            display: flex; flex-direction: column; gap: 10px;
+            display: flex; flex-direction: column; gap: 8px;
         }
 
         .search-box-panel {
-            padding: 8px;
-            display: flex; align-items: center; gap: 10px;
+            padding: 6px;
+            display: flex; align-items: center; gap: 8px;
+            position: relative; z-index: 2500;
         }
 
         .search-input-wrapper {
             flex: 1; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px; padding: 10px 14px; gap: 12px;
-            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid transparent;
+            border-radius: 8px; padding: 10px 14px; gap: 10px;
+            transition: all 0.25s ease;
         }
         .search-input-wrapper:focus-within {
             border-color: var(--ink);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .search-input-wrapper input {
             background: transparent; border: none; outline: none; color: var(--ink);
             font-family: 'Inter', sans-serif;
-            font-size: 14px; width: 100%; font-weight: 400; letter-spacing: 0.5px;
+            font-size: 13px; width: 100%; font-weight: 400;
+            letter-spacing: 0.3px;
         }
-        .search-input-wrapper input::placeholder { color: var(--ink-faint); }
+        .search-input-wrapper input::placeholder {
+            color: var(--ink-faint); font-weight: 300;
+        }
 
         .mic-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--ink);
-            width: 36px; height: 36px; border-radius: 8px;
+            background: transparent; border: none; color: var(--ink);
+            width: 32px; height: 32px; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px; transition: all 0.3s ease; flex-shrink: 0;
+            cursor: pointer; font-size: 13px; transition: all 0.2s ease; flex-shrink: 0;
         }
-        .mic-btn:hover { border-color: var(--ink); background: rgba(255, 255, 255, 0.15); }
-        .mic-btn.listening {
-            background: #ffffff; color: #000000; border-color: #ffffff;
-            animation: pulseMic 1s infinite alternate;
-        }
-        @keyframes pulseMic { 0% { opacity: 0.7; } 100% { opacity: 1; box-shadow: 0 0 15px #ffffff; } }
+        .mic-btn:hover { background: rgba(0,0,0,0.05); }
+        .mic-btn.listening { color: var(--accent-red); animation: pulseListening 1.2s infinite; }
+        @keyframes pulseListening { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         .search-results-dropdown {
             position: absolute; top: calc(100% + 8px); left: 0; right: 0;
             max-height: 280px; overflow-y: auto;
             display: none; flex-direction: column; z-index: 4000; padding: 6px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            border: 1px solid var(--glass-border-strong);
-            box-shadow: var(--shadow-vogue); border-radius: 10px;
+            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+            border: 1px solid var(--hairline-strong);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
         }
         .search-results-dropdown.active { display: flex; }
 
         .search-item {
-            padding: 12px 16px; cursor: pointer; font-size: 13px;
+            padding: 12px 14px; cursor: pointer; font-size: 13px;
             display: flex; align-items: center; gap: 12px;
-            transition: all 0.2s ease; color: var(--ink-soft);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;
+            transition: background 0.2s ease; color: var(--ink);
+            border-bottom: 1px solid var(--hairline); font-weight: 400;
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover { background: rgba(255, 255, 255, 0.12); color: var(--ink); }
+        .search-item:hover { background: rgba(0, 0, 0, 0.04); border-radius: 6px; }
 
         .shortcuts-row {
-            display: flex; gap: 8px; overflow-x: auto;
-            padding-bottom: 2px; scrollbar-width: none;
+            display: flex; gap: 6px; overflow-x: auto;
+            padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
         }
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
             background: var(--glass-bg);
-            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 9px 16px; font-family: 'Cinzel', serif;
-            font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-            color: var(--ink-soft); white-space: nowrap; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: all 0.25s ease;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--hairline); border-radius: 20px;
+            padding: 8px 16px; font-family: 'Inter', sans-serif;
+            font-size: 11px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase;
+            color: var(--ink); white-space: nowrap; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
         }
-        .chip-btn:hover { background: #ffffff; color: #000000; border-color: #ffffff; }
+        .chip-btn:hover { background: #ffffff; border-color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
         .header-controls-bar {
-            padding: 8px; display: flex; align-items: center;
-            justify-content: space-between; gap: 8px; border-radius: 12px;
+            padding: 6px 10px; display: flex; align-items: center;
+            justify-content: space-between; gap: 6px; z-index: 1000;
         }
 
-        .toggle-btn {
-            background: transparent; border: 1px solid var(--glass-border);
-            color: var(--ink-soft); padding: 8px 14px; border-radius: 8px;
-            font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
-            display: flex; align-items: center; gap: 7px; transition: all 0.25s ease;
+        .mode-selector {
+            display: flex; background: rgba(0, 0, 0, 0.04);
+            border-radius: 8px; padding: 2px; gap: 2px;
         }
-        .toggle-btn:hover, .toggle-btn.active {
-            background: #ffffff; color: #000000; border-color: #ffffff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        .mode-btn {
+            background: transparent; border: none; color: var(--ink-soft);
+            padding: 6px 12px; border-radius: 6px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
+        }
+        .mode-btn.active {
+            background: #ffffff; color: var(--ink); font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .toll-toggle-btn, .ultron-voice-btn {
+            background: transparent; border: 1px solid var(--hairline);
+            color: var(--ink-soft); padding: 7px 14px; border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+            letter-spacing: 0.5px; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+        }
+        .toll-toggle-btn.active, .ultron-voice-btn.active {
+            background: #ffffff; color: var(--ink); border-color: var(--ink);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .turn-banner {
-            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 160px);
+            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 148px);
             left: 14px; right: 14px; z-index: 999; padding: 16px 20px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            border: 1px solid var(--glass-border-strong); border-radius: 12px;
-            box-shadow: var(--shadow-vogue);
+            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+            border: 1px solid var(--hairline-strong); border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.06);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
-            width: 48px; height: 48px; border-radius: 10px;
-            background: #ffffff; color: #000000;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--ink); border: none;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
+            font-size: 18px; color: #ffffff; flex-shrink: 0;
         }
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction {
-            font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700;
-            color: var(--ink); letter-spacing: 1px; text-transform: uppercase;
+            font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600;
+            color: var(--ink); line-height: 1.2;
         }
         .turn-distance {
-            font-family: 'Share Tech Mono', monospace; font-size: 11px;
-            letter-spacing: 1.5px; color: var(--ink-faint); margin-top: 4px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+            letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px;
         }
 
         .speed-badge {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 240px);
-            left: 14px; z-index: 999; padding: 12px 18px;
-            display: flex; align-items: center; gap: 12px; border-radius: 12px;
-            font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--ink-faint);
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
+            left: 14px; z-index: 999; padding: 8px 14px;
+            display: flex; align-items: center; gap: 8px;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+            letter-spacing: 1px; color: var(--ink-faint);
         }
         .speed-value {
-            font-family: 'Cinzel', serif; font-size: 24px;
+            font-family: 'Playfair Display', serif; font-size: 22px;
             color: var(--ink); font-weight: 700;
         }
 
         .side-controls {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 240px);
-            right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 10px;
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
+            right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
         }
-        .icon-btn {
-            width: 44px; height: 44px; border-radius: 12px;
-            border: 1px solid var(--glass-border); background: var(--glass-bg);
+        .icon-circle-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid var(--hairline); background: var(--glass-bg);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             color: var(--ink); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 14px; transition: all 0.25s ease;
+            cursor: pointer; font-size: 13px; transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        .icon-btn:hover { background: #ffffff; color: #000000; border-color: #ffffff; }
+        .icon-circle-btn:hover { background: #ffffff; border-color: var(--ink); }
 
         .recenter-pill {
             position: absolute; left: 50%; transform: translateX(-50%);
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 165px); z-index: 1001;
-            display: none; align-items: center; gap: 8px; padding: 11px 22px;
-            background: #ffffff; color: #000000; border: none; border-radius: 30px; cursor: pointer;
-            font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 1001;
+            display: none; align-items: center; gap: 8px; padding: 10px 20px;
+            background: var(--ink); color: #ffffff;
+            border: none; border-radius: 30px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
         .recenter-pill.show { display: flex; }
 
         .route-selection-panel {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 155px);
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
             left: 14px; right: 14px; z-index: 1000; padding: 12px;
-            display: none; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto;
+            display: none; flex-direction: column; gap: 8px;
+            max-height: 38vh; overflow-y: auto;
         }
         .route-selection-panel.active { display: flex; }
 
         .route-card {
-            background: rgba(20, 20, 25, 0.65);
-            border: 1px solid var(--glass-border); border-radius: 10px;
-            padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--hairline); border-radius: 10px;
+            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; transition: all 0.2s ease;
         }
-        .route-card:hover, .route-card.selected {
-            border-color: #ffffff; background: rgba(255, 255, 255, 0.12);
+        .route-card:hover { border-color: var(--ink); background: #ffffff; }
+        .route-card.selected { border-color: var(--ink); background: #ffffff; box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
+        .route-card-title {
+            font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600;
+            display: flex; align-items: center; gap: 10px; color: var(--ink);
+        }
+        .route-badge {
+            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px;
+            border-radius: 4px; border: 1px solid var(--hairline-strong);
+            color: var(--ink-soft); background: transparent;
+        }
+        .badge-toll { border-color: var(--accent-toll); color: var(--accent-toll); background: rgba(217, 119, 6, 0.08); }
+        .badge-notoll { border-color: var(--ink); color: var(--ink); }
+
+        .route-card-sub {
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400;
+            color: var(--ink-soft); margin-top: 4px;
         }
 
         .bottom-bar {
-            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
-            left: 14px; right: 14px; z-index: 1000; padding: 14px 18px;
-            display: flex; flex-direction: column; gap: 12px; border-radius: 16px;
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
+            left: 14px; right: 14px; z-index: 1000; padding: 12px 16px;
+            display: flex; flex-direction: column; gap: 10px;
         }
         .action-buttons { display: flex; gap: 8px; width: 100%; }
 
         .btn {
-            border: 1px solid var(--glass-border); padding: 13px 16px; border-radius: 10px;
-            font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft);
-            background: var(--glass-bg); cursor: pointer;
+            border: 1px solid var(--hairline); padding: 12px 18px; border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink);
+            background: #ffffff; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.25s ease; flex: 1;
+            transition: all 0.2s ease; flex: 1;
         }
-        .btn:hover { background: rgba(255, 255, 255, 0.15); color: #ffffff; border-color: #ffffff; }
-        .btn-primary { background: #ffffff; color: #000000; border-color: #ffffff; }
-        .btn-primary:hover { background: #e0e0e0; color: #000000; }
-        .btn-danger { border-color: var(--traffic-jam); color: var(--traffic-jam); }
-        .btn-danger:hover { background: var(--traffic-jam); color: #ffffff; }
-        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn-primary { background: var(--ink); color: #ffffff; border-color: var(--ink); }
+        .btn-primary:hover { background: #222222; }
+        .btn-danger { background: #ffffff; border-color: var(--accent-red); color: var(--accent-red); }
 
         #routeMetrics {
-            font-family: 'Share Tech Mono', monospace; font-size: 10px;
-            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint);
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+            letter-spacing: 0.5px; color: var(--ink-soft);
             display: flex; justify-content: space-between; align-items: center;
         }
         #routeMetrics strong { color: var(--ink); font-weight: 700; }
 
-        .user-location-marker { position: relative; width: 32px; height: 32px; }
+        /* Minimal User & Marker Icons */
+        .user-location-marker { position: relative; width: 24px; height: 24px; }
         .user-dot {
-            width: 16px; height: 16px; background: #ffffff;
-            border: 2px solid var(--bg-deep); border-radius: 50%;
-            box-shadow: 0 0 0 2px #ffffff, 0 0 25px #ffffff;
-            position: absolute; top: 8px; left: 8px; z-index: 2;
+            width: 14px; height: 14px; background: var(--ink);
+            border: 3px solid #ffffff; border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            position: absolute; top: 5px; left: 5px; z-index: 2;
+        }
+        .dest-pin-icon { font-size: 24px; color: var(--ink); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2)); }
+
+        /* Toll Marker Styling */
+        .toll-marker-icon {
+            background: #ffffff; border: 1.5px solid var(--accent-toll);
+            color: var(--accent-toll); border-radius: 50%; width: 26px; height: 26px;
+            display: flex; align-items: center; justify-content: center; font-size: 11px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
 
-        .dest-pin-icon { font-size: 28px; color: #ffffff; filter: drop-shadow(0 0 10px #ffffff); }
-        .toll-marker-icon {
-            font-size: 18px; color: #000000; background: #ffffff;
-            padding: 5px 8px; border-radius: 6px; font-family: 'Cinzel', serif;
-            font-weight: 900; box-shadow: 0 0 15px rgba(255,255,255,0.8);
-        }
+        .leaflet-routing-container { display: none !important; }
 
         .toast-msg {
-            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 64px);
-            left: 50%; transform: translateX(-50%) translateY(-10px);
-            background: var(--glass-bg-deep); backdrop-filter: blur(35px);
-            border: 1px solid #ffffff; color: #ffffff;
-            padding: 11px 22px; border-radius: 30px;
-            font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.8px; text-transform: uppercase;
-            z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.35s ease;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3); white-space: nowrap;
+            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
+            left: 50%; transform: translateX(-50%);
+            background: var(--ink); color: #ffffff;
+            padding: 10px 20px; border-radius: 20px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+            letter-spacing: 0.5px;
+            z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); white-space: nowrap;
         }
-        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
+
+        .tab-bar {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+            left: 14px; right: 14px; z-index: 1100;
+            display: flex; align-items: center; justify-content: space-around;
+            padding: 8px; border-radius: 12px;
+        }
+        .tab-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: transparent; border: none; color: var(--ink-faint);
+            padding: 6px 0; font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+        }
+        .tab-btn i { font-size: 15px; }
+        .tab-btn.active { color: var(--ink); font-weight: 600; }
+
+        .overlay-panel {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 3000; display: none;
+            background: rgba(248, 249, 250, 0.96);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px calc(env(safe-area-inset-bottom, 0px) + 90px);
+        }
+        .overlay-panel.active { display: flex; flex-direction: column; }
+
+        .overlay-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);
+        }
+        .overlay-title {
+            font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--ink);
+        }
+        .overlay-close {
+            width: 36px; height: 36px; border-radius: 50%; background: transparent;
+            border: 1px solid var(--hairline); color: var(--ink);
+            font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .overlay-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+
+        .list-card {
+            background: #ffffff; border: 1px solid var(--hairline); border-radius: 10px;
+            padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+        }
+        .list-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--ink); }
+        .list-sub { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+
+        .settings-row {
+            display: flex; align-items: center; justify-content: space-between; padding: 16px;
+            background: #ffffff; border: 1px solid var(--hairline); border-radius: 10px;
+        }
+
+        .toggle-switch {
+            width: 44px; height: 24px; border-radius: 12px; background: rgba(0, 0, 0, 0.1);
+            position: relative; cursor: pointer; transition: all 0.2s ease;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+            border-radius: 50%; background: #ffffff; transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .toggle-switch.on { background: var(--ink); }
+        .toggle-switch.on::after { transform: translateX(20px); }
+
+        .route-loading {
+            display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
+            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; color: var(--ink-soft);
+        }
+        .spinner {
+            width: 16px; height: 16px; border: 2px solid var(--hairline-strong);
+            border-top-color: var(--ink); border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="vogue-tiles">
 
-    <div id="toast" class="toast-msg">// SYSTEM ONLINE</div>
+    <div id="toast" class="toast-msg">SYSTEM ONLINE</div>
 
     <div class="top-container">
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink); font-size: 13px;"></i>
-                <input type="text" id="searchInput" placeholder="ENTER DESTINATION..." oninput="handleSearchInput(this.value)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint);" onclick="clearSearchInput()"></i>
-                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice Search"><i class="fa-solid fa-microphone"></i></button>
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink-faint); font-size: 13px;"></i>
+                <input type="text" id="searchInput" placeholder="Search destination..." oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;" onclick="clearSearchInput()"></i>
+                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
             </div>
             <div class="search-results-dropdown" id="searchResults"></div>
         </div>
 
         <div class="shortcuts-row">
-            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> FUEL</button>
-            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> PARK</button>
-            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> CAFE</button>
-            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> FOOD</button>
+            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> Fuel</button>
+            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> Park</button>
+            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> Cafe</button>
+            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> Dining</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home</button>
         </div>
 
         <div class="glass-panel header-controls-bar">
-            <button class="toggle-btn" id="trafficToggleBtn" onclick="toggleTrafficLayer()">
-                <i class="fa-solid fa-car-side"></i> <span id="trafficBtnLabel">TRAFFIC</span>
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> <span>Drive</span></button>
+                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>Bike</span></button>
+                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
+            </div>
+
+            <button class="toll-toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
+                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">Tolls</span>
             </button>
-            <button class="toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
-                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">TOLLS</span>
-            </button>
-            <button class="toggle-btn active" id="voiceToggleBtn" onclick="toggleVoice()">
-                <i class="fa-solid fa-volume-high"></i> <span>VOICE</span>
+
+            <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
+                <i class="fa-solid fa-volume-high"></i> <span>Voice</span>
             </button>
         </div>
     </div>
@@ -339,30 +460,29 @@
     <div class="turn-banner" id="turnBanner">
         <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
         <div class="turn-details">
-            <div class="turn-instruction" id="turnInstruction">AWAITING TARGET</div>
-            <div class="turn-distance" id="turnDistance">CALCULATING ROUTE</div>
+            <div class="turn-instruction" id="turnInstruction">Awaiting Destination</div>
+            <div class="turn-distance" id="turnDistance">Calculating Route</div>
         </div>
     </div>
 
     <div class="speed-badge glass-panel">
-        <i class="fa-solid fa-gauge-high"></i>
         <span class="speed-value" id="speedValue">0</span>
         <span>KM/H</span>
     </div>
 
     <div class="side-controls">
-        <button class="icon-btn" onclick="zoomBy(1)"><i class="fa-solid fa-plus"></i></button>
-        <button class="icon-btn" onclick="zoomBy(-1)"><i class="fa-solid fa-minus"></i></button>
-        <button class="icon-btn" id="recenterBtn" onclick="recenterUser()"><i class="fa-solid fa-crosshairs"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
+        <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
 
     <button class="recenter-pill" id="recenterPill" onclick="recenterUser()">
-        <i class="fa-solid fa-location-crosshairs"></i> RE-CENTRE
+        <i class="fa-solid fa-location-crosshairs"></i> Recentre
     </button>
 
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-family:'Cinzel',serif; font-size:10px; font-weight:700; letter-spacing:2px; color:var(--ink); padding: 4px 6px 8px;">
-            // ROUTE OPTIONS
+        <div style="font-family:'Inter',sans-serif; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--ink-faint); padding: 2px 4px 6px;">
+            Suggested Routes
         </div>
         <div id="routeCardsContainer"></div>
     </div>
@@ -371,18 +491,72 @@
 
     <div class="bottom-bar glass-panel">
         <div id="routeMetrics">
-            <span>SELECT DESTINATION</span>
+            <span>Tap map or search destination</span>
         </div>
         <div class="action-buttons">
             <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
-                <i class="fa-solid fa-location-arrow"></i> START
+                <i class="fa-solid fa-location-arrow"></i> Start
             </button>
             <button class="btn" id="simDriveBtn" onclick="toggleSimulation()" disabled>
-                <i class="fa-solid fa-play"></i> SIM
+                <i class="fa-solid fa-play"></i> Sim
             </button>
-            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none;">
+            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none; flex: 0.4;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
+        </div>
+    </div>
+
+    <div class="tab-bar glass-panel">
+        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
+            <i class="fa-solid fa-map"></i><span>Map</span>
+        </button>
+        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
+            <i class="fa-solid fa-clock-rotate-left"></i><span>Recent</span>
+        </button>
+        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
+            <i class="fa-solid fa-bookmark"></i><span>Saved</span>
+        </button>
+        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+            <i class="fa-solid fa-sliders"></i><span>Config</span>
+        </button>
+    </div>
+
+    <div class="overlay-panel" id="panel-recents">
+        <div class="overlay-header">
+            <div class="overlay-title">Recents</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="recentsList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-saved">
+        <div class="overlay-header">
+            <div class="overlay-title">Saved Places</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="savedList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-settings">
+        <div class="overlay-header">
+            <div class="overlay-title">Configuration</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content">
+            <div class="settings-row">
+                <div>
+                    <div style="font-weight:600;">Voice Guidance</div>
+                    <div style="font-size:11px; color:var(--ink-soft);">Natural male voice synthesis</div>
+                </div>
+                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
+            </div>
+            <div class="settings-row">
+                <div>
+                    <div style="font-weight:600;">Avoid Tolls</div>
+                    <div style="font-size:11px; color:var(--ink-soft);">Filter out toll roads</div>
+                </div>
+                <div class="toggle-switch" id="settingsTollToggle" onclick="toggleAvoidTolls()"></div>
+            </div>
         </div>
     </div>
 
@@ -393,9 +567,11 @@
         let activeDestination = null, destMarker = null;
         let watchId = null, simInterval = null;
         let isNavigating = false, isSimulating = false, isTrackingCamera = true;
-        let voiceEnabled = true, avoidTolls = false, showTraffic = true;
-        let synth = window.speechSynthesis;
-        let maleVoice = null;
+        let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis;
+        let nextStepIdx = 1, simSpeedKmh = 0;
+        let manualZoomUntil = 0, autoRecenterTimer = null;
+        let normalMaleVoice = null;
+        let travelMode = 'car';
 
         let routesList = [];
         let selectedRouteIndex = 0;
@@ -403,8 +579,12 @@
         let tollMarkers = [];
         let activeRouteCoordinates = [];
         let activeRouteInstructions = [];
-        let nextStepIdx = 1, simSpeedKmh = 0;
+        let lastSpokenInstructionIndex = -1;
         let debounceTimer = null;
+
+        let recents = JSON.parse(localStorage.getItem('raon_recents') || '[]');
+        let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
+        let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
 
         const DEFAULT_LOCATION = [1.4927, 103.7414];
 
@@ -412,7 +592,7 @@
             initMap();
             pickMaleVoice();
             if (synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = pickMaleVoice;
-            requestLocation();
+            requestLocationWithSafariFallback();
         });
 
         function showToast(msg) {
@@ -423,84 +603,150 @@
         }
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-            map.on('click', (e) => setDestination(e.latlng));
+            map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.5 }).setView(DEFAULT_LOCATION, 15);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+
+            map.on('click', (e) => {
+                if (!userCoords) requestLocationWithSafariFallback();
+                setDestination(e.latlng);
+            });
+
+            map.on('dragstart', () => {
+                isTrackingCamera = false;
+                updateRecenterUI();
+                if (isNavigating) {
+                    clearTimeout(autoRecenterTimer);
+                    autoRecenterTimer = setTimeout(() => { if (isNavigating) recenterUser(); }, 10000);
+                }
+            });
         }
+
+        /* Normal, natural male voice selection algorithm */
+        const MALE_VOICE_PREFS = [
+            'google uk english male', 'microsoft david', 'microsoft guy', 'microsoft mark',
+            'daniel', 'alex', 'tom', 'aaron', 'arthur', 'male'
+        ];
 
         function pickMaleVoice() {
             if (!synth) return;
             const voices = synth.getVoices() || [];
-            const maleHints = ['google uk english male', 'david', 'alex', 'daniel', 'male', 'guy', 'mark'];
-            const enVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
-            for (let hint of maleHints) {
-                let match = enVoices.find(v => v.name.toLowerCase().includes(hint));
-                if (match) { maleVoice = match; return; }
+            const englishVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+            
+            for (const pref of MALE_VOICE_PREFS) {
+                const match = englishVoices.find(v => v.name.toLowerCase().includes(pref));
+                if (match) { normalMaleVoice = match; return; }
             }
-            maleVoice = enVoices[0] || voices[0] || null;
+            normalMaleVoice = englishVoices[0] || voices[0] || null;
         }
 
-        function speak(text) {
-            if (!voiceEnabled || !synth) return;
+        function speakGuidance(text) {
+            if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
+
             const utterance = new SpeechSynthesisUtterance(text);
-            if (!maleVoice) pickMaleVoice();
-            if (maleVoice) utterance.voice = maleVoice;
-            utterance.pitch = 0.85; // Clean natural male pitch
+            if (!normalMaleVoice) pickMaleVoice();
+            if (normalMaleVoice) {
+                utterance.voice = normalMaleVoice;
+                utterance.lang = normalMaleVoice.lang;
+            }
+            
+            // Standard male TTS parameters (natural pitch & standard cadence)
+            utterance.pitch = 1.0;
             utterance.rate = 0.95;
+            utterance.volume = 1.0;
             synth.speak(utterance);
         }
 
-        function requestLocation() {
+        function requestLocationWithSafariFallback() {
             if (!("geolocation" in navigator)) {
                 userCoords = L.latLng(DEFAULT_LOCATION);
-                updateUserMarker(userCoords);
+                updateUserMarker(userCoords, 100);
                 return;
             }
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    updateUserMarker(userCoords);
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
                     if (isTrackingCamera) map.setView(userCoords, 16);
+                    startGPSWatch();
                 },
                 () => {
                     userCoords = L.latLng(DEFAULT_LOCATION);
-                    updateUserMarker(userCoords);
+                    updateUserMarker(userCoords, 100);
                 },
                 { enableHighAccuracy: true, timeout: 8000 }
             );
         }
 
-        function updateUserMarker(coords) {
+        function startGPSWatch() {
+            if (watchId !== null) return;
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
+                    document.getElementById('speedValue').innerText = speed;
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isNavigating) {
+                        simSpeedKmh = speed;
+                        followCamera();
+                        checkManeuverProximity();
+                    } else if (isTrackingCamera) {
+                        map.panTo(userCoords, { animate: true });
+                    }
+                },
+                () => {},
+                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+            );
+        }
+
+        function updateUserMarker(coords, accuracy) {
             if (userMarker) {
                 userMarker.setLatLng(coords);
+                accuracyCircle.setLatLng(coords);
             } else {
                 const icon = L.divIcon({
                     className: 'user-location-marker',
                     html: `<div class="user-dot"></div>`,
-                    iconSize: [32, 32], iconAnchor: [16, 16]
+                    iconSize: [24, 24], iconAnchor: [12, 12]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#111111', fillColor: '#111111', fillOpacity: 0.05, weight: 1 }).addTo(map);
             }
         }
 
         function recenterUser() {
             isTrackingCamera = true;
-            if (userCoords) map.flyTo(userCoords, isNavigating ? 17 : 16, { animate: true });
+            if (userCoords) map.flyTo(userCoords, 16, { animate: true });
+            updateRecenterUI();
         }
 
-        function zoomBy(delta) { map.setZoom(map.getZoom() + delta); }
+        function updateRecenterUI() {
+            const pill = document.getElementById('recenterPill');
+            if (pill) pill.classList.toggle('show', isNavigating && !isTrackingCamera);
+        }
+
+        function zoomBy(delta) {
+            map.setZoom(Math.max(3, Math.min(19, map.getZoom() + delta)));
+        }
+
+        function followCamera() {
+            if (!isTrackingCamera || !userCoords) return;
+            map.setView(userCoords, map.getZoom(), { animate: true, duration: 0.8 });
+        }
 
         function handleSearchInput(query) {
-            document.getElementById('searchClearBtn').style.display = query ? 'block' : 'none';
+            const clearBtn = document.getElementById('searchClearBtn');
+            clearBtn.style.display = query ? 'block' : 'none';
             clearTimeout(debounceTimer);
             if (!query || query.trim().length < 2) {
                 document.getElementById('searchResults').classList.remove('active');
                 return;
             }
             debounceTimer = setTimeout(() => {
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
-                    .then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
             }, 300);
         }
 
@@ -511,10 +757,13 @@
             results.forEach(res => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${res.display_name}</span>`;
+                item.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--ink-soft)"></i> <span>${res.display_name}</span>`;
                 item.onclick = () => {
-                    setDestination(L.latLng(parseFloat(res.lat), parseFloat(res.lon)), res.display_name.split(',')[0]);
+                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+                    const name = res.display_name.split(',')[0];
+                    setDestination(latLng, name);
                     dropdown.classList.remove('active');
+                    document.getElementById('searchInput').value = name;
                 };
                 dropdown.appendChild(item);
             });
@@ -523,6 +772,7 @@
 
         function searchCategory(cat) {
             if (!userCoords) return;
+            document.getElementById('searchInput').value = cat;
             handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
         }
 
@@ -532,14 +782,14 @@
             document.getElementById('searchResults').classList.remove('active');
         }
 
-        function setDestination(latLng, label = "TARGET") {
+        function setDestination(latLng, label = "Target") {
             activeDestination = latLng;
-            if (!userCoords) userCoords = L.latLng(DEFAULT_LOCATION);
+            if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
             if (destMarker) map.removeLayer(destMarker);
             const pinIcon = L.divIcon({
                 className: 'dest-pin',
                 html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
-                iconSize: [32, 32], iconAnchor: [16, 32]
+                iconSize: [24, 24], iconAnchor: [12, 24]
             });
             destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
             calculateRoutes(label);
@@ -551,26 +801,50 @@
             const panel = document.getElementById('routeSelectionPanel');
             const container = document.getElementById('routeCardsContainer');
             panel.classList.add('active');
-            container.innerHTML = `<div style="padding:15px; color:var(--ink-faint);">CALCULATING ROUTE...</div>`;
+            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Calculating optimal route...</div>`;
 
-            let url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
-            if (avoidTolls) url += '&exclude=toll';
+            const base = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
 
-            fetch(url).then(r => r.json()).then(data => {
-                if (data.routes && data.routes.length > 0) {
-                    routesList = data.routes.map(r => ({
-                        ...r,
-                        hasToll: (r.legs[0].steps || []).some(s => (s.intersections || []).some(i => (i.classes || []).includes('toll')))
-                    }));
-                    selectedRouteIndex = 0;
-                    renderRouteCards(label);
-                    selectRoute(0);
-                    document.getElementById('startNavBtn').disabled = false;
-                    document.getElementById('simDriveBtn').disabled = false;
-                    document.getElementById('clearBtn').style.display = 'block';
-                    speak("Route calculated.");
-                }
-            });
+            fetch(base)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        routesList = data.routes.map(r => {
+                            const tollPoints = [];
+                            (r.legs || []).forEach(leg => {
+                                (leg.steps || []).forEach(step => {
+                                    const text = `${step.name || ''} ${step.ref || ''}`.toLowerCase();
+                                    const isToll = /\btoll\b|\btol\b|plaza tol|expressway|highway/.test(text) ||
+                                        (step.intersections || []).some(i => (i.classes || []).includes('toll'));
+                                    if (isToll && step.maneuver) {
+                                        tollPoints.push({
+                                            coords: [step.maneuver.location[1], step.maneuver.location[0]],
+                                            name: step.name || 'Toll Plaza'
+                                        });
+                                    }
+                                });
+                            });
+                            return { ...r, tollPoints, hasToll: tollPoints.length > 0 };
+                        });
+
+                        if (avoidTolls) {
+                            const freeRoutes = routesList.filter(r => !r.hasToll);
+                            if (freeRoutes.length > 0) routesList = freeRoutes;
+                            else showToast("No toll-free alternative available");
+                        }
+
+                        selectedRouteIndex = 0;
+                        renderRouteCards(label);
+                        selectRoute(0);
+                        enableActionButtons();
+                        speakGuidance("Route calculated.");
+                    } else {
+                        container.innerHTML = `<div class="route-loading">No route found.</div>`;
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = `<div class="route-loading">Error retrieving route.</div>`;
+                });
         }
 
         function renderRouteCards(label) {
@@ -579,14 +853,22 @@
             routesList.forEach((r, idx) => {
                 const mins = Math.round(r.duration / 60);
                 const km = (r.distance / 1000).toFixed(1);
+                let tollBadge = r.hasToll
+                    ? `<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> ${r.tollPoints.length} Toll Gate(s)</span>`
+                    : `<span class="route-badge badge-notoll">No Tolls</span>`;
+
                 const card = document.createElement('div');
                 card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
                 card.onclick = () => selectRoute(idx);
                 card.innerHTML = `
                     <div>
-                        <div style="font-weight:700;">${label} ${idx === 0 ? '(FASTEST)' : '(ALT)'}</div>
-                        <div style="font-size:11px; color:var(--ink-faint); margin-top:4px;">${mins} MINS · ${km} KM ${r.hasToll ? '· TOLL' : ''}</div>
+                        <div class="route-card-title">
+                            <span>${label}</span>
+                            ${tollBadge}
+                        </div>
+                        <div class="route-card-sub">${mins} min · ${km} km</div>
                     </div>
+                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" style="font-size:12px;"></i>
                 `;
                 container.appendChild(card);
             });
@@ -600,122 +882,220 @@
         function renderRouteOnMap(routeData) {
             clearPolylines();
             clearTollMarkers();
+
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
             activeRouteInstructions = routeData.legs[0].steps;
 
-            // Render Traffic Color Segments
-            const pts = activeRouteCoordinates;
-            if (showTraffic && pts.length > 1) {
-                const split = Math.floor(pts.length * 0.7);
-                currentRoutePolylines.push(L.polyline(pts.slice(0, split + 1), { color: '#ffffff', weight: 6 }).addTo(map));
-                currentRoutePolylines.push(L.polyline(pts.slice(split), { color: var(--traffic-jam), weight: 6 }).addTo(map));
-            } else {
-                currentRoutePolylines.push(L.polyline(pts, { color: '#ffffff', weight: 6 }).addTo(map));
+            // Clean dark-grey polyline for minimal look
+            const mainPolyline = L.polyline(activeRouteCoordinates, {
+                color: '#111111', weight: 5, opacity: 0.9
+            }).addTo(map);
+            currentRoutePolylines.push(mainPolyline);
+
+            // Render Toll Booth Markers on map
+            if (routeData.tollPoints && routeData.tollPoints.length > 0) {
+                routeData.tollPoints.forEach((toll) => {
+                    const icon = L.divIcon({
+                        className: 'toll-marker-wrapper',
+                        html: `<div class="toll-marker-icon" title="Toll Booth: ${toll.name}"><i class="fa-solid fa-road-barrier"></i></div>`,
+                        iconSize: [26, 26], iconAnchor: [13, 13]
+                    });
+                    const marker = L.marker(toll.coords, { icon }).addTo(map)
+                        .bindPopup(`<b>Toll Plaza</b><br>${toll.name}`);
+                    tollMarkers.push(marker);
+                });
             }
 
-            // Detect and add Toll Markers on Map
-            activeRouteInstructions.forEach(step => {
-                if ((step.intersections || []).some(i => (i.classes || []).includes('toll'))) {
-                    const loc = [step.maneuver.location[1], step.maneuver.location[0]];
-                    const tIcon = L.divIcon({
-                        className: 'toll-marker',
-                        html: `<div class="toll-marker-icon">TOL</div>`,
-                        iconSize: [36, 24]
-                    });
-                    tollMarkers.push(L.marker(loc, { icon: tIcon }).addTo(map));
-                }
-            });
+            map.fitBounds(mainPolyline.getBounds(), { padding: [60, 60] });
 
-            map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
             const mins = Math.round(routeData.duration / 60);
             const km = (routeData.distance / 1000).toFixed(1);
-            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA</strong> ${mins} MINS &nbsp; <strong>DIST</strong> ${km} KM</span>`;
+            const tollText = routeData.hasToll
+                ? `<span style="color:var(--accent-toll);"><i class="fa-solid fa-road-barrier"></i> ${routeData.tollPoints.length} Toll Gate(s) on route</span>`
+                : `<span style="color:var(--ink);"><i class="fa-solid fa-check"></i> Toll-Free Route</span>`;
+
+            document.getElementById('routeMetrics').innerHTML = `
+                <span><strong>ETA</strong> ${mins} mins &nbsp; <strong>Distance</strong> ${km} km</span>
+                ${tollText}
+            `;
+
             if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
         }
 
-        function clearPolylines() { currentRoutePolylines.forEach(p => map.removeLayer(p)); currentRoutePolylines = []; }
-        function clearTollMarkers() { tollMarkers.forEach(m => map.removeLayer(m)); tollMarkers = []; }
+        function clearPolylines() {
+            currentRoutePolylines.forEach(p => map.removeLayer(p));
+            currentRoutePolylines = [];
+        }
 
-        function updateTurnBanner(step) {
-            document.getElementById('turnBanner').classList.add('active');
-            document.getElementById('turnInstruction').innerText = (step.maneuver.type + " " + (step.name || '')).toUpperCase();
-            document.getElementById('turnDistance').innerText = `NEXT ${Math.round(step.distance)} METERS`;
+        function clearTollMarkers() {
+            tollMarkers.forEach(m => map.removeLayer(m));
+            tollMarkers = [];
         }
 
         function toggleAvoidTolls() {
             avoidTolls = !avoidTolls;
             document.getElementById('tollToggleBtn').classList.toggle('active', avoidTolls);
-            showToast(avoidTolls ? "// AVOIDING TOLLS" : "// TOLLS ALLOWED");
-            if (activeDestination) calculateRoutes("TARGET");
+            document.getElementById('settingsTollToggle').classList.toggle('on', avoidTolls);
+            showToast(avoidTolls ? "Avoiding Tolls" : "Tolls Allowed");
+            if (activeDestination) calculateRoutes("Target");
         }
 
-        function toggleTrafficLayer() {
-            showTraffic = !showTraffic;
-            document.getElementById('trafficToggleBtn').classList.toggle('active', showTraffic);
-            if (routesList.length > 0) renderRouteOnMap(routesList[selectedRouteIndex]);
+        function enableActionButtons() {
+            document.getElementById('startNavBtn').disabled = false;
+            document.getElementById('simDriveBtn').disabled = false;
+            document.getElementById('clearBtn').style.display = 'block';
         }
 
-        function toggleVoice() {
-            voiceEnabled = !voiceEnabled;
-            document.getElementById('voiceToggleBtn').classList.toggle('active', voiceEnabled);
-            showToast(voiceEnabled ? "// VOICE ONLINE" : "// VOICE MUTED");
+        function buildInstruction(step) {
+            const m = step.maneuver || {};
+            const road = step.name ? ` onto ${step.name}` : '';
+            switch (m.type) {
+                case 'turn': return `Turn ${m.modifier || ''}${road}`;
+                case 'arrive': return 'You have arrived at your destination';
+                case 'depart': return `Head straight${step.name ? ' on ' + step.name : ''}`;
+                default: return `Continue${road}`;
+            }
+        }
+
+        function updateTurnBanner(step, liveDist) {
+            const banner = document.getElementById('turnBanner');
+            banner.classList.add('active');
+            const inst = buildInstruction(step);
+            const d = (liveDist !== undefined) ? liveDist : step.distance;
+            const dist = d > 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`;
+            document.getElementById('turnInstruction').innerText = inst;
+            document.getElementById('turnDistance').innerText = `In ${dist}`;
         }
 
         function toggleNavigation() {
-            isNavigating = !isNavigating;
-            document.getElementById('startNavBtn').innerText = isNavigating ? 'END' : 'START';
-            if (isNavigating) speak("Navigation started.");
-            else document.getElementById('turnBanner').classList.remove('active');
+            if (isNavigating) {
+                stopNavigation();
+            } else {
+                isNavigating = true;
+                isTrackingCamera = true;
+                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End`;
+                document.getElementById('startNavBtn').className = "btn btn-danger";
+                document.getElementById('routeSelectionPanel').classList.remove('active');
+                speakGuidance("Starting navigation.");
+            }
         }
 
-        /* AUTO RE-ROUTING (OFF-ROUTE DISTANCE CHECK) */
-        function checkOffRoute(coords) {
-            if (!isNavigating || activeRouteCoordinates.length === 0) return;
-            let minDist = Infinity;
-            activeRouteCoordinates.forEach(pt => {
-                let d = coords.distanceTo(L.latLng(pt));
-                if (d < minDist) minDist = d;
-            });
-            if (minDist > 35) { // Straying > 35m off path triggers automatic re-routing
-                showToast("// OFF ROUTE - RE-ROUTING");
-                speak("Off route. Recalculating route.");
-                calculateRoutes("TARGET");
+        function stopNavigation() {
+            isNavigating = false;
+            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
+            document.getElementById('startNavBtn').className = "btn btn-primary";
+            document.getElementById('turnBanner').classList.remove('active');
+            synth.cancel();
+        }
+
+        function checkManeuverProximity() {
+            if (!activeRouteInstructions || !userCoords) return;
+            const step = activeRouteInstructions[nextStepIdx];
+            if (!step) return;
+            const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+            const dist = userCoords.distanceTo(wp);
+            updateTurnBanner(step, dist);
+
+            if (dist < 40 && lastSpokenInstructionIndex !== nextStepIdx) {
+                lastSpokenInstructionIndex = nextStepIdx;
+                speakGuidance(buildInstruction(step));
+                if (nextStepIdx < activeRouteInstructions.length - 1) nextStepIdx++;
             }
         }
 
         function toggleSimulation() {
-            if (isSimulating) {
-                clearInterval(simInterval);
-                isSimulating = false;
-                document.getElementById('simDriveBtn').innerText = 'SIM';
-            } else {
-                isSimulating = true;
-                isNavigating = true;
-                document.getElementById('simDriveBtn').innerText = 'HOLD';
-                let idx = 0;
-                simInterval = setInterval(() => {
-                    if (idx >= activeRouteCoordinates.length) {
-                        clearInterval(simInterval);
-                        speak("Destination reached.");
-                        return;
-                    }
-                    userCoords = L.latLng(activeRouteCoordinates[idx]);
-                    updateUserMarker(userCoords);
-                    map.panTo(userCoords);
-                    idx += 2;
-                }, 800);
-            }
+            if (isSimulating) stopSimulation();
+            else startSimulation();
+        }
+
+        function startSimulation() {
+            if (activeRouteCoordinates.length === 0) return;
+            isSimulating = true;
+            isNavigating = true;
+            let index = 0;
+            simInterval = setInterval(() => {
+                if (index >= activeRouteCoordinates.length) {
+                    stopSimulation();
+                    speakGuidance("Destination reached.");
+                    return;
+                }
+                userCoords = L.latLng(activeRouteCoordinates[index]);
+                updateUserMarker(userCoords, 10);
+                followCamera();
+                checkManeuverProximity();
+                index += 2;
+            }, 800);
+            speakGuidance("Simulation started.");
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            isNavigating = false;
+            clearInterval(simInterval);
         }
 
         function clearActiveRoute() {
+            stopNavigation();
+            stopSimulation();
             clearPolylines();
             clearTollMarkers();
             if (destMarker) map.removeLayer(destMarker);
+            activeDestination = null;
             document.getElementById('routeSelectionPanel').classList.remove('active');
-            document.getElementById('turnBanner').classList.remove('active');
             document.getElementById('startNavBtn').disabled = true;
             document.getElementById('simDriveBtn').disabled = true;
             document.getElementById('clearBtn').style.display = 'none';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (btn) btn.classList.add('active');
+            if (tabName !== 'map') {
+                const panel = document.getElementById(`panel-${tabName}`);
+                if (panel) panel.classList.add('active');
+            }
+        }
+
+        function closeTab() {
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="map"]').classList.add('active');
+        }
+
+        function toggleUltronVoice() {
+            ultronEnabled = !ultronEnabled;
+            document.getElementById('ultronVoiceBtn').classList.toggle('active', ultronEnabled);
+            if (!ultronEnabled) synth.cancel();
+        }
+
+        function toggleSettingsVoice() { toggleUltronVoice(); }
+
+        function setTravelMode(mode) {
+            travelMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            if (activeDestination) calculateRoutes("Target");
+        }
+
+        function routeHome() {
+            if (homeLocation) setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home");
+            else showToast("Home not calibrated");
+        }
+
+        function toggleVoiceSearch() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { showToast("Voice search not supported"); return; }
+            const recognition = new SR();
+            recognition.onstart = () => showToast("Listening...");
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('searchInput').value = text;
+                handleSearchInput(text);
+            };
+            recognition.start();
         }
     </script>
 </body>
