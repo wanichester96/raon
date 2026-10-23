@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>raon map</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -20,20 +20,34 @@
             --traffic-green: #10b981;
             --traffic-yellow: #f59e0b;
             --traffic-red: #ef4444;
-            --glass-bg: rgba(10, 12, 18, 0.88);
-            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-bg: rgba(10, 12, 18, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.14);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
 
         html, body {
-            height: 100%; width: 100%; overflow: hidden;
+            height: 100%; 
+            width: 100%; 
+            overflow: hidden;
             background: var(--bg-color);
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             color: #fff;
         }
 
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
+        #map { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 0; 
+            background: var(--bg-color); 
+        }
 
         .dark-tiles .leaflet-tile {
             filter: brightness(0.6) saturate(0.6) contrast(1.2) hue-rotate(190deg) invert(0.92);
@@ -49,114 +63,208 @@
             border-radius: 20px;
         }
 
-        /* ---------- Top Header ---------- */
+        /* ---------- Top Header Layout & Search Dropdown Fix ---------- */
         .top-container {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 0px) + 12px);
-            left: 12px; right: 12px;
-            z-index: 1000;
-            display: flex; flex-direction: column; gap: 10px;
+            top: calc(env(safe-area-inset-top, 0px) + 10px);
+            left: 10px; 
+            right: 10px;
+            z-index: 2000;
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px;
         }
 
-        .search-box-panel { padding: 8px 12px; display: flex; align-items: center; gap: 10px; position: relative; }
+        .search-box-panel { 
+            padding: 8px 10px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            position: relative; 
+            z-index: 2500;
+        }
 
         .search-input-wrapper {
-            flex: 1; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px; padding: 8px 12px; gap: 10px;
+            flex: 1; 
+            display: flex; 
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 14px; 
+            padding: 8px 10px; 
+            gap: 8px;
             transition: all 0.2s ease;
         }
+
         .search-input-wrapper:focus-within {
             border-color: var(--primary-red);
             box-shadow: 0 0 12px var(--primary-glow);
         }
+
         .search-input-wrapper input {
-            background: transparent; border: none; outline: none; color: #fff;
-            font-size: 14px; width: 100%; font-weight: 500;
+            background: transparent; 
+            border: none; 
+            outline: none; 
+            color: #fff;
+            font-size: 14px; 
+            width: 100%; 
+            font-weight: 500;
         }
+
         .search-input-wrapper input::placeholder { color: rgba(255, 255, 255, 0.45); }
 
         .mic-btn {
             background: rgba(255, 42, 42, 0.15);
             border: 1px solid var(--primary-red);
             color: var(--primary-red);
-            width: 32px; height: 32px;
+            width: 32px; 
+            height: 32px;
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer; 
+            font-size: 13px;
             transition: all 0.2s ease;
             flex-shrink: 0;
         }
+
         .mic-btn.listening {
             background: var(--primary-red);
             color: #fff;
             animation: micPulse 1s infinite alternate;
         }
+
         @keyframes micPulse {
             0% { box-shadow: 0 0 8px var(--primary-red); }
             100% { box-shadow: 0 0 22px var(--primary-red); }
         }
 
+        /* FIX: Increased z-index to overlay on top of all controls */
         .search-results-dropdown {
-            position: absolute; top: 100%; left: 0; right: 0;
-            margin-top: 8px; max-height: 240px; overflow-y: auto;
-            display: none; flex-direction: column; z-index: 1001; padding: 6px;
+            position: absolute; 
+            top: calc(100% + 6px); 
+            left: 0; 
+            right: 0;
+            max-height: 280px; 
+            overflow-y: auto;
+            display: none; 
+            flex-direction: column; 
+            z-index: 4000; 
+            padding: 6px;
+            background: rgba(8, 10, 16, 0.96);
+            border: 1px solid var(--primary-red);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.95);
         }
+
         .search-results-dropdown.active { display: flex; }
 
         .search-item {
-            padding: 10px 12px; border-radius: 12px; cursor: pointer; font-size: 13px;
-            display: flex; align-items: center; gap: 10px;
-            transition: background 0.2s ease; color: #e2e8f0;
+            padding: 11px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 13px;
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            transition: background 0.2s ease; 
+            color: #e2e8f0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .search-item:hover { background: rgba(255, 42, 42, 0.2); color: #fff; }
 
-        .shortcuts-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+        .search-item:last-child { border-bottom: none; }
+
+        .search-item:hover, .search-item:active { 
+            background: rgba(255, 42, 42, 0.25); 
+            color: #fff; 
+        }
+
+        .shortcuts-row { 
+            display: flex; 
+            gap: 6px; 
+            overflow-x: auto; 
+            padding-bottom: 2px; 
+            scrollbar-width: none; 
+            z-index: 1000;
+        }
+
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
-            background: rgba(18, 22, 32, 0.85);
+            background: rgba(18, 22, 32, 0.88);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px; padding: 6px 12px;
-            font-size: 12px; font-weight: 600; color: #cbd5e1;
-            white-space: nowrap; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
+            border-radius: 20px; 
+            padding: 6px 12px;
+            font-size: 12px; 
+            font-weight: 600; 
+            color: #cbd5e1;
+            white-space: nowrap; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
             backdrop-filter: blur(12px);
             transition: all 0.2s ease;
         }
+
         .chip-btn:hover, .chip-btn:active {
             background: rgba(255, 42, 42, 0.25);
-            border-color: var(--primary-red); color: #fff;
+            border-color: var(--primary-red); 
+            color: #fff;
         }
 
         .header-controls-bar {
-            padding: 8px 12px; display: flex; align-items: center;
-            justify-content: space-between; gap: 8px;
+            padding: 6px 10px; 
+            display: flex; 
+            align-items: center;
+            justify-content: space-between; 
+            gap: 6px;
+            z-index: 1000;
         }
 
         .mode-selector {
-            display: flex; background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px; padding: 3px; gap: 3px;
+            display: flex; 
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px; 
+            padding: 3px; 
+            gap: 3px;
         }
+
         .mode-btn {
-            background: transparent; border: none; color: rgba(255, 255, 255, 0.6);
-            padding: 6px 10px; border-radius: 9px; font-size: 12px; cursor: pointer;
-            transition: all 0.2s ease; display: flex; align-items: center; gap: 5px;
+            background: transparent; 
+            border: none; 
+            color: rgba(255, 255, 255, 0.6);
+            padding: 6px 8px; 
+            border-radius: 9px; 
+            font-size: 11px; 
+            cursor: pointer;
+            transition: all 0.2s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px;
         }
+
         .mode-btn.active {
-            background: var(--primary-red); color: #fff;
+            background: var(--primary-red); 
+            color: #fff;
             box-shadow: 0 2px 10px var(--primary-glow);
         }
 
         .toggle-chip {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #cbd5e1; padding: 6px 10px; border-radius: 12px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
+            color: #cbd5e1; 
+            padding: 6px 8px; 
+            border-radius: 12px;
+            font-size: 11px; 
+            font-weight: 600; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            gap: 5px;
             transition: all 0.2s ease;
         }
+
         .toggle-chip.active {
             background: rgba(0, 240, 255, 0.2);
             border-color: var(--cyan-accent);
@@ -168,1035 +276,143 @@
             background: rgba(255, 42, 42, 0.15);
             border: 1px solid var(--primary-red);
             color: var(--primary-red);
-            padding: 6px 12px; border-radius: 12px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s ease; position: relative;
+            padding: 6px 10px; 
+            border-radius: 12px;
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            gap: 5px;
+            transition: all 0.2s ease; 
+            position: relative;
         }
+
         .ultron-voice-btn.active {
-            background: var(--primary-red); color: #fff;
+            background: var(--primary-red); 
+            color: #fff;
             box-shadow: 0 0 14px var(--primary-glow);
         }
+
         .ultron-voice-btn.speaking { animation: voicePulse 0.8s infinite alternate; }
+
         @keyframes voicePulse {
             0% { box-shadow: 0 0 8px var(--primary-red); transform: scale(1); }
             100% { box-shadow: 0 0 22px var(--primary-red); transform: scale(1.04); }
         }
 
-        /* ---------- Turn Banner ---------- */
+        /* ---------- Turn Banner Mobile Optimizations ---------- */
         .turn-banner {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 0px) + 130px);
-            left: 12px; right: 12px; z-index: 999;
-            padding: 12px 16px; display: none; align-items: center; gap: 14px;
+            top: calc(env(safe-area-inset-top, 0px) + 140px);
+            left: 10px; 
+            right: 10px; 
+            z-index: 999;
+            padding: 10px 14px; 
+            display: none; 
+            align-items: center; 
+            gap: 12px;
             background: linear-gradient(135deg, rgba(20, 8, 12, 0.95), rgba(8, 12, 22, 0.95));
             border: 1px solid var(--primary-red);
             box-shadow: 0 10px 30px var(--primary-glow);
         }
+
         .turn-banner.active { display: flex; }
+
         .turn-icon-box {
-            width: 44px; height: 44px; border-radius: 12px;
+            width: 40px; 
+            height: 40px; 
+            border-radius: 12px;
             background: rgba(255, 42, 42, 0.2);
             border: 1px solid var(--primary-red);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: var(--primary-red);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 18px; 
+            color: var(--primary-red);
         }
-        .turn-details { flex: 1; min-width: 0; }
-        .turn-instruction { font-size: 14px; font-weight: 700; color: #fff; }
-        .turn-distance { font-size: 12px; color: var(--primary-red); font-weight: 600; margin-top: 2px; }
 
-        /* ---------- Speed Badge ---------- */
+        .turn-details { flex: 1; min-width: 0; }
+        .turn-instruction { font-size: 13px; font-weight: 700; color: #fff; }
+        .turn-distance { font-size: 11px; color: var(--primary-red); font-weight: 600; margin-top: 1px; }
+
+        /* ---------- Speed Badge & Side Floating Controls ---------- */
         .speed-badge {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 270px);
-            left: 14px; z-index: 999;
-            padding: 8px 14px; display: flex; align-items: center; gap: 8px;
-            font-size: 12px; font-weight: 700;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
+            left: 10px; 
+            z-index: 999;
+            padding: 6px 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+            font-size: 11px; 
+            font-weight: 700;
             border: 1px solid rgba(255, 42, 42, 0.3);
         }
-        .speed-value { font-size: 18px; color: var(--primary-red); }
 
-        /* ---------- Side Controls ---------- */
+        .speed-value { font-size: 16px; color: var(--primary-red); }
+
         .side-controls {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 270px);
-            right: 14px; z-index: 999;
-            display: flex; flex-direction: column; gap: 8px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
+            right: 10px; 
+            z-index: 999;
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px;
         }
+
         .icon-circle-btn {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 38px; 
+            height: 38px; 
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
-            background: rgba(10, 12, 18, 0.85);
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 16px; transition: all 0.2s ease;
+            background: rgba(10, 12, 18, 0.88);
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer; 
+            font-size: 15px; 
+            transition: all 0.2s ease;
         }
+
         .icon-circle-btn:hover {
             background: rgba(255, 42, 42, 0.3);
             border-color: var(--primary-red);
         }
 
-        /* ---------- Route Selection ---------- */
+        /* ---------- Route Selection Options ---------- */
         .route-selection-panel {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 150px);
-            left: 12px; right: 12px; z-index: 1000;
-            padding: 12px; display: none; flex-direction: column; gap: 8px;
-            max-height: 42vh; overflow-y: auto;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 130px);
+            left: 10px; 
+            right: 10px; 
+            z-index: 1000;
+            padding: 10px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 6px;
+            max-height: 38vh; 
+            overflow-y: auto;
         }
+
         .route-selection-panel.active { display: flex; }
 
         .route-card {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px; padding: 10px 14px;
-            display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: all 0.2s ease;
+            border-radius: 14px; 
+            padding: 8px 12px;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            cursor: pointer; 
+            transition: all 0.2s ease;
         }
+
         .route-card:hover, .route-card.selected {
             background: rgba(255, 42, 42, 0.18);
             border-color: var(--primary-red);
-            box-shadow: 0 0 12px rgba(255, 42, 42, 0.3);
-        }
-        .route-card-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .route-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
-        .badge-toll { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; }
-        .badge-free { background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; }
-        .badge-fast { background: rgba(255, 42, 42, 0.2); border: 1px solid var(--primary-red); color: var(--primary-red); }
-        .route-card-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; }
-
-        /* ---------- Bottom Action Bar ---------- */
-        .bottom-bar {
-            position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
-            left: 12px; right: 12px; z-index: 1000;
-            padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;
-        }
-        .action-buttons { display: flex; gap: 8px; width: 100%; }
-        .btn {
-            border: none; padding: 12px 14px; border-radius: 14px;
-            font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            transition: all 0.2s ease; flex: 1;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #ef4444, #991b1b);
-            border: 1px solid rgba(255, 42, 42, 0.5);
-            box-shadow: 0 6px 18px var(--primary-glow);
-        }
-        .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
-        }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        /* ---------- Markers ---------- */
-        .user-location-marker { position: relative; width: 28px; height: 28px; }
-        .user-dot {
-            width: 18px; height: 18px;
-            background: var(--cyan-accent);
-            border: 3px solid #fff; border-radius: 50%;
-            box-shadow: 0 0 15px var(--cyan-accent);
-            position: absolute; top: 5px; left: 5px; z-index: 2;
-        }
-        .user-pulse {
-            width: 38px; height: 38px; background: var(--cyan-glow);
-            border-radius: 50%; position: absolute; top: -5px; left: -5px;
-            animation: pulse-ring 2s infinite ease-out;
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.3); opacity: 0.9; }
-            100% { transform: scale(1.6); opacity: 0; }
-        }
-        .dest-pin-icon {
-            font-size: 32px; color: var(--primary-red);
-            filter: drop-shadow(0 0 8px var(--primary-red));
-        }
-        .leaflet-routing-container { display: none !important; }
-
-        /* ---------- Toast ---------- */
-        .toast-msg {
-            position: absolute; top: 70px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 12, 18, 0.95);
-            border: 1px solid var(--primary-red); color: #fff;
-            padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
-            z-index: 3000; opacity: 0; pointer-events: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px var(--primary-glow);
-        }
-        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
-
-        /* ---------- Glass Bottom Tab Bar ---------- */
-        .tab-bar {
-            position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-            left: 12px; right: 12px; z-index: 1100;
-            display: flex; align-items: center; justify-content: space-around;
-            padding: 8px;
-            border-radius: 22px;
-        }
-        .tab-btn {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-            background: transparent; border: none; color: rgba(255,255,255,0.45);
-            padding: 6px 0; font-size: 10px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s ease; border-radius: 14px;
-        }
-        .tab-btn i { font-size: 16px; }
-        .tab-btn.active { color: var(--primary-red); }
-        .tab-btn.active i { filter: drop-shadow(0 0 6px var(--primary-red)); }
-
-        /* ---------- Glass Overlay Panels ---------- */
-        .overlay-panel {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 2000;
-            display: none;
-            background: rgba(3, 5, 8, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: calc(env(safe-area-inset-top, 0px) + 24px) 16px calc(env(safe-area-inset-bottom, 0px) + 100px);
-        }
-        .overlay-panel.active { display: flex; flex-direction: column; }
-
-        .overlay-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 16px;
-        }
-        .overlay-title {
-            font-size: 22px; font-weight: 800; letter-spacing: -0.4px;
-        }
-        .overlay-close {
-            width: 36px; height: 36px; border-radius: 12px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12);
-            color: #fff; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .overlay-content {
-            flex: 1; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 10px;
-            padding-bottom: 20px;
-        }
-
-        .list-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 12px 14px;
-            display: flex; align-items: center; gap: 12px;
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        .list-card:hover {
-            background: rgba(255, 42, 42, 0.14);
-            border-color: var(--primary-red);
-        }
-        .list-icon {
-            width: 38px; height: 38px; border-radius: 12px;
-            background: rgba(255, 42, 42, 0.18);
-            color: var(--primary-red);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px; flex-shrink: 0;
-        }
-        .list-icon.cyan { background: rgba(0,240,255,0.15); color: var(--cyan-accent); }
-        .list-main { flex: 1; min-width: 0; }
-        .list-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .list-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .list-action {
-            width: 30px; height: 30px; border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            color: #cbd5e1; border: none;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 12px; flex-shrink: 0;
-        }
-        .list-action:hover { background: rgba(255,42,42,0.2); color: #fff; }
-
-        .empty-state {
-            text-align: center; color: #64748b;
-            padding: 40px 20px; font-size: 13px;
-        }
-        .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.4; }
-
-        .settings-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px; background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-        }
-        .settings-row .label { font-size: 13px; font-weight: 600; color: #fff; }
-        .settings-row .sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-
-        .toggle-switch {
-            width: 44px; height: 26px; border-radius: 13px;
-            background: rgba(255,255,255,0.12); position: relative;
-            cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
-        }
-        .toggle-switch::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 20px; height: 20px; border-radius: 50%;
-            background: #fff; transition: transform 0.2s ease;
-        }
-        .toggle-switch.on { background: var(--primary-red); }
-        .toggle-switch.on::after { transform: translateX(18px); }
-    </style>
-</head>
-<body class="dark-tiles">
-
-    <div id="toast" class="toast-msg">Ultron Tactical Navigation Online</div>
-
-    <div class="top-container">
-        <div class="glass-panel search-box-panel">
-            <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--primary-red);"></i>
-                <input type="text" id="searchInput" placeholder="Search destination or target coordinates..." oninput="handleSearchInput(this.value)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none;" onclick="clearSearchInput()"></i>
-                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
-                    <i class="fa-solid fa-microphone"></i>
-                </button>
-            </div>
-            <div class="glass-panel search-results-dropdown" id="searchResults"></div>
-        </div>
-
-        <div class="shortcuts-row">
-            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump" style="color:#f59e0b;"></i> Gas / EV</button>
-            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-p" style="color:#3b82f6;"></i> Parking</button>
-            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot" style="color:#10b981;"></i> Coffee</button>
-            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils" style="color:#ef4444;"></i> Food</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house" style="color:#a855f7;"></i> Home</button>
-        </div>
-
-        <div class="glass-panel header-controls-bar">
-            <div class="mode-selector">
-                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> Drive</button>
-                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> Bike</button>
-                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> Walk</button>
-            </div>
-            <button class="toggle-chip active" id="trafficToggleBtn" onclick="toggleTrafficOverlay()">
-                <i class="fa-solid fa-layer-group"></i> Traffic
-            </button>
-            <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
-                <i class="fa-solid fa-robot"></i> Ultron
-            </button>
-        </div>
-    </div>
-
-    <div class="turn-banner glass-panel" id="turnBanner">
-        <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
-        <div class="turn-details">
-            <div class="turn-instruction" id="turnInstruction">Awaiting destination entry...</div>
-            <div class="turn-distance" id="turnDistance">Calculating trajectory</div>
-        </div>
-    </div>
-
-    <div class="speed-badge glass-panel">
-        <i class="fa-solid fa-gauge-high" style="color: var(--primary-red);"></i>
-        <span>SPEED:</span>
-        <span class="speed-value" id="speedValue">0</span> km/h
-    </div>
-
-    <div class="side-controls">
-        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
-    </div>
-
-    <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">
-            <i class="fa-solid fa-route"></i> Trajectory Options
-        </div>
-        <div id="routeCardsContainer"></div>
-    </div>
-
-    <div id="map"></div>
-
-    <div class="bottom-bar glass-panel">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #cbd5e1;" id="routeMetrics">
-            <span>Tap map or search to select destination</span>
-        </div>
-        <div class="action-buttons">
-            <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
-                <i class="fa-solid fa-location-arrow"></i> Start Nav
-            </button>
-            <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
-                <i class="fa-solid fa-play"></i> Simulate
-            </button>
-            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none;">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="tab-bar glass-panel">
-        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
-            <i class="fa-solid fa-map"></i><span>Map</span>
-        </button>
-        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
-            <i class="fa-solid fa-clock-rotate-left"></i><span>Recents</span>
-        </button>
-        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
-            <i class="fa-solid fa-bookmark"></i><span>Saved</span>
-        </button>
-        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
-            <i class="fa-solid fa-gear"></i><span>Settings</span>
-        </button>
-    </div>
-
-    <div class="overlay-panel" id="panel-recents">
-        <div class="overlay-header">
-            <div class="overlay-title">Recents</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content" id="recentsList"></div>
-    </div>
-
-    <div class="overlay-panel" id="panel-saved">
-        <div class="overlay-header">
-            <div class="overlay-title">Saved Places</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content" id="savedList"></div>
-    </div>
-
-    <div class="overlay-panel" id="panel-settings">
-        <div class="overlay-header">
-            <div class="overlay-title">Settings</div>
-            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="overlay-content">
-            <div class="settings-row">
-                <div>
-                    <div class="label">Ultron Voice</div>
-                    <div class="sub">Synthetic navigation voice</div>
-                </div>
-                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
-            </div>
-            <div class="settings-row">
-                <div>
-                    <div class="label">Traffic Overlay</div>
-                    <div class="sub">Show live traffic layer</div>
-                </div>
-                <div class="toggle-switch on" id="settingsTrafficToggle" onclick="toggleSettingsTraffic()"></div>
-            </div>
-            <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
-                <div>
-                    <div class="label">Home Address</div>
-                    <div class="sub" id="homeAddressSub">Not set — tap to set</div>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="color:#64748b; font-size:12px;"></i>
-            </div>
-            <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
-                <div>
-                    <div class="label" style="color:#fca5a5;">Clear All Data</div>
-                    <div class="sub">Removes recents, saved places, home</div>
-                </div>
-                <i class="fa-solid fa-trash" style="color:#ef4444; font-size:12px;"></i>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-
-    <script>
-        let map, userMarker, accuracyCircle, userCoords = null;
-        let activeDestination = null, destMarker = null;
-        let watchId = null, simInterval = null;
-        let isNavigating = false, isSimulating = false, isTrackingCamera = true;
-        let ultronEnabled = true, synth = window.speechSynthesis, audioCtx = null;
-        let travelMode = 'car';
-        let trafficOverlayLayer = null, isTrafficOverlayOn = true;
-
-        let routesList = [];
-        let selectedRouteIndex = 0;
-        let currentRoutePolylines = [];
-        let activeRouteCoordinates = [];
-        let activeRouteInstructions = [];
-        let lastSpokenInstructionIndex = -1;
-        let debounceTimer = null;
-
-        let recents = JSON.parse(localStorage.getItem('raon_recents') || '[]');
-        let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
-        let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
-
-        const DEFAULT_LOCATION = [1.4927, 103.7414];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            initAudioContext();
-            requestLocationWithSafariFallback();
-            updateHomeSubLabel();
-        });
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-            trafficOverlayLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                opacity: 0.35, maxZoom: 19
-            }).addTo(map);
-
-            map.on('click', (e) => {
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                if (!userCoords) requestLocationWithSafariFallback();
-                setDestination(e.latlng);
-            });
-            map.on('dragstart', () => { isTrackingCamera = false; });
-        }
-
-        function initAudioContext() {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            } catch(e) {}
-        }
-
-        function playUltronMetallicPulse() {
-            if (!audioCtx) return;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            try {
-                const osc1 = audioCtx.createOscillator();
-                const osc2 = audioCtx.createOscillator();
-                const filter = audioCtx.createBiquadFilter();
-                const gain = audioCtx.createGain();
-
-                osc1.type = 'sawtooth'; osc2.type = 'square';
-                osc1.frequency.setValueAtTime(55, audioCtx.currentTime);
-                osc2.frequency.setValueAtTime(110, audioCtx.currentTime);
-                filter.type = 'lowpass'; filter.frequency.setValueAtTime(400, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-
-                osc1.connect(filter); osc2.connect(filter);
-                filter.connect(gain); gain.connect(audioCtx.destination);
-                osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.35);
-                osc2.stop(audioCtx.currentTime + 0.35);
-            } catch(e) {}
-        }
-
-        function speakUltron(text) {
-            if (!ultronEnabled || !('speechSynthesis' in window)) return;
-            synth.cancel();
-            playUltronMetallicPulse();
-            const btn = document.getElementById('ultronVoiceBtn');
-            btn.classList.add('speaking');
-            setTimeout(() => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.pitch = 0.1; utterance.rate = 0.82; utterance.volume = 1.0;
-                const voices = synth.getVoices();
-                const maleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('David') || v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Google'))) || voices[0];
-                if (maleVoice) utterance.voice = maleVoice;
-                utterance.onend = () => { btn.classList.remove('speaking'); };
-                utterance.onerror = () => { btn.classList.remove('speaking'); };
-                synth.speak(utterance);
-            }, 200);
-        }
-
-        function requestLocationWithSafariFallback() {
-            if (!("geolocation" in navigator)) {
-                userCoords = L.latLng(DEFAULT_LOCATION);
-                updateUserMarker(userCoords, 100);
-                return;
-            }
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
-                    if (isTrackingCamera) map.setView(userCoords, 16);
-                    startGPSWatch();
-                },
-                () => {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                            userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                            updateUserMarker(userCoords, pos.coords.accuracy || 100);
-                            if (isTrackingCamera) map.setView(userCoords, 15);
-                            startGPSWatch();
-                        },
-                        () => {
-                            if (!userCoords) {
-                                userCoords = L.latLng(DEFAULT_LOCATION);
-                                updateUserMarker(userCoords, 100);
-                                showToast("Using default fallback location");
-                            }
-                        },
-                        { enableHighAccuracy: false, timeout: 6000 }
-                    );
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
-            );
-        }
-
-        function startGPSWatch() {
-            if (watchId !== null) return;
-            watchId = navigator.geolocation.watchPosition(
-                (pos) => {
-                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
-                    document.getElementById('speedValue').innerText = speed;
-                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
-                    if (isTrackingCamera) map.panTo(userCoords, { animate: true });
-                    if (isNavigating && activeDestination) checkManeuverProximity();
-                },
-                () => {},
-                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
-            );
-        }
-
-        function updateUserMarker(coords, accuracy) {
-            if (userMarker) {
-                userMarker.setLatLng(coords);
-                accuracyCircle.setLatLng(coords);
-                accuracyCircle.setRadius(accuracy);
-            } else {
-                const icon = L.divIcon({
-                    className: 'user-location-marker',
-                    html: `<div class="user-pulse"></div><div class="user-dot"></div>`,
-                    iconSize: [28, 28], iconAnchor: [14, 14]
-                });
-                userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.1, weight: 1 }).addTo(map);
-            }
-        }
-
-        function recenterUser() {
-            isTrackingCamera = true;
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            if (userCoords) map.flyTo(userCoords, 16, { animate: true });
-            else requestLocationWithSafariFallback();
-        }
-
-        function handleSearchInput(query) {
-            const clearBtn = document.getElementById('searchClearBtn');
-            clearBtn.style.display = query ? 'block' : 'none';
-            clearTimeout(debounceTimer);
-            if (!query || query.trim().length < 2) {
-                document.getElementById('searchResults').classList.remove('active');
-                return;
-            }
-            debounceTimer = setTimeout(() => {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
-                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
-            }, 300);
-        }
-
-        function renderSearchResults(results) {
-            const dropdown = document.getElementById('searchResults');
-            dropdown.innerHTML = '';
-            if (results.length === 0) { dropdown.classList.remove('active'); return; }
-            results.forEach(res => {
-                const item = document.createElement('div');
-                item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--primary-red);"></i> <span>${res.display_name}</span>`;
-                item.onclick = () => {
-                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
-                    const name = res.display_name.split(',')[0];
-                    setDestination(latLng, name);
-                    dropdown.classList.remove('active');
-                    document.getElementById('searchInput').value = name;
-                    addRecent({ name, lat: latLng.lat, lng: latLng.lng });
-                };
-                dropdown.appendChild(item);
-            });
-            dropdown.classList.add('active');
-        }
-
-        function searchCategory(cat) {
-            if (!userCoords) return;
-            document.getElementById('searchInput').value = cat;
-            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
-        }
-
-        function clearSearchInput() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchClearBtn').style.display = 'none';
-            document.getElementById('searchResults').classList.remove('active');
-        }
-
-        function setDestination(latLng, label = "Selected Destination") {
-            activeDestination = latLng;
-            if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
-            if (destMarker) map.removeLayer(destMarker);
-            const pinIcon = L.divIcon({
-                className: 'dest-pin',
-                html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
-                iconSize: [32, 32], iconAnchor: [16, 32]
-            });
-            destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
-            calculateRoutes(label);
-        }
-
-        function calculateRoutes(label) {
-            clearPolylines();
-            const panel = document.getElementById('routeSelectionPanel');
-            const container = document.getElementById('routeCardsContainer');
-            panel.classList.add('active');
-            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Calculating optimal trajectories...</div>`;
-
-            const url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
-
-            fetch(url)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.routes && data.routes.length > 0) {
-                        routesList = data.routes;
-                        renderRouteCards(label);
-                        selectRoute(0);
-                        enableActionButtons();
-                        speakUltron("Target acquired. Multiple routes calculated.");
-                    } else {
-                        container.innerHTML = `<div class="empty-state">No route found</div>`;
-                    }
-                })
-                .catch(() => {
-                    container.innerHTML = `<div class="empty-state">Routing error</div>`;
-                });
-        }
-
-        function renderRouteCards(label) {
-            const container = document.getElementById('routeCardsContainer');
-            container.innerHTML = '';
-            routesList.forEach((r, idx) => {
-                const mins = Math.round(r.duration / 60);
-                const km = (r.distance / 1000).toFixed(1);
-                let badgeText = idx === 0 ? '<span class="route-badge badge-fast">Fastest</span>' : '<span class="route-badge badge-free">Alternative</span>';
-                if (idx === 1) badgeText = '<span class="route-badge badge-toll">Toll Avoid</span>';
-
-                const card = document.createElement('div');
-                card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
-                card.id = `routeCard-${idx}`;
-                card.onclick = () => selectRoute(idx);
-                card.innerHTML = `
-                    <div>
-                        <div class="route-card-title">
-                            <span>Route ${idx + 1} to ${label}</span>
-                            ${badgeText}
-                        </div>
-                        <div class="route-card-sub">${mins} mins (${km} km)</div>
-                    </div>
-                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-circle-check' : 'fa-circle'}" style="color: ${idx === selectedRouteIndex ? 'var(--primary-red)' : 'rgba(255,255,255,0.2)'};" id="checkRoute-${idx}"></i>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function selectRoute(idx) {
-            selectedRouteIndex = idx;
-            routesList.forEach((_, i) => {
-                const card = document.getElementById(`routeCard-${i}`);
-                const icon = document.getElementById(`checkRoute-${i}`);
-                if (card && icon) {
-                    card.classList.toggle('selected', i === idx);
-                    icon.className = i === idx ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle';
-                    icon.style.color = i === idx ? 'var(--primary-red)' : 'rgba(255,255,255,0.2)';
-                }
-            });
-            renderRouteOnMap(routesList[idx]);
-        }
-
-        function renderRouteOnMap(routeData) {
-            clearPolylines();
-            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
-            activeRouteInstructions = routeData.legs[0].steps;
-
-            const coords = activeRouteCoordinates;
-            const segmentLen = Math.floor(coords.length / 3);
-            const p1 = L.polyline(coords.slice(0, segmentLen + 1), { color: '#10b981', weight: 7, opacity: 0.95 }).addTo(map);
-            const p2 = L.polyline(coords.slice(segmentLen, segmentLen * 2 + 1), { color: '#f59e0b', weight: 7, opacity: 0.95 }).addTo(map);
-            const p3 = L.polyline(coords.slice(segmentLen * 2), { color: '#ef4444', weight: 7, opacity: 0.95 }).addTo(map);
-            currentRoutePolylines = [p1, p2, p3];
-
-            map.fitBounds(L.latLngBounds(coords), { padding: [60, 60] });
-            const mins = Math.round(routeData.duration / 60);
-            const km = (routeData.distance / 1000).toFixed(1);
-            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA:</strong> ${mins} mins</span> <span><strong>DIST:</strong> ${km} km</span>`;
-
-            if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
-        }
-
-        function clearPolylines() {
-            currentRoutePolylines.forEach(p => map.removeLayer(p));
-            currentRoutePolylines = [];
-        }
-
-        function enableActionButtons() {
-            document.getElementById('startNavBtn').disabled = false;
-            document.getElementById('simDriveBtn').disabled = false;
-            document.getElementById('clearBtn').style.display = 'block';
-        }
-
-        function updateTurnBanner(step) {
-            const banner = document.getElementById('turnBanner');
-            banner.classList.add('active');
-            const inst = step.maneuver.instruction || "Proceed forward";
-            const dist = step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} km` : `${Math.round(step.distance)} m`;
-            document.getElementById('turnInstruction').innerText = inst;
-            document.getElementById('turnDistance').innerText = `In ${dist}`;
-        }
-
-        function setTravelMode(mode) {
-            travelMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.mode === mode);
-            });
-            if (activeDestination) calculateRoutes("Destination");
-        }
-
-        function toggleTrafficOverlay() {
-            isTrafficOverlayOn = !isTrafficOverlayOn;
-            const btn = document.getElementById('trafficToggleBtn');
-            btn.classList.toggle('active', isTrafficOverlayOn);
-            if (isTrafficOverlayOn) map.addLayer(trafficOverlayLayer);
-            else map.removeLayer(trafficOverlayLayer);
-        }
-
-        function toggleUltronVoice() {
-            ultronEnabled = !ultronEnabled;
-            const btn = document.getElementById('ultronVoiceBtn');
-            btn.classList.toggle('active', ultronEnabled);
-            document.getElementById('settingsVoiceToggle').classList.toggle('on', ultronEnabled);
-            if (ultronEnabled) speakUltron("Ultron voice online.");
-            else synth.cancel();
-        }
-
-        function toggleNavigation() {
-            if (isNavigating) {
-                stopNavigation();
-            } else {
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                isNavigating = true;
-                isTrackingCamera = true;
-                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End Nav`;
-                document.getElementById('startNavBtn').className = "btn btn-danger";
-                document.getElementById('routeSelectionPanel').classList.remove('active');
-                speakUltron("Navigation engaged. Do not fail.");
-            }
-        }
-
-        function stopNavigation() {
-            isNavigating = false;
-            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start Nav`;
-            document.getElementById('startNavBtn').className = "btn btn-primary";
-            document.getElementById('turnBanner').classList.remove('active');
-            synth.cancel();
-        }
-
-        function checkManeuverProximity() {
-            if (!activeRouteInstructions || activeRouteInstructions.length === 0) return;
-            for (let i = 0; i < activeRouteInstructions.length; i++) {
-                const step = activeRouteInstructions[i];
-                const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
-                const dist = userCoords.distanceTo(wp);
-                if (dist < 50 && lastSpokenInstructionIndex !== i) {
-                    lastSpokenInstructionIndex = i;
-                    updateTurnBanner(step);
-                    speakUltron(`In 50 meters, ${step.maneuver.instruction || 'turn'}.`);
-                    break;
-                }
-            }
-        }
-
-        function toggleSimulation() {
-            if (isSimulating) stopSimulation();
-            else startSimulation();
-        }
-
-        function startSimulation() {
-            if (activeRouteCoordinates.length === 0) return;
-            isSimulating = true;
-            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
-            document.getElementById('routeSelectionPanel').classList.remove('active');
-            let index = 0;
-            simInterval = setInterval(() => {
-                if (index >= activeRouteCoordinates.length) {
-                    stopSimulation();
-                    speakUltron("Destination reached.");
-                    return;
-                }
-                userCoords = L.latLng(activeRouteCoordinates[index]);
-                updateUserMarker(userCoords, 10);
-                map.panTo(userCoords);
-                document.getElementById('speedValue').innerText = Math.floor(Math.random() * 20 + 50);
-                checkManeuverProximity();
-                index += 2;
-            }, 800);
-            speakUltron("Simulation started.");
-        }
-
-        function stopSimulation() {
-            isSimulating = false;
-            clearInterval(simInterval);
-            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> Simulate`;
-            document.getElementById('speedValue').innerText = '0';
-        }
-
-        function clearActiveRoute() {
-            stopNavigation();
-            stopSimulation();
-            clearPolylines();
-            if (destMarker) map.removeLayer(destMarker);
-            activeDestination = null;
-            routesList = [];
-            document.getElementById('routeSelectionPanel').classList.remove('active');
-            document.getElementById('startNavBtn').disabled = true;
-            document.getElementById('simDriveBtn').disabled = true;
-            document.getElementById('clearBtn').style.display = 'none';
-            document.getElementById('routeMetrics').innerHTML = `<span>Tap map or search to select destination</span>`;
-        }
-
-        /* Tabs & Panels */
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
-
-            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-            if (btn) btn.classList.add('active');
-
-            if (tabName !== 'map') {
-                const panel = document.getElementById(`panel-${tabName}`);
-                if (panel) panel.classList.add('active');
-                if (tabName === 'recents') renderRecentsList();
-                if (tabName === 'saved') renderSavedList();
-            }
-        }
-
-        function closeTab() {
-            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('.tab-btn[data-tab="map"]').classList.add('active');
-        }
-
-        function addRecent(place) {
-            recents = recents.filter(r => r.lat !== place.lat || r.lng !== place.lng);
-            recents.unshift(place);
-            if (recents.length > 20) recents.pop();
-            localStorage.setItem('raon_recents', JSON.stringify(recents));
-        }
-
-        function renderRecentsList() {
-            const list = document.getElementById('recentsList');
-            list.innerHTML = '';
-            if (recents.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent destinations</div>`;
-                return;
-            }
-            recents.forEach(r => {
-                const card = document.createElement('div');
-                card.className = 'list-card';
-                card.innerHTML = `
-                    <div class="list-icon"><i class="fa-solid fa-location-dot"></i></div>
-                    <div class="list-main">
-                        <div class="list-title">${r.name}</div>
-                        <div class="list-sub">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</div>
-                    </div>
-                    <button class="list-action" title="Navigate" onclick="event.stopPropagation(); navigateToPlace(${r.lat}, ${r.lng}, '${r.name}')">
-                        <i class="fa-solid fa-location-arrow"></i>
-                    </button>
-                `;
-                card.onclick = () => { closeTab(); setDestination(L.latLng(r.lat, r.lng), r.name); };
-                list.appendChild(card);
-            });
-        }
-
-        function navigateToPlace(lat, lng, name) {
-            closeTab();
-            setDestination(L.latLng(lat, lng), name);
-        }
-
-        function renderSavedList() {
-            const list = document.getElementById('savedList');
-            list.innerHTML = '';
-            if (savedPlaces.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved places yet</div>`;
-                return;
-            }
-            savedPlaces.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'list-card';
-                card.innerHTML = `
-                    <div class="list-icon cyan"><i class="fa-solid fa-bookmark"></i></div>
-                    <div class="list-main">
-                        <div class="list-title">${s.name}</div>
-                        <div class="list-sub">${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}</div>
-                    </div>
-                    <button class="list-action" title="Navigate" onclick="event.stopPropagation(); navigateToPlace(${s.lat}, ${s.lng}, '${s.name}')">
-                        <i class="fa-solid fa-location-arrow"></i>
-                    </button>
-                `;
-                card.onclick = () => { closeTab(); setDestination(L.latLng(s.lat, s.lng), s.name); };
-                list.appendChild(card);
-            });
-        }
-
-        function routeHome() {
-            if (!homeLocation) {
-                showToast("Home location not set. Go to Settings to set it.");
-                switchTab('settings');
-                return;
-            }
-            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home");
-        }
-
-        function promptSetHome() {
-            if (!userCoords) { showToast("Waiting for current location..."); return; }
-            homeLocation = { lat: userCoords.lat, lng: userCoords.lng };
-            localStorage.setItem('raon_home', JSON.stringify(homeLocation));
-            updateHomeSubLabel();
-            showToast("Home location set to current position!");
-        }
-
-        function updateHomeSubLabel() {
-            const sub = document.getElementById('homeAddressSub');
-            if (homeLocation) sub.innerText = `${homeLocation.lat.toFixed(4)}, ${homeLocation.lng.toFixed(4)}`;
-            else sub.innerText = "Not set — tap to set";
-        }
-
-        function toggleSettingsVoice() { toggleUltronVoice(); }
-
-        function toggleSettingsTraffic() {
-            toggleTrafficOverlay();
-            document.getElementById('settingsTrafficToggle').classList.toggle('on', isTrafficOverlayOn);
-        }
-
-        function clearAllData() {
-            if (confirm("Clear all recents and saved places?")) {
-                localStorage.removeItem('raon_recents');
-                localStorage.removeItem('raon_saved');
-                localStorage.removeItem('raon_home');
-                recents = []; savedPlaces = []; homeLocation = null;
-                updateHomeSubLabel();
-                showToast("All data cleared");
-            }
-        }
-
-        let recognition = null;
-        function toggleVoiceSearch() {
-            const micBtn = document.getElementById('micBtn');
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) { showToast("Voice search not supported in this browser"); return; }
-
-            if (recognition) { recognition.stop(); recognition = null; micBtn.classList.remove('listening'); return; }
-
-            recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("Listening for command..."); };
-            recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById('searchInput').value = text;
-                handleSearchInput(text);
-                micBtn.classList.remove('listening');
-            };
-            recognition.onerror = () => { micBtn.classList.remove('listening'); };
-            recognition.onend = () => { micBtn.classList.remove('listening'); recognition = null; };
-            recognition.start();
-        }
-    </script>
-</body>
-</html>
+            box-shadow: 0 0
