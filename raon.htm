@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>raon map</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -12,492 +16,488 @@
 
     <style>
         :root {
-            --bg-color: #030508;
-            --primary-red: #ff2a2a;
-            --primary-glow: rgba(255, 42, 42, 0.4);
-            --cyan-accent: #00f0ff;
-            --cyan-glow: rgba(0, 240, 255, 0.3);
-            --glass-bg: rgba(10, 12, 18, 0.92);
-            --glass-border: rgba(255, 255, 255, 0.14);
+            --bg-color: #08080a;
+            --ink: #f5f3ef;
+            --ink-soft: rgba(245, 243, 239, 0.55);
+            --ink-faint: rgba(245, 243, 239, 0.32);
+            --hairline: rgba(245, 243, 239, 0.1);
+            --hairline-strong: rgba(245, 243, 239, 0.2);
+            --glass-bg: rgba(16, 16, 18, 0.55);
+            --glass-bg-deep: rgba(16, 16, 18, 0.78);
+            --accent: #f5f3ef;
+            --accent-soft: rgba(245, 243, 239, 0.16);
         }
 
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
-            height: 100%; 
-            width: 100%; 
-            overflow: hidden;
+            height: 100%; width: 100%; overflow: hidden;
             background: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            color: var(--ink);
         }
 
-        #map { 
-            position: absolute; 
-            inset: 0; 
-            width: 100%; 
-            height: 100%; 
-            z-index: 0; 
-            background: var(--bg-color); 
-        }
+        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
 
+        /* Warm monochrome map filter */
         .dark-tiles .leaflet-tile {
-            filter: brightness(0.6) saturate(0.6) contrast(1.2) hue-rotate(190deg) invert(0.92);
+            filter: grayscale(0.85) brightness(0.68) contrast(1.06) sepia(0.08);
         }
         .leaflet-container { background: var(--bg-color) !important; font-family: inherit; }
 
+        /* ---------- Glass ---------- */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(28px) saturate(200%);
-            -webkit-backdrop-filter: blur(28px) saturate(200%);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
+            backdrop-filter: blur(36px) saturate(130%);
+            -webkit-backdrop-filter: blur(36px) saturate(130%);
+            border: 1px solid var(--hairline);
+            box-shadow:
+                0 24px 64px rgba(0, 0, 0, 0.75),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
         }
 
-        /* ---------- Top Header Layout & Search Dropdown ---------- */
+        /* ---------- Top Header ---------- */
         .top-container {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 0px) + 10px);
-            left: 10px; 
-            right: 10px;
+            top: calc(env(safe-area-inset-top, 0px) + 12px);
+            left: 12px; right: 12px;
             z-index: 2000;
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px;
+            display: flex; flex-direction: column; gap: 8px;
         }
 
-        .search-box-panel { 
-            padding: 8px 10px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            position: relative; 
-            z-index: 2500;
+        .search-box-panel {
+            padding: 6px;
+            display: flex; align-items: center; gap: 8px;
+            position: relative; z-index: 2500;
         }
 
         .search-input-wrapper {
-            flex: 1; 
-            display: flex; 
-            align-items: center;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 14px; 
-            padding: 8px 10px; 
-            gap: 8px;
-            transition: all 0.2s ease;
+            flex: 1; display: flex; align-items: center;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 2px; padding: 10px 12px; gap: 10px;
+            transition: all 0.3s ease;
         }
-
         .search-input-wrapper:focus-within {
-            border-color: var(--primary-red);
-            box-shadow: 0 0 12px var(--primary-glow);
+            border-color: var(--hairline-strong);
+            background: rgba(245, 243, 239, 0.03);
         }
-
         .search-input-wrapper input {
-            background: transparent; 
-            border: none; 
-            outline: none; 
-            color: #fff;
-            font-size: 14px; 
-            width: 100%; 
-            font-weight: 500;
+            background: transparent; border: none; outline: none; color: var(--ink);
+            font-family: 'Playfair Display', serif;
+            font-size: 15px; width: 100%; font-weight: 400;
+            font-style: italic;
+            letter-spacing: 0.2px;
         }
-
-        .search-input-wrapper input::placeholder { color: rgba(255, 255, 255, 0.45); }
+        .search-input-wrapper input::placeholder {
+            color: var(--ink-faint);
+            font-style: italic;
+        }
 
         .mic-btn {
-            background: rgba(255, 42, 42, 0.15);
-            border: 1px solid var(--primary-red);
-            color: var(--primary-red);
-            width: 32px; 
-            height: 32px;
-            border-radius: 10px;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            cursor: pointer; 
-            font-size: 13px;
-            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid var(--hairline);
+            color: var(--ink-soft);
+            width: 32px; height: 32px;
+            border-radius: 2px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 12px;
+            transition: all 0.3s ease;
             flex-shrink: 0;
         }
-
+        .mic-btn:hover { border-color: var(--hairline-strong); color: var(--ink); }
         .mic-btn.listening {
-            background: var(--primary-red);
-            color: #fff;
-            animation: micPulse 1s infinite alternate;
+            background: var(--accent-soft);
+            color: var(--ink);
+            border-color: var(--ink);
+            animation: micPulse 1.2s infinite alternate;
         }
-
         @keyframes micPulse {
-            0% { box-shadow: 0 0 8px var(--primary-red); }
-            100% { box-shadow: 0 0 22px var(--primary-red); }
+            0% { box-shadow: 0 0 0 0 rgba(245,243,239,0.3); }
+            100% { box-shadow: 0 0 0 8px rgba(245,243,239,0); }
         }
 
         .search-results-dropdown {
-            position: absolute; 
-            top: calc(100% + 6px); 
-            left: 0; 
-            right: 0;
-            max-height: 280px; 
-            overflow-y: auto;
-            display: none; 
-            flex-direction: column; 
-            z-index: 4000; 
-            padding: 6px;
-            background: rgba(8, 10, 16, 0.96);
-            border: 1px solid var(--primary-red);
-            box-shadow: 0 20px 48px rgba(0,0,0,0.95);
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+            max-height: 280px; overflow-y: auto;
+            display: none; flex-direction: column; z-index: 4000; padding: 4px;
+            background: var(--glass-bg-deep);
+            backdrop-filter: blur(32px) saturate(130%);
+            -webkit-backdrop-filter: blur(32px) saturate(130%);
+            border: 1px solid var(--hairline-strong);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.9);
+            border-radius: 4px;
         }
-
         .search-results-dropdown.active { display: flex; }
 
         .search-item {
-            padding: 11px 12px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-size: 13px;
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            transition: background 0.2s ease; 
-            color: #e2e8f0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 14px;
+            cursor: pointer; font-size: 13px;
+            display: flex; align-items: center; gap: 12px;
+            transition: background 0.3s ease; color: var(--ink-soft);
+            border-bottom: 1px solid var(--hairline);
         }
-
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item:active { 
-            background: rgba(255, 42, 42, 0.25); 
-            color: #fff; 
+        .search-item:hover, .search-item:active {
+            background: var(--accent-soft); color: var(--ink);
         }
+        .search-item i { color: var(--ink-soft); }
 
-        .shortcuts-row { 
-            display: flex; 
-            gap: 6px; 
-            overflow-x: auto; 
-            padding-bottom: 2px; 
-            scrollbar-width: none; 
-            z-index: 1000;
+        /* ---------- Shortcuts ---------- */
+        .shortcuts-row {
+            display: flex; gap: 6px; overflow-x: auto;
+            padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
         }
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
-            background: rgba(18, 22, 32, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px; 
-            padding: 6px 12px;
-            font-size: 12px; 
-            font-weight: 600; 
-            color: #cbd5e1;
-            white-space: nowrap; 
-            cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            gap: 6px;
-            backdrop-filter: blur(12px);
-            transition: all 0.2s ease;
+            background: rgba(16, 16, 18, 0.55);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--hairline);
+            border-radius: 2px;
+            padding: 8px 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ink-soft);
+            white-space: nowrap; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.3s ease;
         }
-
         .chip-btn:hover, .chip-btn:active {
-            background: rgba(255, 42, 42, 0.25);
-            border-color: var(--primary-red); 
-            color: #fff;
+            background: var(--accent-soft);
+            border-color: var(--hairline-strong);
+            color: var(--ink);
         }
+        .chip-btn i { color: var(--ink-faint); }
+        .chip-btn:hover i { color: var(--ink); }
 
+        /* ---------- Controls Bar ---------- */
         .header-controls-bar {
-            padding: 6px 10px; 
-            display: flex; 
-            align-items: center;
-            justify-content: space-between; 
-            gap: 6px;
+            padding: 6px;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 6px;
             z-index: 1000;
         }
 
         .mode-selector {
-            display: flex; 
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px; 
-            padding: 3px; 
-            gap: 3px;
+            display: flex;
+            background: transparent;
+            border: 1px solid var(--hairline);
+            border-radius: 2px;
+            padding: 3px;
+            gap: 2px;
         }
-
         .mode-btn {
-            background: transparent; 
-            border: none; 
-            color: rgba(255, 255, 255, 0.6);
-            padding: 6px 8px; 
-            border-radius: 9px; 
-            font-size: 11px; 
+            background: transparent; border: none;
+            color: var(--ink-faint);
+            padding: 6px 10px;
+            border-radius: 1px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.2s ease; 
-            display: flex; 
-            align-items: center; 
-            gap: 4px;
+            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 6px;
         }
-
         .mode-btn.active {
-            background: var(--primary-red); 
-            color: #fff;
-            box-shadow: 0 2px 10px var(--primary-glow);
+            background: var(--accent-soft);
+            color: var(--ink);
         }
 
         .ultron-voice-btn {
-            background: rgba(255, 42, 42, 0.15);
-            border: 1px solid var(--primary-red);
-            color: var(--primary-red);
-            padding: 6px 10px; 
-            border-radius: 12px;
-            font-size: 11px; 
-            font-weight: 700; 
+            background: transparent;
+            border: 1px solid var(--hairline);
+            color: var(--ink-soft);
+            padding: 8px 14px;
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
             cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            gap: 5px;
-            transition: all 0.2s ease; 
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.3s ease;
             position: relative;
         }
-
         .ultron-voice-btn.active {
-            background: var(--primary-red); 
-            color: #fff;
-            box-shadow: 0 0 14px var(--primary-glow);
+            background: var(--accent-soft);
+            color: var(--ink);
+            border-color: var(--hairline-strong);
         }
-
-        .ultron-voice-btn.speaking { animation: voicePulse 0.8s infinite alternate; }
-
+        .ultron-voice-btn.speaking { animation: voicePulse 1s infinite alternate; }
         @keyframes voicePulse {
-            0% { box-shadow: 0 0 8px var(--primary-red); transform: scale(1); }
-            100% { box-shadow: 0 0 22px var(--primary-red); transform: scale(1.04); }
+            0% { box-shadow: 0 0 0 0 rgba(245,243,239,0.3); }
+            100% { box-shadow: 0 0 0 6px rgba(245,243,239,0); }
         }
 
         /* ---------- Turn Banner ---------- */
         .turn-banner {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 0px) + 140px);
-            left: 10px; 
-            right: 10px; 
-            z-index: 999;
-            padding: 10px 14px; 
-            display: none; 
-            align-items: center; 
-            gap: 12px;
-            background: linear-gradient(135deg, rgba(20, 8, 12, 0.95), rgba(8, 12, 22, 0.95));
-            border: 1px solid var(--primary-red);
-            box-shadow: 0 10px 30px var(--primary-glow);
+            top: calc(env(safe-area-inset-top, 0px) + 148px);
+            left: 12px; right: 12px; z-index: 999;
+            padding: 14px 18px;
+            display: none; align-items: center; gap: 16px;
+            background: var(--glass-bg-deep);
+            backdrop-filter: blur(32px) saturate(130%);
+            -webkit-backdrop-filter: blur(32px) saturate(130%);
+            border: 1px solid var(--hairline-strong);
+            border-radius: 4px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.85);
         }
-
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
-            width: 40px; 
-            height: 40px; 
-            border-radius: 12px;
-            background: rgba(255, 42, 42, 0.2);
-            border: 1px solid var(--primary-red);
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-size: 18px; 
-            color: var(--primary-red);
+            width: 44px; height: 44px;
+            border-radius: 2px;
+            background: var(--accent-soft);
+            border: 1px solid var(--hairline-strong);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: var(--ink);
+            flex-shrink: 0;
+        }
+        .turn-details { flex: 1; min-width: 0; }
+        .turn-instruction {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px; font-weight: 500;
+            color: var(--ink);
+            letter-spacing: -0.2px;
+            line-height: 1.3;
+        }
+        .turn-distance {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px; font-weight: 500;
+            letter-spacing: 2.5px; text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-top: 4px;
         }
 
-        .turn-details { flex: 1; min-width: 0; }
-        .turn-instruction { font-size: 13px; font-weight: 700; color: #fff; }
-        .turn-distance { font-size: 11px; color: var(--primary-red); font-weight: 600; margin-top: 1px; }
-
-        /* ---------- Speed Badge & Side Controls ---------- */
+        /* ---------- Speed Badge ---------- */
         .speed-badge {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
-            left: 10px; 
-            z-index: 999;
-            padding: 6px 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px;
-            font-size: 11px; 
-            font-weight: 700;
-            border: 1px solid rgba(255, 42, 42, 0.3);
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
+            left: 12px; z-index: 999;
+            padding: 10px 16px;
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px; font-weight: 500;
+            letter-spacing: 2.5px; text-transform: uppercase;
+            color: var(--ink-faint);
         }
+        .speed-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+            font-weight: 500;
+        }
+        .speed-badge i { color: var(--ink-faint); font-size: 13px; }
 
-        .speed-value { font-size: 16px; color: var(--primary-red); }
-
+        /* ---------- Side Controls ---------- */
         .side-controls {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
-            right: 10px; 
-            z-index: 999;
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
+            right: 12px; z-index: 999;
+            display: flex; flex-direction: column; gap: 8px;
         }
-
         .icon-circle-btn {
-            width: 38px; 
-            height: 38px; 
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            background: rgba(10, 12, 18, 0.88);
-            color: #fff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            cursor: pointer; 
-            font-size: 15px; 
-            transition: all 0.2s ease;
+            width: 40px; height: 40px;
+            border-radius: 2px;
+            border: 1px solid var(--hairline);
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            color: var(--ink-soft);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px;
+            transition: all 0.3s ease;
         }
-
         .icon-circle-btn:hover {
-            background: rgba(255, 42, 42, 0.3);
-            border-color: var(--primary-red);
+            background: var(--accent-soft);
+            border-color: var(--hairline-strong);
+            color: var(--ink);
         }
 
-        /* ---------- Route Selection Options ---------- */
+        /* ---------- Route Selection ---------- */
         .route-selection-panel {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 130px);
-            left: 10px; 
-            right: 10px; 
-            z-index: 1000;
-            padding: 10px; 
-            display: none; 
-            flex-direction: column; 
-            gap: 6px;
-            max-height: 38vh; 
-            overflow-y: auto;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
+            left: 12px; right: 12px; z-index: 1000;
+            padding: 10px;
+            display: none; flex-direction: column; gap: 6px;
+            max-height: 38vh; overflow-y: auto;
         }
-
         .route-selection-panel.active { display: flex; }
 
         .route-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px; 
-            padding: 8px 12px;
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            cursor: pointer; 
-            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid var(--hairline);
+            border-radius: 2px;
+            padding: 12px 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; transition: all 0.3s ease;
+            gap: 12px;
         }
-
         .route-card:hover, .route-card.selected {
-            background: rgba(255, 42, 42, 0.18);
-            border-color: var(--primary-red);
-            box-shadow: 0 0 12px rgba(255, 42, 42, 0.3);
+            background: var(--accent-soft);
+            border-color: var(--hairline-strong);
         }
+        .route-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--ink);
+            letter-spacing: -0.1px;
+        }
+        .route-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 8px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            padding: 3px 7px;
+            border-radius: 1px;
+            border: 1px solid var(--hairline-strong);
+            color: var(--ink-soft);
+            background: transparent;
+        }
+        .badge-fast { border-color: var(--ink); color: var(--ink); }
+        .badge-free { border-color: var(--hairline-strong); color: var(--ink-soft); }
+        .route-card-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 400;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-top: 4px;
+        }
+        .route-card i { color: var(--ink-faint); font-size: 12px; }
+        .route-card.selected i { color: var(--ink); }
 
-        .route-card-title { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .route-badge { font-size: 9px; padding: 2px 5px; border-radius: 5px; font-weight: 700; text-transform: uppercase; }
-        .badge-fast { background: rgba(255, 42, 42, 0.2); border: 1px solid var(--primary-red); color: var(--primary-red); }
-        .badge-free { background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; }
-        .route-card-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-
-        /* ---------- Bottom Action Control Bar ---------- */
+        /* ---------- Bottom Action Bar ---------- */
         .bottom-bar {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
-            left: 10px; 
-            right: 10px; 
-            z-index: 1000;
-            padding: 10px 14px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 6px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
+            left: 12px; right: 12px; z-index: 1000;
+            padding: 12px 14px;
+            display: flex; flex-direction: column; gap: 10px;
         }
-
         .action-buttons { display: flex; gap: 6px; width: 100%; }
 
         .btn {
-            border: none; 
-            padding: 11px 12px; 
-            border-radius: 12px;
-            font-size: 12px; 
-            font-weight: 700; 
-            color: #fff; 
+            border: 1px solid var(--hairline);
+            padding: 12px 14px;
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ink-soft);
+            background: transparent;
             cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px;
-            transition: all 0.2s ease; 
-            flex: 1;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.3s ease; flex: 1;
         }
-
+        .btn:hover {
+            border-color: var(--hairline-strong);
+            color: var(--ink);
+            background: var(--accent-soft);
+        }
         .btn-primary {
-            background: linear-gradient(135deg, #ef4444, #991b1b);
-            border: 1px solid rgba(255, 42, 42, 0.5);
-            box-shadow: 0 6px 18px var(--primary-glow);
+            background: var(--accent);
+            color: var(--bg-color);
+            border-color: var(--accent);
         }
-
-        .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .btn-primary:hover {
+            background: var(--ink);
+            color: var(--bg-color);
+        }
+        .btn-secondary { background: transparent; }
         .btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
+            background: transparent;
+            border-color: var(--hairline-strong);
+            color: var(--ink-faint);
         }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-danger:hover { color: var(--ink); border-color: var(--ink); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        #routeMetrics {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+        #routeMetrics strong { color: var(--ink); font-weight: 500; }
 
         /* ---------- Markers ---------- */
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
-            width: 18px; height: 18px;
-            background: var(--cyan-accent);
-            border: 3px solid #fff; border-radius: 50%;
-            box-shadow: 0 0 15px var(--cyan-accent);
-            position: absolute; top: 5px; left: 5px; z-index: 2;
+            width: 14px; height: 14px;
+            background: var(--ink);
+            border: 2px solid var(--bg-color);
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px var(--ink), 0 0 20px rgba(245,243,239,0.6);
+            position: absolute; top: 7px; left: 7px; z-index: 2;
         }
         .user-pulse {
-            width: 38px; height: 38px; background: var(--cyan-glow);
-            border-radius: 50%; position: absolute; top: -5px; left: -5px;
-            animation: pulse-ring 2s infinite ease-out;
+            width: 40px; height: 40px;
+            background: radial-gradient(circle, rgba(245,243,239,0.35) 0%, transparent 70%);
+            border-radius: 50%; position: absolute; top: -6px; left: -6px;
+            animation: pulse-ring 2.4s infinite ease-out;
         }
         @keyframes pulse-ring {
             0% { transform: scale(0.3); opacity: 0.9; }
-            100% { transform: scale(1.6); opacity: 0; }
+            100% { transform: scale(1.8); opacity: 0; }
         }
         .dest-pin-icon {
-            font-size: 30px; color: var(--primary-red);
-            filter: drop-shadow(0 0 8px var(--primary-red));
+            font-size: 26px;
+            color: var(--ink);
+            filter: drop-shadow(0 0 10px rgba(245,243,239,0.7));
         }
         .leaflet-routing-container { display: none !important; }
 
         /* ---------- Toast ---------- */
         .toast-msg {
-            position: absolute; 
-            top: calc(env(safe-area-inset-top, 0px) + 60px); 
+            position: absolute;
+            top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(10, 12, 18, 0.95);
-            border: 1px solid var(--primary-red); color: #fff;
-            padding: 7px 14px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            background: var(--glass-bg-deep);
+            backdrop-filter: blur(28px) saturate(130%);
+            -webkit-backdrop-filter: blur(28px) saturate(130%);
+            border: 1px solid var(--hairline-strong);
+            color: var(--ink);
+            padding: 10px 20px;
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase;
             z-index: 5000; opacity: 0; pointer-events: none;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 20px var(--primary-glow);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.85);
             white-space: nowrap;
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
-        /* ---------- Bottom Tab Bar ---------- */
+        /* ---------- Tab Bar ---------- */
         .tab-bar {
             position: absolute;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
-            left: 10px; right: 10px; z-index: 1100;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+            left: 12px; right: 12px; z-index: 1100;
             display: flex; align-items: center; justify-content: space-around;
-            padding: 6px; border-radius: 20px;
+            padding: 8px; border-radius: 3px;
         }
         .tab-btn {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-            background: transparent; border: none; color: rgba(255,255,255,0.45);
-            padding: 4px 0; font-size: 10px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s ease; border-radius: 12px;
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: transparent; border: none;
+            color: var(--ink-faint);
+            padding: 6px 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 8px; font-weight: 500;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s ease; border-radius: 2px;
         }
-        .tab-btn i { font-size: 15px; }
-        .tab-btn.active { color: var(--primary-red); }
-        .tab-btn.active i { filter: drop-shadow(0 0 6px var(--primary-red)); }
+        .tab-btn i { font-size: 14px; }
+        .tab-btn.active { color: var(--ink); }
+        .tab-btn.active i { filter: drop-shadow(0 0 6px rgba(245,243,239,0.5)); }
 
         /* ---------- Overlay Panels ---------- */
         .overlay-panel {
@@ -505,122 +505,203 @@
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: 3000;
             display: none;
-            background: rgba(3, 5, 8, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: calc(env(safe-area-inset-top, 0px) + 20px) 14px calc(env(safe-area-inset-bottom, 0px) + 80px);
+            background: rgba(8, 8, 10, 0.92);
+            backdrop-filter: blur(24px) saturate(130%);
+            -webkit-backdrop-filter: blur(24px) saturate(130%);
+            padding: calc(env(safe-area-inset-top, 0px) + 32px) 20px calc(env(safe-area-inset-bottom, 0px) + 90px);
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .overlay-panel.active { display: flex; flex-direction: column; }
 
         .overlay-header {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--hairline);
         }
-        .overlay-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+        .overlay-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 400;
+            letter-spacing: -0.8px;
+            color: var(--ink);
+            font-style: italic;
+        }
         .overlay-close {
-            width: 34px; height: 34px; border-radius: 12px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12);
-            color: #fff; font-size: 14px; cursor: pointer;
+            width: 36px; height: 36px; border-radius: 2px;
+            background: transparent;
+            border: 1px solid var(--hairline);
+            color: var(--ink-soft); font-size: 12px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
         }
+        .overlay-close:hover { border-color: var(--hairline-strong); color: var(--ink); }
+
         .overlay-content {
             flex: 1; overflow-y: auto;
             display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
         }
+
         .list-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 14px; padding: 10px 12px;
-            display: flex; align-items: center; gap: 10px;
-            cursor: pointer; transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid var(--hairline);
+            border-radius: 2px;
+            padding: 14px 16px;
+            display: flex; align-items: center; gap: 14px;
+            cursor: pointer; transition: all 0.3s ease;
         }
         .list-card:hover {
-            background: rgba(255, 42, 42, 0.14);
-            border-color: var(--primary-red);
+            background: var(--accent-soft);
+            border-color: var(--hairline-strong);
         }
         .list-icon {
-            width: 34px; height: 34px; border-radius: 10px;
-            background: rgba(255, 42, 42, 0.18); color: var(--primary-red);
+            width: 36px; height: 36px; border-radius: 2px;
+            background: var(--accent-soft);
+            color: var(--ink);
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0;
+            font-size: 13px; flex-shrink: 0;
+            border: 1px solid var(--hairline);
         }
-        .list-icon.cyan { background: rgba(0,240,255,0.15); color: var(--cyan-accent); }
         .list-main { flex: 1; min-width: 0; }
-        .list-title { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .list-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .list-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px; font-weight: 500;
+            color: var(--ink);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            letter-spacing: -0.1px;
+        }
+        .list-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px; font-weight: 400;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-top: 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
         .list-action {
-            width: 28px; height: 28px; border-radius: 8px;
-            background: rgba(255,255,255,0.06); color: #cbd5e1; border: none;
+            width: 32px; height: 32px; border-radius: 2px;
+            background: transparent;
+            color: var(--ink-faint);
+            border: 1px solid var(--hairline);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 11px; flex-shrink: 0;
+            transition: all 0.3s ease;
         }
-        .empty-state { text-align: center; color: #64748b; padding: 30px 16px; font-size: 12px; }
-        .empty-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.4; }
+        .list-action:hover {
+            color: var(--ink);
+            border-color: var(--hairline-strong);
+            background: var(--accent-soft);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--ink-faint);
+            padding: 60px 20px;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .empty-state i {
+            font-size: 32px; display: block; margin-bottom: 20px; opacity: 0.3;
+        }
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px; background: var(--glass-bg);
-            border: 1px solid var(--glass-border); border-radius: 14px;
+            padding: 16px;
+            background: transparent;
+            border: 1px solid var(--hairline);
+            border-radius: 2px;
+            transition: all 0.3s ease;
         }
-        .settings-row .label { font-size: 12px; font-weight: 600; color: #fff; }
-        .settings-row .sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+        .settings-row[onclick]:hover {
+            background: var(--accent-soft);
+            border-color: var(--hairline-strong);
+        }
+        .settings-row .label {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px; font-weight: 500;
+            color: var(--ink);
+        }
+        .settings-row .sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px; font-weight: 400;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-top: 4px;
+        }
 
         .toggle-switch {
-            width: 40px; height: 24px; border-radius: 12px;
-            background: rgba(255,255,255,0.12); position: relative;
-            cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
+            width: 42px; height: 24px; border-radius: 12px;
+            background: rgba(245,243,239,0.1);
+            border: 1px solid var(--hairline);
+            position: relative;
+            cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
         }
         .toggle-switch::after {
             content: ''; position: absolute; top: 2px; left: 2px;
-            width: 20px; height: 20px; border-radius: 50%;
-            background: #fff; transition: transform 0.2s ease;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--ink-faint);
+            transition: all 0.3s ease;
         }
-        .toggle-switch.on { background: var(--primary-red); }
-        .toggle-switch.on::after { transform: translateX(16px); }
+        .toggle-switch.on {
+            background: var(--accent-soft);
+            border-color: var(--hairline-strong);
+        }
+        .toggle-switch.on::after {
+            transform: translateX(18px);
+            background: var(--ink);
+        }
 
         .route-loading {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 10px; font-size: 11px; color: #94a3b8;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px; font-weight: 400;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ink-faint);
         }
         .spinner {
             width: 14px; height: 14px;
-            border: 2px solid rgba(255,255,255,0.15);
-            border-top-color: var(--primary-red); border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            border: 1.5px solid var(--hairline-strong);
+            border-top-color: var(--ink);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 480px) {
             .mode-btn span { display: none; }
             .ultron-voice-btn span { display: none; }
+            .overlay-title { font-size: 26px; }
         }
     </style>
 </head>
 <body class="dark-tiles">
 
-    <div id="toast" class="toast-msg">Ultron Tactical Navigation Online</div>
+    <div id="toast" class="toast-msg">Navigation initialized</div>
 
     <!-- Top Header -->
     <div class="top-container">
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--primary-red);"></i>
-                <input type="text" id="searchInput" placeholder="Search target or coordinates..." oninput="handleSearchInput(this.value)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none;" onclick="clearSearchInput()"></i>
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink-faint); font-size: 12px;"></i>
+                <input type="text" id="searchInput" placeholder="Where to?" oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 12px;" onclick="clearSearchInput()"></i>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
             </div>
-            <div class="glass-panel search-results-dropdown" id="searchResults"></div>
+            <div class="search-results-dropdown" id="searchResults"></div>
         </div>
 
         <div class="shortcuts-row">
-            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump" style="color:#f59e0b;"></i> Gas/EV</button>
-            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-p" style="color:#3b82f6;"></i> Parking</button>
-            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot" style="color:#10b981;"></i> Coffee</button>
-            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils" style="color:#ef4444;"></i> Food</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house" style="color:#a855f7;"></i> Home</button>
+            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> Fuel</button>
+            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> Parking</button>
+            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> Coffee</button>
+            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> Dining</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home</button>
         </div>
 
         <div class="glass-panel header-controls-bar">
@@ -630,36 +711,36 @@
                 <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
             </div>
             <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
-                <i class="fa-solid fa-robot"></i> <span>Ultron</span>
+                <i class="fa-solid fa-volume-high"></i> <span>Voice</span>
             </button>
         </div>
     </div>
 
     <!-- Turn Banner -->
-    <div class="turn-banner glass-panel" id="turnBanner">
+    <div class="turn-banner" id="turnBanner">
         <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
         <div class="turn-details">
-            <div class="turn-instruction" id="turnInstruction">Awaiting destination...</div>
-            <div class="turn-distance" id="turnDistance">Calculating trajectory</div>
+            <div class="turn-instruction" id="turnInstruction">Awaiting destination</div>
+            <div class="turn-distance" id="turnDistance">Calculating route</div>
         </div>
     </div>
 
     <!-- Speed Badge -->
     <div class="speed-badge glass-panel">
-        <i class="fa-solid fa-gauge-high" style="color: var(--primary-red);"></i>
-        <span>SPEED:</span>
-        <span class="speed-value" id="speedValue">0</span> km/h
+        <i class="fa-solid fa-gauge-high"></i>
+        <span class="speed-value" id="speedValue">0</span>
+        <span>KM/H</span>
     </div>
 
     <!-- Side Controls -->
     <div class="side-controls">
-        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter Camera"><i class="fa-solid fa-crosshairs"></i></button>
+        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
 
     <!-- Route Selection -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">
-            <i class="fa-solid fa-route"></i> Trajectory Options
+        <div style="font-family:'Inter',sans-serif; font-size:9px; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:var(--ink-faint); padding: 4px 4px 8px;">
+            Route Options
         </div>
         <div id="routeCardsContainer"></div>
     </div>
@@ -669,12 +750,12 @@
 
     <!-- Bottom Action Bar -->
     <div class="bottom-bar glass-panel">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;" id="routeMetrics">
-            <span>Tap map or search destination</span>
+        <div id="routeMetrics">
+            <span>Tap the map or search</span>
         </div>
         <div class="action-buttons">
             <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
-                <i class="fa-solid fa-location-arrow"></i> Start Nav
+                <i class="fa-solid fa-location-arrow"></i> Start
             </button>
             <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
                 <i class="fa-solid fa-play"></i> Simulate
@@ -685,7 +766,7 @@
         </div>
     </div>
 
-    <!-- Bottom Tab Bar -->
+    <!-- Tab Bar -->
     <div class="tab-bar glass-panel">
         <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
             <i class="fa-solid fa-map"></i><span>Map</span>
@@ -697,7 +778,7 @@
             <i class="fa-solid fa-bookmark"></i><span>Saved</span>
         </button>
         <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
-            <i class="fa-solid fa-gear"></i><span>Settings</span>
+            <i class="fa-solid fa-sliders"></i><span>Settings</span>
         </button>
     </div>
 
@@ -712,7 +793,7 @@
 
     <div class="overlay-panel" id="panel-saved">
         <div class="overlay-header">
-            <div class="overlay-title">Saved Places</div>
+            <div class="overlay-title">Saved</div>
             <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="overlay-content" id="savedList"></div>
@@ -726,8 +807,8 @@
         <div class="overlay-content">
             <div class="settings-row">
                 <div>
-                    <div class="label">Ultron Voice</div>
-                    <div class="sub">Synthetic navigation voice</div>
+                    <div class="label">Voice Guidance</div>
+                    <div class="sub">Spoken navigation</div>
                 </div>
                 <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
             </div>
@@ -736,19 +817,18 @@
                     <div class="label">Home Address</div>
                     <div class="sub" id="homeAddressSub">Not set — tap to set</div>
                 </div>
-                <i class="fa-solid fa-chevron-right" style="color:#64748b; font-size:11px;"></i>
+                <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint); font-size:10px;"></i>
             </div>
             <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
                 <div>
-                    <div class="label" style="color:#fca5a5;">Clear All Data</div>
-                    <div class="sub">Removes recents, saved places, home</div>
+                    <div class="label">Clear All Data</div>
+                    <div class="sub">Recents, saved places, home</div>
                 </div>
-                <i class="fa-solid fa-trash" style="color:#ef4444; font-size:11px;">}</i>
+                <i class="fa-solid fa-trash" style="color:var(--ink-faint); font-size:10px;"></i>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
@@ -790,8 +870,10 @@
 
         function initMap() {
             map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
             map.on('click', (e) => {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 if (!userCoords) requestLocationWithSafariFallback();
@@ -802,8 +884,8 @@
 
         function initAudioContext() {
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
+                const AC = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AC();
             } catch(e) {}
         }
 
@@ -815,26 +897,18 @@
                 const osc2 = audioCtx.createOscillator();
                 const filter = audioCtx.createBiquadFilter();
                 const gain = audioCtx.createGain();
-
-                osc1.type = 'sawtooth'; 
-                osc2.type = 'square';
+                osc1.type = 'sawtooth'; osc2.type = 'square';
                 osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
                 osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
-                
-                filter.type = 'lowpass'; 
+                filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(320, audioCtx.currentTime);
-
-                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-
-                osc1.connect(filter); 
-                osc2.connect(filter);
-                filter.connect(gain); 
-                gain.connect(audioCtx.destination);
-                
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc1.connect(filter); osc2.connect(filter);
+                filter.connect(gain); gain.connect(audioCtx.destination);
                 osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.45);
-                osc2.stop(audioCtx.currentTime + 0.45);
+                osc1.stop(audioCtx.currentTime + 0.4);
+                osc2.stop(audioCtx.currentTime + 0.4);
             } catch(e) {}
         }
 
@@ -842,28 +916,18 @@
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
             playUltronMetallicPulse();
-
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.add('speaking');
-
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.pitch = 0.01; 
-                utterance.rate = 0.78; 
+                utterance.pitch = 0.4;
+                utterance.rate = 0.92;
                 utterance.volume = 1.0;
-
                 const voices = synth.getVoices();
-                const deepVoice = voices.find(v => v.lang.startsWith('en') && (
-                    v.name.includes('David') || 
-                    v.name.includes('Male') || 
-                    v.name.includes('Daniel') || 
-                    v.name.includes('Google US English')
-                )) || voices[0];
-                
-                if (deepVoice) utterance.voice = deepVoice;
-
-                utterance.onend = () => { btn.classList.remove('speaking'); };
-                utterance.onerror = () => { btn.classList.remove('speaking'); };
+                const v = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                if (v) utterance.voice = v;
+                utterance.onend = () => btn.classList.remove('speaking');
+                utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
             }, 180);
         }
@@ -893,7 +957,7 @@
                             if (!userCoords) {
                                 userCoords = L.latLng(DEFAULT_LOCATION);
                                 updateUserMarker(userCoords, 100);
-                                showToast("Using default fallback location");
+                                showToast("Using default location");
                             }
                         },
                         { enableHighAccuracy: false, timeout: 6000 }
@@ -911,9 +975,7 @@
                     const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
                     document.getElementById('speedValue').innerText = speed;
                     updateUserMarker(userCoords, pos.coords.accuracy || 20);
-                    
                     if (isNavigating) {
-                        // Dynamic zoom & re-center tracking during live navigation
                         map.setView(userCoords, 17, { animate: true });
                         checkManeuverProximity();
                     } else if (isTrackingCamera) {
@@ -937,7 +999,7 @@
                     iconSize: [28, 28], iconAnchor: [14, 14]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.1, weight: 1 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#f5f3ef', fillColor: '#f5f3ef', fillOpacity: 0.05, weight: 0.5 }).addTo(map);
             }
         }
 
@@ -973,7 +1035,7 @@
             results.forEach(res => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--primary-red);"></i> <span>${res.display_name}</span>`;
+                item.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${res.display_name}</span>`;
                 item.onclick = () => {
                     const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
                     const name = res.display_name.split(',')[0];
@@ -1013,3 +1075,355 @@
         }
 
         function calculateRoutes(label) {
+            clearPolyline();
+            const panel = document.getElementById('routeSelectionPanel');
+            const container = document.getElementById('routeCardsContainer');
+            panel.classList.add('active');
+            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Calculating routes</div>`;
+
+            const url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        routesList = data.routes;
+                        renderRouteCards(label);
+                        selectRoute(0);
+                        enableActionButtons();
+                        speakUltron("Route calculated.");
+                    } else {
+                        container.innerHTML = `<div class="empty-state">No route found</div>`;
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = `<div class="empty-state">Routing error</div>`;
+                });
+        }
+
+        function renderRouteCards(label) {
+            const container = document.getElementById('routeCardsContainer');
+            container.innerHTML = '';
+            routesList.forEach((r, idx) => {
+                const mins = Math.round(r.duration / 60);
+                const km = (r.distance / 1000).toFixed(1);
+                let badge = idx === 0 ? '<span class="route-badge badge-fast">Fastest</span>' : '<span class="route-badge badge-free">Alternate</span>';
+                const card = document.createElement('div');
+                card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
+                card.id = `routeCard-${idx}`;
+                card.onclick = () => selectRoute(idx);
+                card.innerHTML = `
+                    <div>
+                        <div class="route-card-title">
+                            <span>${label}</span>
+                            ${badge}
+                        </div>
+                        <div class="route-card-sub">${mins} min · ${km} km</div>
+                    </div>
+                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" id="checkRoute-${idx}" style="font-size:10px;"></i>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectRoute(idx) {
+            selectedRouteIndex = idx;
+            routesList.forEach((_, i) => {
+                const card = document.getElementById(`routeCard-${i}`);
+                const icon = document.getElementById(`checkRoute-${i}`);
+                if (card && icon) {
+                    card.classList.toggle('selected', i === idx);
+                    icon.className = i === idx ? 'fa-solid fa-check' : 'fa-solid fa-circle';
+                    icon.style.fontSize = '10px';
+                }
+            });
+            renderRouteOnMap(routesList[idx]);
+        }
+
+        function renderRouteOnMap(routeData) {
+            clearPolyline();
+            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
+            activeRouteInstructions = routeData.legs[0].steps;
+
+            currentRoutePolyline = L.polyline(activeRouteCoordinates, {
+                color: '#f5f3ef',
+                weight: 4,
+                opacity: 0.85,
+                dashArray: null
+            }).addTo(map);
+
+            map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
+            const mins = Math.round(routeData.duration / 60);
+            const km = (routeData.distance / 1000).toFixed(1);
+            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA</strong> ${mins} min &nbsp;&nbsp; <strong>DIST</strong> ${km} km</span>`;
+
+            if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
+        }
+
+        function clearPolyline() {
+            if (currentRoutePolyline) {
+                map.removeLayer(currentRoutePolyline);
+                currentRoutePolyline = null;
+            }
+        }
+
+        function enableActionButtons() {
+            document.getElementById('startNavBtn').disabled = false;
+            document.getElementById('simDriveBtn').disabled = false;
+            document.getElementById('clearBtn').style.display = 'block';
+        }
+
+        function updateTurnBanner(step) {
+            const banner = document.getElementById('turnBanner');
+            banner.classList.add('active');
+            const inst = step.maneuver.instruction || "Proceed forward";
+            const dist = step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} km` : `${Math.round(step.distance)} m`;
+            document.getElementById('turnInstruction').innerText = inst;
+            document.getElementById('turnDistance').innerText = `In ${dist}`;
+        }
+
+        function setTravelMode(mode) {
+            travelMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            if (activeDestination) calculateRoutes("Target");
+        }
+
+        function toggleUltronVoice() {
+            ultronEnabled = !ultronEnabled;
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.toggle('active', ultronEnabled);
+            document.getElementById('settingsVoiceToggle').classList.toggle('on', ultronEnabled);
+            if (ultronEnabled) speakUltron("Voice enabled.");
+            else synth.cancel();
+        }
+
+        function toggleNavigation() {
+            if (isNavigating) {
+                stopNavigation();
+            } else {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                isNavigating = true;
+                isTrackingCamera = true;
+                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End`;
+                document.getElementById('startNavBtn').className = "btn btn-danger";
+                document.getElementById('routeSelectionPanel').classList.remove('active');
+                if (userCoords) map.flyTo(userCoords, 17, { animate: true });
+                speakUltron("Navigation started.");
+            }
+        }
+
+        function stopNavigation() {
+            isNavigating = false;
+            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
+            document.getElementById('startNavBtn').className = "btn btn-primary";
+            document.getElementById('turnBanner').classList.remove('active');
+            synth.cancel();
+            if (userCoords) map.flyTo(userCoords, 15, { animate: true });
+        }
+
+        function checkManeuverProximity() {
+            if (!activeRouteInstructions || activeRouteInstructions.length === 0) return;
+            for (let i = 0; i < activeRouteInstructions.length; i++) {
+                const step = activeRouteInstructions[i];
+                const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+                const dist = userCoords.distanceTo(wp);
+                if (dist < 50 && lastSpokenInstructionIndex !== i) {
+                    lastSpokenInstructionIndex = i;
+                    updateTurnBanner(step);
+                    speakUltron(`In 50 meters, ${step.maneuver.instruction || 'continue'}.`);
+                    break;
+                }
+            }
+        }
+
+        function toggleSimulation() {
+            if (isSimulating) stopSimulation();
+            else startSimulation();
+        }
+
+        function startSimulation() {
+            if (activeRouteCoordinates.length === 0) return;
+            isSimulating = true;
+            isNavigating = true;
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            let index = 0;
+            simInterval = setInterval(() => {
+                if (index >= activeRouteCoordinates.length) {
+                    stopSimulation();
+                    speakUltron("Destination reached.");
+                    return;
+                }
+                userCoords = L.latLng(activeRouteCoordinates[index]);
+                updateUserMarker(userCoords, 10);
+                map.setView(userCoords, 17, { animate: true });
+                document.getElementById('speedValue').innerText = Math.floor(Math.random() * 20 + 50);
+                checkManeuverProximity();
+                index += 2;
+            }, 800);
+            speakUltron("Simulation started.");
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            isNavigating = false;
+            clearInterval(simInterval);
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> Simulate`;
+            document.getElementById('speedValue').innerText = '0';
+        }
+
+        function clearActiveRoute() {
+            stopNavigation();
+            stopSimulation();
+            clearPolyline();
+            if (destMarker) map.removeLayer(destMarker);
+            activeDestination = null;
+            routesList = [];
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            document.getElementById('startNavBtn').disabled = true;
+            document.getElementById('simDriveBtn').disabled = true;
+            document.getElementById('clearBtn').style.display = 'none';
+            document.getElementById('routeMetrics').innerHTML = `<span>Tap the map or search</span>`;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (btn) btn.classList.add('active');
+            if (tabName !== 'map') {
+                const panel = document.getElementById(`panel-${tabName}`);
+                if (panel) panel.classList.add('active');
+                if (tabName === 'recents') renderRecentsList();
+                if (tabName === 'saved') renderSavedList();
+            }
+        }
+
+        function closeTab() {
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="map"]').classList.add('active');
+        }
+
+        function addRecent(place) {
+            recents = recents.filter(r => r.lat !== place.lat || r.lng !== place.lng);
+            recents.unshift(place);
+            if (recents.length > 20) recents.pop();
+            localStorage.setItem('raon_recents', JSON.stringify(recents));
+        }
+
+        function renderRecentsList() {
+            const list = document.getElementById('recentsList');
+            list.innerHTML = '';
+            if (recents.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent destinations</div>`;
+                return;
+            }
+            recents.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="list-main">
+                        <div class="list-title">${r.name}</div>
+                        <div class="list-sub">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</div>
+                    </div>
+                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${r.lat}, ${r.lng}, '${r.name.replace(/'/g,"\\'")}')">
+                        <i class="fa-solid fa-location-arrow"></i>
+                    </button>
+                `;
+                card.onclick = () => { closeTab(); setDestination(L.latLng(r.lat, r.lng), r.name); };
+                list.appendChild(card);
+            });
+        }
+
+        function navigateToPlace(lat, lng, name) {
+            closeTab();
+            setDestination(L.latLng(lat, lng), name);
+        }
+
+        function renderSavedList() {
+            const list = document.getElementById('savedList');
+            list.innerHTML = '';
+            if (savedPlaces.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved places yet</div>`;
+                return;
+            }
+            savedPlaces.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-icon"><i class="fa-solid fa-bookmark"></i></div>
+                    <div class="list-main">
+                        <div class="list-title">${s.name}</div>
+                        <div class="list-sub">${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}</div>
+                    </div>
+                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${s.lat}, ${s.lng}, '${s.name.replace(/'/g,"\\'")}')">
+                        <i class="fa-solid fa-location-arrow"></i>
+                    </button>
+                `;
+                card.onclick = () => { closeTab(); setDestination(L.latLng(s.lat, s.lng), s.name); };
+                list.appendChild(card);
+            });
+        }
+
+        function routeHome() {
+            if (!homeLocation) {
+                showToast("Home not set — open Settings");
+                switchTab('settings');
+                return;
+            }
+            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home");
+        }
+
+        function promptSetHome() {
+            if (!userCoords) { showToast("Waiting for position"); return; }
+            homeLocation = { lat: userCoords.lat, lng: userCoords.lng };
+            localStorage.setItem('raon_home', JSON.stringify(homeLocation));
+            updateHomeSubLabel();
+            showToast("Home updated");
+        }
+
+        function updateHomeSubLabel() {
+            const sub = document.getElementById('homeAddressSub');
+            if (homeLocation) sub.innerText = `${homeLocation.lat.toFixed(4)}, ${homeLocation.lng.toFixed(4)}`;
+            else sub.innerText = "Not set — tap to set";
+        }
+
+        function toggleSettingsVoice() { toggleUltronVoice(); }
+
+        function clearAllData() {
+            if (confirm("Clear all recents and saved places?")) {
+                localStorage.removeItem('raon_recents');
+                localStorage.removeItem('raon_saved');
+                localStorage.removeItem('raon_home');
+                recents = []; savedPlaces = []; homeLocation = null;
+                updateHomeSubLabel();
+                showToast("Data cleared");
+            }
+        }
+
+        let recognition = null;
+        function toggleVoiceSearch() {
+            const micBtn = document.getElementById('micBtn');
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { showToast("Voice not supported"); return; }
+            if (recognition) { recognition.stop(); recognition = null; micBtn.classList.remove('listening'); return; }
+            recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("Listening"); };
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('searchInput').value = text;
+                handleSearchInput(text);
+                micBtn.classList.remove('listening');
+            };
+            recognition.onerror = () => { micBtn.classList.remove('listening'); };
+            recognition.onend = () => { micBtn.classList.remove('listening'); recognition = null; };
+            recognition.start();
+        }
+    </script>
+</body>
+</html>
