@@ -5,68 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>raon map</title>
 
+    <!-- Google Fonts: Cormorant Garamond, Inter, Orbitron -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
+    <!-- Leaflet & Font Awesome Icons -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            /* Lightened iPhone-esque iOS Liquid Glass Palette */
-            --bg-color: #f2f4f8;
-            --ink: #1c1c1e;
-            --ink-soft: rgba(28, 28, 30, 0.78);
-            --ink-faint: rgba(60, 60, 67, 0.55);
-            --hairline: rgba(255, 255, 255, 0.65);
-            --hairline-strong: rgba(255, 255, 255, 0.95);
-            --glass-bg: rgba(255, 255, 255, 0.62);
-            --glass-bg-deep: rgba(245, 247, 250, 0.88);
-            --accent: #b8860b;             /* Warm Gold Accent */
-            --accent-soft: rgba(184, 134, 11, 0.12);
-            --evil-red: #d92b43;           /* Crisp Villain Crimson */
-            --evil-red-soft: rgba(217, 43, 67, 0.15);
+            /* Midway Luxury "Coquette Glassmorphism" Color Palette */
+            --bg-deep: #140d18;
+            --bg-mid: #1c1322;
+            --ink-primary: #f8f2f6;
+            --ink-soft: rgba(248, 242, 246, 0.82);
+            --ink-faint: rgba(220, 200, 215, 0.52);
 
-            /* Traffic Status Color Palette */
-            --traffic-clear: #4a7c96;      /* Steel Blue */
-            --traffic-moderate: #d4a359;   /* Warm Amber */
-            --traffic-jammed: #b83232;     /* Dark Crimson */
+            /* Coquette Rose Gold & Champagne Accents */
+            --rose-accent: #e5b3c3;
+            --rose-accent-soft: rgba(229, 179, 195, 0.16);
+            --gold-accent: #d8b280;
+            --gold-soft: rgba(216, 178, 128, 0.15);
+
+            /* Villain / Mandroid Crimson-Rose Accent */
+            --evil-crimson: #e04a68;
+            --evil-crimson-soft: rgba(224, 74, 104, 0.22);
+
+            /* Frosted Coquette Glass Borders & Panels */
+            --glass-bg: rgba(28, 20, 32, 0.55);
+            --glass-bg-deep: rgba(22, 15, 26, 0.82);
+            --hairline-rose: rgba(240, 205, 215, 0.28);
+            --hairline-strong: rgba(255, 225, 235, 0.45);
+            --inner-glow: inset 0 1px 1px rgba(255, 235, 242, 0.25);
+
+            /* Muted Traffic Palette */
+            --traffic-clear: #bfa5d8;     /* Soft Muted Lavender */
+            --traffic-moderate: #d8b280;  /* Warm Champagne Gold */
+            --traffic-jammed: #a83852;    /* Deep Burgundy Rose */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
             height: 100%; width: 100%; overflow: hidden;
-            background: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
-            color: var(--ink);
+            background: var(--bg-deep);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            color: var(--ink-primary);
         }
 
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: #e5e9f0; }
+        #map {
+            position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+            background: #18121d;
+        }
 
-        /* Sleek, Crisp Light-Mode Leaflet Styling */
+        /* Midway Mauve-Plum Filtered Map Tiles */
         .leaflet-tile {
-            filter: contrast(1.02) saturate(0.88) brightness(1.02) !important;
+            filter: brightness(0.68) contrast(1.18) hue-rotate(240deg) saturate(0.52) sepia(0.22) !important;
             transition: filter 0.5s ease;
         }
-        .leaflet-container { background: #e5e9f0 !important; font-family: inherit; }
+        .leaflet-container { background: #18121d !important; font-family: inherit; }
 
-        /* iOS Frosted Glass Panel */
+        /* Coquette Glassmorphism Glass Panel */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(35px) saturate(200%);
-            -webkit-backdrop-filter: blur(35px) saturate(200%);
-            border: 1px solid var(--hairline);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid var(--hairline-rose);
             box-shadow:
-                0 18px 40px rgba(0, 0, 0, 0.08),
-                0 4px 12px rgba(0, 0, 0, 0.04),
-                inset 0 1px 1px rgba(255, 255, 255, 0.9),
-                inset 0 -1px 1px rgba(0, 0, 0, 0.03);
-            border-radius: 18px;
+                0 16px 36px rgba(10, 5, 14, 0.45),
+                0 4px 12px rgba(0, 0, 0, 0.25),
+                var(--inner-glow);
+            border-radius: 20px;
             position: relative;
             overflow: hidden;
+        }
+
+        /* Subtle Coquette Lace Watermark Overlay */
+        .glass-panel::before {
+            content: '';
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(229, 179, 195, 0.04) 1px, transparent 1px);
+            background-size: 14px 14px;
+            pointer-events: none; opacity: 0.7; z-index: 0;
         }
 
         .top-container {
@@ -85,56 +108,57 @@
 
         .search-input-wrapper {
             flex: 1; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.72);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            border-radius: 12px; padding: 10px 14px; gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+            background: rgba(36, 26, 42, 0.65);
+            border: 1px solid var(--hairline-rose);
+            border-radius: 14px; padding: 10px 14px; gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
         }
         .search-input-wrapper:focus-within {
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 12px rgba(184, 134, 11, 0.2), inset 0 1px 3px rgba(0,0,0,0.04);
+            border-color: var(--rose-accent);
+            background: rgba(46, 32, 54, 0.85);
+            box-shadow: 0 0 16px rgba(229, 179, 195, 0.22), inset 0 2px 4px rgba(0,0,0,0.2);
         }
         .search-input-wrapper input {
-            background: transparent; border: none; outline: none; color: var(--ink);
-            font-family: 'Playfair Display', serif;
-            font-size: 15px; width: 100%; font-weight: 500;
-            font-style: italic; letter-spacing: 0.2px;
+            background: transparent; border: none; outline: none; color: var(--ink-primary);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px; width: 100%; font-weight: 600;
+            font-style: italic; letter-spacing: 0.3px;
         }
         .search-input-wrapper input::placeholder {
-            color: var(--ink-faint); font-style: italic; font-family: 'Inter', sans-serif; font-size: 14px;
+            color: var(--ink-faint); font-style: italic; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400;
         }
 
         .mic-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid var(--hairline);
-            color: var(--ink-soft);
-            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(42, 30, 48, 0.7);
+            border: 1px solid var(--hairline-rose);
+            color: var(--rose-accent);
+            width: 36px; height: 36px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 13px; transition: all 0.3s ease; flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .mic-btn:hover { border-color: var(--accent); color: var(--ink); box-shadow: 0 0 10px rgba(184,134,11,0.25); }
+        .mic-btn:hover { border-color: var(--rose-accent); color: var(--ink-primary); box-shadow: 0 0 12px rgba(229,179,195,0.35); }
         .mic-btn.listening {
-            background: var(--evil-red-soft); color: var(--evil-red); border-color: var(--evil-red);
+            background: var(--evil-crimson-soft); color: var(--evil-crimson); border-color: var(--evil-crimson);
             animation: micPulse 1s infinite alternate;
         }
         @keyframes micPulse {
-            0% { box-shadow: 0 0 0 0 rgba(217, 43, 67, 0.5); }
-            100% { box-shadow: 0 0 0 10px rgba(217, 43, 67, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(224, 74, 104, 0.5); }
+            100% { box-shadow: 0 0 0 10px rgba(224, 74, 104, 0); }
         }
 
+        /* Search Results Dropdown Suggestions */
         .search-results-dropdown {
             position: absolute; top: calc(100% + 8px); left: 0; right: 0;
             max-height: 310px; overflow-y: auto;
             display: none; flex-direction: column; z-index: 4000; padding: 6px;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(35px) saturate(200%);
-            -webkit-backdrop-filter: blur(35px) saturate(200%);
+            background: rgba(24, 17, 28, 0.92);
+            backdrop-filter: blur(35px) saturate(180%);
+            -webkit-backdrop-filter: blur(35px) saturate(180%);
             border: 1px solid var(--hairline-strong);
-            box-shadow: 0 20px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.05);
-            border-radius: 16px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+            border-radius: 18px;
         }
         .search-results-dropdown.active { display: flex; }
 
@@ -142,14 +166,14 @@
             padding: 12px 14px; cursor: pointer; font-size: 13px;
             display: flex; align-items: center; gap: 12px;
             transition: all 0.2s ease; color: var(--ink-soft);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            border-radius: 10px;
+            border-bottom: 1px solid rgba(229,179,195,0.08);
+            border-radius: 12px;
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item:active { background: var(--accent-soft); color: var(--ink); }
-        .search-item i { color: var(--accent); font-size: 14px; }
+        .search-item:hover, .search-item:active { background: var(--rose-accent-soft); color: var(--ink-primary); }
+        .search-item i { color: var(--rose-accent); font-size: 14px; }
         .search-item-text { display: flex; flex-direction: column; gap: 2px; }
-        .search-item-main { font-weight: 600; color: var(--ink); font-size: 13px; }
+        .search-item-main { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 16px; color: var(--ink-primary); }
         .search-item-sub { font-size: 11px; color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
 
         .shortcuts-row {
@@ -161,18 +185,18 @@
         .chip-btn {
             background: var(--glass-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--hairline); border-radius: 20px;
+            border: 1px solid var(--hairline-rose); border-radius: 20px;
             padding: 8px 14px; font-family: 'Inter', sans-serif;
             font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
             color: var(--ink-soft); white-space: nowrap; cursor: pointer;
             display: flex; align-items: center; gap: 7px; transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .chip-btn:hover, .chip-btn:active {
-            background: rgba(255,255,255,0.9); border-color: var(--accent); color: var(--ink);
-            box-shadow: 0 4px 15px rgba(184,134,11,0.2);
+            background: rgba(42, 30, 48, 0.85); border-color: var(--rose-accent); color: var(--ink-primary);
+            box-shadow: 0 4px 15px rgba(229,179,195,0.25);
         }
-        .chip-btn i { color: var(--accent); }
+        .chip-btn i { color: var(--rose-accent); }
 
         .header-controls-bar {
             padding: 6px 8px; display: flex; align-items: center;
@@ -180,8 +204,8 @@
         }
 
         .mode-selector {
-            display: flex; background: rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.04); border-radius: 12px; padding: 3px; gap: 2px;
+            display: flex; background: rgba(16, 10, 20, 0.45);
+            border: 1px solid rgba(229, 179, 195, 0.12); border-radius: 12px; padding: 3px; gap: 2px;
         }
         .mode-btn {
             background: transparent; border: none; color: var(--ink-faint);
@@ -191,63 +215,64 @@
             transition: all 0.25s ease; display: flex; align-items: center; gap: 6px;
         }
         .mode-btn.active {
-            background: #ffffff; color: var(--ink);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid var(--hairline);
+            background: rgba(48, 34, 56, 0.85); color: var(--ink-primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 1px solid var(--hairline-rose);
         }
 
         .toll-toggle-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid var(--hairline);
+            background: rgba(36, 26, 42, 0.65);
+            border: 1px solid var(--hairline-rose);
             color: var(--ink-soft); padding: 6px 12px; border-radius: 10px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
             cursor: pointer; display: flex; align-items: center; gap: 6px;
-            transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         .toll-toggle-btn.active {
-            background: var(--accent-soft); color: var(--accent); border-color: var(--accent);
-            box-shadow: 0 0 10px rgba(184,134,11,0.25);
+            background: var(--rose-accent-soft); color: var(--rose-accent); border-color: var(--rose-accent);
+            box-shadow: 0 0 12px rgba(229,179,195,0.3);
         }
 
         .ultron-voice-btn {
-            background: rgba(255, 255, 255, 0.8); border: 1px solid var(--hairline);
+            background: rgba(36, 26, 42, 0.65); border: 1px solid var(--hairline-rose);
             color: var(--ink-soft); padding: 6px 12px; border-radius: 10px;
             font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
             letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
             display: flex; align-items: center; gap: 6px; transition: all 0.3s ease;
         }
-        .ultron-voice-btn.active { background: var(--evil-red-soft); color: var(--evil-red); border-color: var(--evil-red); }
+        .ultron-voice-btn.active { background: var(--evil-crimson-soft); color: var(--evil-crimson); border-color: var(--evil-crimson); }
         .ultron-voice-btn.speaking { animation: voicePulse 0.8s infinite alternate; }
         @keyframes voicePulse {
-            0% { box-shadow: 0 0 0 0 rgba(217,43,67,0.6); }
-            100% { box-shadow: 0 0 0 10px rgba(217,43,67,0); }
+            0% { box-shadow: 0 0 0 0 rgba(224,74,104,0.6); }
+            100% { box-shadow: 0 0 0 10px rgba(224,74,104,0); }
         }
 
+        /* Banner & Speedometer Controls */
         .turn-banner {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 158px);
             left: 12px; right: 12px; z-index: 999; padding: 14px 18px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(35px) saturate(200%); -webkit-backdrop-filter: blur(35px) saturate(200%);
-            border: 1px solid var(--hairline-strong); border-radius: 18px;
-            box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+            backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border: 1px solid var(--hairline-strong); border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.5);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
-            width: 44px; height: 44px; border-radius: 12px;
-            background: var(--accent-soft); border: 1px solid var(--hairline-strong);
+            width: 44px; height: 44px; border-radius: 14px;
+            background: var(--rose-accent-soft); border: 1px solid var(--hairline-strong);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: var(--accent); flex-shrink: 0;
-            box-shadow: inset 0 0 8px rgba(184,134,11,0.1);
+            font-size: 18px; color: var(--rose-accent); flex-shrink: 0;
+            box-shadow: inset 0 0 8px rgba(229,179,195,0.2);
         }
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction {
-            font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600;
-            color: var(--ink); letter-spacing: -0.2px; line-height: 1.3;
+            font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700;
+            color: var(--ink-primary); letter-spacing: -0.2px; line-height: 1.3; font-style: italic;
         }
         .turn-distance {
             font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; color: var(--evil-red); margin-top: 4px;
+            letter-spacing: 1.5px; text-transform: uppercase; color: var(--evil-crimson); margin-top: 4px;
         }
 
         .speed-badge {
@@ -256,31 +281,32 @@
             display: flex; align-items: center; gap: 10px;
             font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint);
-            border-radius: 16px;
+            border-radius: 18px;
         }
         .speed-value {
             font-family: 'Orbitron', sans-serif; font-size: 22px;
-            color: var(--accent); letter-spacing: -0.5px; font-weight: 700;
+            color: var(--rose-accent); letter-spacing: -0.5px; font-weight: 700;
         }
-        .speed-badge i { color: var(--evil-red); font-size: 13px; }
+        .speed-badge i { color: var(--evil-crimson); font-size: 13px; }
 
         .side-controls {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
             right: 12px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
         }
         .icon-circle-btn {
-            width: 42px; height: 42px; border-radius: 14px;
-            border: 1px solid var(--hairline); background: var(--glass-bg);
+            width: 44px; height: 44px; border-radius: 16px;
+            border: 1px solid var(--hairline-rose); background: var(--glass-bg);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+            color: var(--rose-accent); display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 15px; transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         .icon-circle-btn:hover {
-            background: rgba(255,255,255,0.95); border-color: var(--accent); color: var(--ink);
-            box-shadow: 0 0 15px rgba(184,134,11,0.25);
+            background: rgba(46,32,54,0.9); border-color: var(--rose-accent); color: var(--ink-primary);
+            box-shadow: 0 0 18px rgba(229,179,195,0.35);
         }
 
+        /* Route Selection Panel */
         .route-selection-panel {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
             left: 12px; right: 12px; z-index: 1000; padding: 12px;
@@ -290,35 +316,37 @@
         .route-selection-panel.active { display: flex; }
 
         .route-card {
-            background: rgba(255,255,255,0.65); border: 1px solid var(--hairline); border-radius: 14px;
+            background: rgba(30, 22, 34, 0.65); border: 1px solid var(--hairline-rose); border-radius: 14px;
             padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.3s ease; gap: 12px;
         }
         .route-card:hover, .route-card.selected {
-            background: rgba(255,255,255,0.95); border-color: var(--accent);
-            box-shadow: 0 6px 20px rgba(184,134,11,0.18);
+            background: rgba(44, 30, 50, 0.9); border-color: var(--rose-accent);
+            box-shadow: 0 6px 20px rgba(229,179,195,0.22);
         }
         .route-card-title {
-            font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600;
-            display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.1px;
+            font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700;
+            display: flex; align-items: center; gap: 8px; color: var(--ink-primary); letter-spacing: -0.1px;
+            font-style: italic;
         }
         .route-badge {
             font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
             letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 8px;
-            border-radius: 12px; border: 1px solid transparent;
+            border-radius: 12px; border: 1px solid transparent; font-style: normal;
         }
-        .badge-fast { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-        .badge-free { border-color: rgba(0,0,0,0.1); color: var(--ink-faint); background: rgba(0,0,0,0.03); }
-        .badge-toll { border-color: var(--evil-red); color: var(--evil-red); background: var(--evil-red-soft); }
-        .badge-notoll { border-color: #2e7d32; color: #2e7d32; background: rgba(46,125,50,0.12); }
+        .badge-fast { border-color: var(--rose-accent); color: var(--rose-accent); background: var(--rose-accent-soft); }
+        .badge-free { border-color: rgba(255,255,255,0.1); color: var(--ink-faint); background: rgba(255,255,255,0.03); }
+        .badge-toll { border-color: var(--evil-crimson); color: var(--evil-crimson); background: var(--evil-crimson-soft); }
+        .badge-notoll { border-color: #72b888; color: #72b888; background: rgba(114,184,136,0.15); }
 
         .route-card-sub {
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
             color: var(--ink-faint); margin-top: 4px; display: flex; align-items: center; gap: 8px;
         }
         .route-card i { color: var(--ink-faint); font-size: 13px; }
-        .route-card.selected i { color: var(--accent); }
+        .route-card.selected i { color: var(--rose-accent); }
 
+        /* Bottom Console & Actions */
         .bottom-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
             left: 12px; right: 12px; z-index: 1000; padding: 12px 16px;
@@ -327,37 +355,38 @@
         .action-buttons { display: flex; gap: 8px; width: 100%; }
 
         .btn {
-            border: 1px solid var(--hairline); padding: 12px 14px; border-radius: 12px;
+            border: 1px solid var(--hairline-rose); padding: 12px 14px; border-radius: 12px;
             font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft);
-            background: rgba(255,255,255,0.7); cursor: pointer;
+            background: rgba(38, 26, 44, 0.7); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.3s ease; flex: 1; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: all 0.3s ease; flex: 1; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         }
-        .btn:hover { border-color: var(--accent); color: var(--ink); background: rgba(255,255,255,0.95); box-shadow: 0 0 12px rgba(184,134,11,0.2); }
-        .btn-primary { background: var(--accent); color: #ffffff; border-color: var(--accent); box-shadow: 0 4px 15px rgba(184,134,11,0.35); }
-        .btn-primary:hover { background: #966d09; color: #fff; box-shadow: 0 6px 20px rgba(184,134,11,0.5); }
-        .btn-secondary { background: rgba(255,255,255,0.75); }
-        .btn-danger { background: var(--evil-red-soft); border-color: var(--evil-red); color: var(--evil-red); }
-        .btn-danger:hover { background: var(--evil-red); color: #fff; box-shadow: 0 4px 15px rgba(217,43,67,0.4); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .btn:hover { border-color: var(--rose-accent); color: var(--ink-primary); background: rgba(52, 36, 60, 0.95); box-shadow: 0 0 15px rgba(229,179,195,0.3); }
+        .btn-primary { background: var(--rose-accent); color: #1c1020; border-color: var(--rose-accent); box-shadow: 0 4px 18px rgba(229,179,195,0.4); }
+        .btn-primary:hover { background: #d39cb0; color: #120916; box-shadow: 0 6px 22px rgba(229,179,195,0.6); }
+        .btn-secondary { background: rgba(38, 26, 44, 0.85); }
+        .btn-danger { background: var(--evil-crimson-soft); border-color: var(--evil-crimson); color: var(--evil-crimson); }
+        .btn-danger:hover { background: var(--evil-crimson); color: #fff; box-shadow: 0 4px 15px rgba(224,74,104,0.5); }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
 
         #routeMetrics {
             font-family: 'Inter', sans-serif; font-size: 12px;
             color: var(--ink-soft); display: flex; align-items: center; justify-content: space-between;
         }
-        #routeMetrics strong { color: var(--accent); font-weight: 700; }
+        #routeMetrics strong { color: var(--rose-accent); font-weight: 700; }
 
+        /* Custom Markers */
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
-            width: 14px; height: 14px; background: var(--evil-red);
+            width: 14px; height: 14px; background: var(--evil-crimson);
             border: 2px solid #ffffff; border-radius: 50%;
-            box-shadow: 0 0 0 2px var(--evil-red), 0 0 15px rgba(217,43,67,0.8);
+            box-shadow: 0 0 0 2px var(--evil-crimson), 0 0 15px rgba(224,74,104,0.9);
             position: absolute; top: 7px; left: 7px; z-index: 2;
         }
         .user-pulse {
             width: 40px; height: 40px;
-            background: radial-gradient(circle, rgba(217,43,67,0.4) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(224,74,104,0.45) 0%, transparent 70%);
             border-radius: 50%; position: absolute; top: -6px; left: -6px;
             animation: pulse-ring 2s infinite ease-out;
         }
@@ -366,25 +395,26 @@
             100% { transform: scale(2.0); opacity: 0; }
         }
         .dest-pin-icon {
-            font-size: 28px; color: var(--accent);
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            font-size: 28px; color: var(--rose-accent);
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
         }
         .leaflet-routing-container { display: none !important; }
 
         .toast-msg {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%; transform: translateX(-50%);
-            background: var(--glass-bg-deep); backdrop-filter: blur(35px) saturate(200%);
-            -webkit-backdrop-filter: blur(35px) saturate(200%);
-            border: 1px solid var(--hairline-strong); color: var(--ink);
+            background: var(--glass-bg-deep); backdrop-filter: blur(35px) saturate(180%);
+            -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border: 1px solid var(--hairline-strong); color: var(--ink-primary);
             padding: 10px 22px; border-radius: 20px;
             font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase;
             z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.12); white-space: nowrap;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5); white-space: nowrap;
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
+        /* Navigation Tab Bar */
         .tab-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             left: 12px; right: 12px; z-index: 1100;
@@ -399,13 +429,14 @@
             cursor: pointer; transition: all 0.3s ease; border-radius: 12px;
         }
         .tab-btn i { font-size: 15px; }
-        .tab-btn.active { color: var(--accent); font-weight: 700; }
-        .tab-btn.active i { filter: drop-shadow(0 2px 6px rgba(184,134,11,0.5)); }
+        .tab-btn.active { color: var(--rose-accent); font-weight: 700; }
+        .tab-btn.active i { filter: drop-shadow(0 2px 6px rgba(229,179,195,0.6)); }
 
+        /* Overlay Drawer Panels */
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 3000; display: none; background: rgba(242, 244, 248, 0.92);
-            backdrop-filter: blur(35px) saturate(200%); -webkit-backdrop-filter: blur(35px) saturate(200%);
+            z-index: 3000; display: none; background: rgba(20, 13, 24, 0.94);
+            backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
             padding: calc(env(safe-area-inset-top, 0px) + 32px) 20px calc(env(safe-area-inset-bottom, 0px) + 90px);
             animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -414,88 +445,88 @@
 
         .overlay-header {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.08);
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(229,179,195,0.15);
         }
         .overlay-title {
-            font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 500;
-            letter-spacing: -0.8px; color: var(--ink); font-style: italic;
+            font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600;
+            letter-spacing: -0.5px; color: var(--ink-primary); font-style: italic;
         }
         .overlay-close {
-            width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,0.8);
-            border: 1px solid var(--hairline); color: var(--ink-soft);
+            width: 38px; height: 38px; border-radius: 12px; background: rgba(38, 26, 44, 0.8);
+            border: 1px solid var(--hairline-rose); color: var(--rose-accent);
             font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-        .overlay-close:hover { border-color: var(--accent); color: var(--ink); box-shadow: 0 0 10px rgba(184,134,11,0.25); }
+        .overlay-close:hover { border-color: var(--rose-accent); color: var(--ink-primary); box-shadow: 0 0 12px rgba(229,179,195,0.35); }
 
         .overlay-content {
             flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
         }
 
         .list-card {
-            background: rgba(255,255,255,0.7); border: 1px solid var(--hairline); border-radius: 14px;
+            background: rgba(32, 22, 36, 0.65); border: 1px solid var(--hairline-rose); border-radius: 14px;
             padding: 14px 16px; display: flex; align-items: center; gap: 14px;
-            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .list-card:hover { background: rgba(255,255,255,0.95); border-color: var(--accent); box-shadow: 0 4px 15px rgba(184,134,11,0.18); }
+        .list-card:hover { background: rgba(46, 32, 52, 0.9); border-color: var(--rose-accent); box-shadow: 0 4px 18px rgba(229,179,195,0.22); }
         .list-icon {
-            width: 38px; height: 38px; border-radius: 12px; background: var(--accent-soft);
-            color: var(--accent); display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0; border: 1px solid var(--hairline);
+            width: 38px; height: 38px; border-radius: 12px; background: var(--rose-accent-soft);
+            color: var(--rose-accent); display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0; border: 1px solid var(--hairline-rose);
         }
         .list-main { flex: 1; min-width: 0; }
         .list-title {
-            font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600;
-            color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.1px;
+            font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700;
+            color: var(--ink-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic;
         }
         .list-sub {
             font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
             color: var(--ink-faint); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .list-action {
-            width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.8);
-            color: var(--ink-faint); border: 1px solid var(--hairline);
+            width: 34px; height: 34px; border-radius: 10px; background: rgba(38, 26, 44, 0.8);
+            color: var(--rose-accent); border: 1px solid var(--hairline-rose);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 12px; flex-shrink: 0; transition: all 0.3s ease;
         }
-        .list-action:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+        .list-action:hover { color: var(--ink-primary); border-color: var(--rose-accent); background: var(--rose-accent-soft); }
 
         .empty-state {
             text-align: center; color: var(--ink-faint); padding: 60px 20px;
-            font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; line-height: 1.6;
+            font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.6;
         }
-        .empty-state i { font-size: 34px; display: block; margin-bottom: 18px; opacity: 0.4; color: var(--accent); }
+        .empty-state i { font-size: 34px; display: block; margin-bottom: 18px; opacity: 0.5; color: var(--rose-accent); }
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            background: rgba(255,255,255,0.7); border: 1px solid var(--hairline); border-radius: 14px; transition: all 0.3s ease;
+            background: rgba(32, 22, 36, 0.65); border: 1px solid var(--hairline-rose); border-radius: 14px; transition: all 0.3s ease;
         }
-        .settings-row[onclick]:hover { background: rgba(255,255,255,0.95); border-color: var(--accent); }
-        .settings-row .label { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: var(--ink); }
+        .settings-row[onclick]:hover { background: rgba(46, 32, 52, 0.9); border-color: var(--rose-accent); }
+        .settings-row .label { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: var(--ink-primary); font-style: italic; }
         .settings-row .sub {
             font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
             color: var(--ink-faint); margin-top: 3px;
         }
 
         .toggle-switch {
-            width: 44px; height: 26px; border-radius: 13px; background: rgba(0,0,0,0.1);
-            border: 1px solid rgba(0,0,0,0.08); position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
+            width: 44px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15); position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
         }
         .toggle-switch::after {
             content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
-            border-radius: 50%; background: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: all 0.3s ease;
+            border-radius: 50%; background: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.3s ease;
         }
-        .toggle-switch.on { background: var(--evil-red); border-color: var(--evil-red); }
+        .toggle-switch.on { background: var(--evil-crimson); border-color: var(--evil-crimson); }
         .toggle-switch.on::after { transform: translateX(18px); }
 
         .route-loading {
             display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
             font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent);
+            letter-spacing: 1.5px; text-transform: uppercase; color: var(--rose-accent);
         }
         .spinner {
             width: 16px; height: 16px; border: 2px solid var(--hairline-strong);
-            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite;
+            border-top-color: var(--rose-accent); border-radius: 50%; animation: spin 0.9s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -508,13 +539,13 @@
 </head>
 <body>
 
-    <div id="toast" class="toast-msg">Mandroid System Initialized</div>
+    <div id="toast" class="toast-msg">Mandroid Matrix Engaged</div>
 
     <!-- Top Navigation & Search Container -->
     <div class="top-container">
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--accent); font-size: 13px;"></i>
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--rose-accent); font-size: 13px;"></i>
                 <input type="text" id="searchInput" placeholder="Search destination or address..." oninput="handleSearchInput(this.value)">
                 <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;" onclick="clearSearchInput()"></i>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
@@ -572,7 +603,7 @@
 
     <!-- Route Selection Options Overlay -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); padding: 2px 4px 6px;">
+        <div style="font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--rose-accent); padding: 2px 4px 6px;">
             Calculated Trajectories
         </div>
         <div id="routeCardsContainer"></div>
@@ -664,7 +695,7 @@
                     <div class="label">Purge Tactical Logs</div>
                     <div class="sub">Clear recents, saved places, and home location</div>
                 </div>
-                <i class="fa-solid fa-trash" style="color:var(--evil-red); font-size:12px;"></i>
+                <i class="fa-solid fa-trash" style="color:var(--evil-crimson); font-size:12px;"></i>
             </div>
         </div>
     </div>
@@ -699,8 +730,7 @@
             initAudioContext();
             requestLocationWithSafariFallback();
             updateHomeSubLabel();
-            
-            // Global click handler to close search dropdown on outside tap
+
             document.addEventListener('click', (e) => {
                 const searchBox = document.querySelector('.search-box-panel');
                 if (searchBox && !searchBox.contains(e.target)) {
@@ -738,7 +768,7 @@
             } catch(e) {}
         }
 
-        /* Dark Synth & Metallic Evil Pulse Sound FX */
+        /* Metallic Dark Synth Pulse Effect */
         function playUltronMetallicPulse() {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -751,28 +781,28 @@
                 osc1.type = 'sawtooth';
                 osc2.type = 'square';
 
-                osc1.frequency.setValueAtTime(30, audioCtx.currentTime);
-                osc1.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+                osc1.frequency.setValueAtTime(32, audioCtx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.3);
 
-                osc2.frequency.setValueAtTime(60, audioCtx.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.3);
+                osc2.frequency.setValueAtTime(64, audioCtx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(240, audioCtx.currentTime + 0.3);
 
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+                filter.frequency.setValueAtTime(350, audioCtx.currentTime);
 
-                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
 
                 osc1.connect(filter); osc2.connect(filter);
                 filter.connect(gain); gain.connect(audioCtx.destination);
 
                 osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.45);
-                osc2.stop(audioCtx.currentTime + 0.45);
+                osc1.stop(audioCtx.currentTime + 0.4);
+                osc2.stop(audioCtx.currentTime + 0.4);
             } catch(e) {}
         }
 
-        /* Evil Villain Machine / Mandroid Speech Modulation */
+        /* Mandroid Speech Matrix */
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
@@ -781,18 +811,17 @@
             btn.classList.add('speaking');
 
             const villainPhrases = [
-                "Directive received. ",
+                "Directive acknowledged. ",
                 "Mandroid system active. ",
-                "Target acquired. ",
-                "Commencing maneuver. ",
-                "Obey command. "
+                "Target locked. ",
+                "Commencing maneuver. "
             ];
             const evilText = text.length > 25 ? text : villainPhrases[Math.floor(Math.random() * villainPhrases.length)] + text;
 
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(evilText);
-                utterance.pitch = 0.1;  /* Deep robot bass */
-                utterance.rate = 0.85;   /* Sinister cadence */
+                utterance.pitch = 0.1;
+                utterance.rate = 0.82;
                 utterance.volume = 1.0;
 
                 const voices = synth.getVoices();
@@ -802,7 +831,7 @@
                 utterance.onend = () => btn.classList.remove('speaking');
                 utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
-            }, 180);
+            }, 160);
         }
 
         function requestLocationWithSafariFallback() {
@@ -872,7 +901,7 @@
                     iconSize: [28, 28], iconAnchor: [14, 14]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#d92b43', fillColor: '#d92b43', fillOpacity: 0.1, weight: 1 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#e04a68', fillColor: '#e04a68', fillOpacity: 0.12, weight: 1 }).addTo(map);
             }
         }
 
@@ -887,17 +916,16 @@
             }
         }
 
-        /* Enhanced Search Bar Suggestions */
         function handleSearchInput(query) {
             const clearBtn = document.getElementById('searchClearBtn');
             clearBtn.style.display = query ? 'block' : 'none';
             clearTimeout(debounceTimer);
-            
+
             if (!query || query.trim().length < 2) {
                 document.getElementById('searchResults').classList.remove('active');
                 return;
             }
-            
+
             debounceTimer = setTimeout(() => {
                 let url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=6`;
                 if (userCoords) {
@@ -913,12 +941,12 @@
         function renderSearchResults(results) {
             const dropdown = document.getElementById('searchResults');
             dropdown.innerHTML = '';
-            
-            if (!results || results.length === 0) { 
-                dropdown.classList.remove('active'); 
-                return; 
+
+            if (!results || results.length === 0) {
+                dropdown.classList.remove('active');
+                return;
             }
-            
+
             results.forEach(res => {
                 const nameParts = res.display_name.split(',');
                 const mainName = nameParts[0].trim();
@@ -930,7 +958,7 @@
                     <i class="fa-solid fa-location-dot"></i>
                     <div class="search-item-text">
                         <span class="search-item-main">${mainName}</span>
-                        <span class="search-item-sub">${subName || 'Target Coordinate'}</span>
+                        <span class="search-item-sub">${subName || 'Target Sector'}</span>
                     </div>
                 `;
                 item.onclick = (e) => {
@@ -971,7 +999,6 @@
             calculateRoutes(label);
         }
 
-        /* Route Calculation & Toll Detection Logic */
         function calculateRoutes(label) {
             clearPolylines();
             const panel = document.getElementById('routeSelectionPanel');
@@ -989,7 +1016,6 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.routes && data.routes.length > 0) {
-                        // Inspect each route step for toll keywords
                         routesList = data.routes.map(r => {
                             let hasToll = false;
                             if (r.legs && r.legs[0] && r.legs[0].steps) {
@@ -1002,7 +1028,6 @@
                             return { ...r, hasToll };
                         });
 
-                        // Filter if "Avoid Tolls" mode is enabled
                         let filteredRoutes = avoidTolls ? routesList.filter(r => !r.hasToll) : routesList;
                         if (filteredRoutes.length === 0) {
                             showToast("No toll-free route found. Showing all options.");
@@ -1029,9 +1054,9 @@
             routesList.forEach((r, idx) => {
                 const mins = Math.round(r.duration / 60);
                 const km = (r.distance / 1000).toFixed(1);
-                
+
                 let primaryBadge = idx === 0 ? '<span class="route-badge badge-fast">Primary</span>' : '<span class="route-badge badge-free">Alt</span>';
-                let tollBadge = r.hasToll ? '<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> Toll</span>' : '<span class="route-badge badge-notoll"><i class="fa-solid fa-shield-halved"></i> No Toll</span>';
+                let tollBadge = r.hasToll ? '<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> Toll</span>' : '<span class="route-badge badge-notoll"><i class="fa-solid fa-shield-halved"></i> Toll-Free</span>';
 
                 const card = document.createElement('div');
                 card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
@@ -1070,7 +1095,7 @@
             document.getElementById('tollToggleBtn').classList.toggle('active', avoidTolls);
             document.getElementById('settingsTollToggle').classList.toggle('on', avoidTolls);
             document.getElementById('tollBtnLabel').innerText = avoidTolls ? "Tolls Avoided" : "Avoid Tolls";
-            
+
             if (activeDestination) {
                 calculateRoutes("Target");
             } else {
@@ -1078,7 +1103,6 @@
             }
         }
 
-        /* Traffic Colored Route Painting */
         function renderRouteOnMap(routeData) {
             clearPolylines();
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
@@ -1094,20 +1118,20 @@
                 const jammedSegment = activeRouteCoordinates.slice(jamEnd);
 
                 if (clearSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(clearSegment, { color: '#4a7c96', weight: 7, opacity: 0.9, lineCap: 'round' }).addTo(map));
+                    currentRoutePolylines.push(L.polyline(clearSegment, { color: '#bfa5d8', weight: 7, opacity: 0.95, lineCap: 'round' }).addTo(map));
                 }
                 if (moderateSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(moderateSegment, { color: '#d4a359', weight: 7, opacity: 0.9, lineCap: 'round' }).addTo(map));
+                    currentRoutePolylines.push(L.polyline(moderateSegment, { color: '#d8b280', weight: 7, opacity: 0.95, lineCap: 'round' }).addTo(map));
                 }
                 if (jammedSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(jammedSegment, { color: '#b83232', weight: 7, opacity: 0.9, lineCap: 'round' }).addTo(map));
+                    currentRoutePolylines.push(L.polyline(jammedSegment, { color: '#a83852', weight: 7, opacity: 0.95, lineCap: 'round' }).addTo(map));
                 }
             }
 
             map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
             const mins = Math.round(routeData.duration / 60);
             const km = (routeData.distance / 1000).toFixed(1);
-            const tollStatus = routeData.hasToll ? `<span style="color:var(--evil-red);"><i class="fa-solid fa-receipt"></i> Toll Road</span>` : `<span style="color:#2e7d32;"><i class="fa-solid fa-shield-halved"></i> Toll Free</span>`;
+            const tollStatus = routeData.hasToll ? `<span style="color:var(--evil-crimson);"><i class="fa-solid fa-receipt"></i> Toll Road</span>` : `<span style="color:#72b888;"><i class="fa-solid fa-shield-halved"></i> Toll-Free</span>`;
 
             document.getElementById('routeMetrics').innerHTML = `
                 <span><strong>ETA</strong> ${mins} min &nbsp;·&nbsp; <strong>DIST</strong> ${km} km</span>
