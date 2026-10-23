@@ -17,9 +17,6 @@
             --primary-glow: rgba(255, 42, 42, 0.4);
             --cyan-accent: #00f0ff;
             --cyan-glow: rgba(0, 240, 255, 0.3);
-            --traffic-green: #10b981;
-            --traffic-yellow: #f59e0b;
-            --traffic-red: #ef4444;
             --glass-bg: rgba(10, 12, 18, 0.92);
             --glass-border: rgba(255, 255, 255, 0.14);
         }
@@ -63,7 +60,7 @@
             border-radius: 20px;
         }
 
-        /* ---------- Top Header Layout & Search Dropdown Fix ---------- */
+        /* ---------- Top Header Layout & Search Dropdown ---------- */
         .top-container {
             position: absolute;
             top: calc(env(safe-area-inset-top, 0px) + 10px);
@@ -140,7 +137,6 @@
             100% { box-shadow: 0 0 22px var(--primary-red); }
         }
 
-        /* FIX: Increased z-index to overlay on top of all controls */
         .search-results-dropdown {
             position: absolute; 
             top: calc(100% + 6px); 
@@ -173,7 +169,6 @@
         }
 
         .search-item:last-child { border-bottom: none; }
-
         .search-item:hover, .search-item:active { 
             background: rgba(255, 42, 42, 0.25); 
             color: #fff; 
@@ -187,7 +182,6 @@
             scrollbar-width: none; 
             z-index: 1000;
         }
-
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
@@ -250,28 +244,6 @@
             box-shadow: 0 2px 10px var(--primary-glow);
         }
 
-        .toggle-chip {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #cbd5e1; 
-            padding: 6px 8px; 
-            border-radius: 12px;
-            font-size: 11px; 
-            font-weight: 600; 
-            cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            gap: 5px;
-            transition: all 0.2s ease;
-        }
-
-        .toggle-chip.active {
-            background: rgba(0, 240, 255, 0.2);
-            border-color: var(--cyan-accent);
-            color: var(--cyan-accent);
-            box-shadow: 0 0 10px var(--cyan-glow);
-        }
-
         .ultron-voice-btn {
             background: rgba(255, 42, 42, 0.15);
             border: 1px solid var(--primary-red);
@@ -301,7 +273,7 @@
             100% { box-shadow: 0 0 22px var(--primary-red); transform: scale(1.04); }
         }
 
-        /* ---------- Turn Banner Mobile Optimizations ---------- */
+        /* ---------- Turn Banner ---------- */
         .turn-banner {
             position: absolute;
             top: calc(env(safe-area-inset-top, 0px) + 140px);
@@ -336,7 +308,7 @@
         .turn-instruction { font-size: 13px; font-weight: 700; color: #fff; }
         .turn-distance { font-size: 11px; color: var(--primary-red); font-weight: 600; margin-top: 1px; }
 
-        /* ---------- Speed Badge & Side Floating Controls ---------- */
+        /* ---------- Speed Badge & Side Controls ---------- */
         .speed-badge {
             position: absolute;
             bottom: calc(env(safe-area-inset-bottom, 0px) + 220px);
@@ -415,4 +387,629 @@
         .route-card:hover, .route-card.selected {
             background: rgba(255, 42, 42, 0.18);
             border-color: var(--primary-red);
-            box-shadow: 0 0
+            box-shadow: 0 0 12px rgba(255, 42, 42, 0.3);
+        }
+
+        .route-card-title { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .route-badge { font-size: 9px; padding: 2px 5px; border-radius: 5px; font-weight: 700; text-transform: uppercase; }
+        .badge-fast { background: rgba(255, 42, 42, 0.2); border: 1px solid var(--primary-red); color: var(--primary-red); }
+        .badge-free { background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; }
+        .route-card-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+        /* ---------- Bottom Action Control Bar ---------- */
+        .bottom-bar {
+            position: absolute;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
+            left: 10px; 
+            right: 10px; 
+            z-index: 1000;
+            padding: 10px 14px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px;
+        }
+
+        .action-buttons { display: flex; gap: 6px; width: 100%; }
+
+        .btn {
+            border: none; 
+            padding: 11px 12px; 
+            border-radius: 12px;
+            font-size: 12px; 
+            font-weight: 700; 
+            color: #fff; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
+            transition: all 0.2s ease; 
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            border: 1px solid rgba(255, 42, 42, 0.5);
+            box-shadow: 0 6px 18px var(--primary-glow);
+        }
+
+        .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ---------- Markers ---------- */
+        .user-location-marker { position: relative; width: 28px; height: 28px; }
+        .user-dot {
+            width: 18px; height: 18px;
+            background: var(--cyan-accent);
+            border: 3px solid #fff; border-radius: 50%;
+            box-shadow: 0 0 15px var(--cyan-accent);
+            position: absolute; top: 5px; left: 5px; z-index: 2;
+        }
+        .user-pulse {
+            width: 38px; height: 38px; background: var(--cyan-glow);
+            border-radius: 50%; position: absolute; top: -5px; left: -5px;
+            animation: pulse-ring 2s infinite ease-out;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.3); opacity: 0.9; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        .dest-pin-icon {
+            font-size: 30px; color: var(--primary-red);
+            filter: drop-shadow(0 0 8px var(--primary-red));
+        }
+        .leaflet-routing-container { display: none !important; }
+
+        /* ---------- Toast ---------- */
+        .toast-msg {
+            position: absolute; 
+            top: calc(env(safe-area-inset-top, 0px) + 60px); 
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 12, 18, 0.95);
+            border: 1px solid var(--primary-red); color: #fff;
+            padding: 7px 14px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            z-index: 5000; opacity: 0; pointer-events: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            white-space: nowrap;
+        }
+        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
+
+        /* ---------- Bottom Tab Bar ---------- */
+        .tab-bar {
+            position: absolute;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+            left: 10px; right: 10px; z-index: 1100;
+            display: flex; align-items: center; justify-content: space-around;
+            padding: 6px; border-radius: 20px;
+        }
+        .tab-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+            background: transparent; border: none; color: rgba(255,255,255,0.45);
+            padding: 4px 0; font-size: 10px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease; border-radius: 12px;
+        }
+        .tab-btn i { font-size: 15px; }
+        .tab-btn.active { color: var(--primary-red); }
+        .tab-btn.active i { filter: drop-shadow(0 0 6px var(--primary-red)); }
+
+        /* ---------- Overlay Panels ---------- */
+        .overlay-panel {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 3000;
+            display: none;
+            background: rgba(3, 5, 8, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: calc(env(safe-area-inset-top, 0px) + 20px) 14px calc(env(safe-area-inset-bottom, 0px) + 80px);
+        }
+        .overlay-panel.active { display: flex; flex-direction: column; }
+
+        .overlay-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .overlay-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+        .overlay-close {
+            width: 34px; height: 34px; border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .overlay-content {
+            flex: 1; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
+        }
+        .list-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px; padding: 10px 12px;
+            display: flex; align-items: center; gap: 10px;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .list-card:hover {
+            background: rgba(255, 42, 42, 0.14);
+            border-color: var(--primary-red);
+        }
+        .list-icon {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(255, 42, 42, 0.18); color: var(--primary-red);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .list-icon.cyan { background: rgba(0,240,255,0.15); color: var(--cyan-accent); }
+        .list-main { flex: 1; min-width: 0; }
+        .list-title { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .list-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .list-action {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(255,255,255,0.06); color: #cbd5e1; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 11px; flex-shrink: 0;
+        }
+        .empty-state { text-align: center; color: #64748b; padding: 30px 16px; font-size: 12px; }
+        .empty-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.4; }
+
+        .settings-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px; background: var(--glass-bg);
+            border: 1px solid var(--glass-border); border-radius: 14px;
+        }
+        .settings-row .label { font-size: 12px; font-weight: 600; color: #fff; }
+        .settings-row .sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+
+        .toggle-switch {
+            width: 40px; height: 24px; border-radius: 12px;
+            background: rgba(255,255,255,0.12); position: relative;
+            cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #fff; transition: transform 0.2s ease;
+        }
+        .toggle-switch.on { background: var(--primary-red); }
+        .toggle-switch.on::after { transform: translateX(16px); }
+
+        .route-loading {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px; font-size: 11px; color: #94a3b8;
+        }
+        .spinner {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-top-color: var(--primary-red); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .mode-btn span { display: none; }
+            .ultron-voice-btn span { display: none; }
+        }
+    </style>
+</head>
+<body class="dark-tiles">
+
+    <div id="toast" class="toast-msg">Ultron Tactical Navigation Online</div>
+
+    <!-- Top Header -->
+    <div class="top-container">
+        <div class="glass-panel search-box-panel">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--primary-red);"></i>
+                <input type="text" id="searchInput" placeholder="Search target or coordinates..." oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none;" onclick="clearSearchInput()"></i>
+                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+            </div>
+            <div class="glass-panel search-results-dropdown" id="searchResults"></div>
+        </div>
+
+        <div class="shortcuts-row">
+            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump" style="color:#f59e0b;"></i> Gas/EV</button>
+            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-p" style="color:#3b82f6;"></i> Parking</button>
+            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot" style="color:#10b981;"></i> Coffee</button>
+            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils" style="color:#ef4444;"></i> Food</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house" style="color:#a855f7;"></i> Home</button>
+        </div>
+
+        <div class="glass-panel header-controls-bar">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> <span>Drive</span></button>
+                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>Bike</span></button>
+                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
+            </div>
+            <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
+                <i class="fa-solid fa-robot"></i> <span>Ultron</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Turn Banner -->
+    <div class="turn-banner glass-panel" id="turnBanner">
+        <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
+        <div class="turn-details">
+            <div class="turn-instruction" id="turnInstruction">Awaiting destination...</div>
+            <div class="turn-distance" id="turnDistance">Calculating trajectory</div>
+        </div>
+    </div>
+
+    <!-- Speed Badge -->
+    <div class="speed-badge glass-panel">
+        <i class="fa-solid fa-gauge-high" style="color: var(--primary-red);"></i>
+        <span>SPEED:</span>
+        <span class="speed-value" id="speedValue">0</span> km/h
+    </div>
+
+    <!-- Side Controls -->
+    <div class="side-controls">
+        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter Camera"><i class="fa-solid fa-crosshairs"></i></button>
+    </div>
+
+    <!-- Route Selection -->
+    <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
+        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">
+            <i class="fa-solid fa-route"></i> Trajectory Options
+        </div>
+        <div id="routeCardsContainer"></div>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar glass-panel">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;" id="routeMetrics">
+            <span>Tap map or search destination</span>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
+                <i class="fa-solid fa-location-arrow"></i> Start Nav
+            </button>
+            <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
+                <i class="fa-solid fa-play"></i> Simulate
+            </button>
+            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="tab-bar glass-panel">
+        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
+            <i class="fa-solid fa-map"></i><span>Map</span>
+        </button>
+        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
+            <i class="fa-solid fa-clock-rotate-left"></i><span>Recents</span>
+        </button>
+        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
+            <i class="fa-solid fa-bookmark"></i><span>Saved</span>
+        </button>
+        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+            <i class="fa-solid fa-gear"></i><span>Settings</span>
+        </button>
+    </div>
+
+    <!-- Overlay Panels -->
+    <div class="overlay-panel" id="panel-recents">
+        <div class="overlay-header">
+            <div class="overlay-title">Recents</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="recentsList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-saved">
+        <div class="overlay-header">
+            <div class="overlay-title">Saved Places</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="savedList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-settings">
+        <div class="overlay-header">
+            <div class="overlay-title">Settings</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content">
+            <div class="settings-row">
+                <div>
+                    <div class="label">Ultron Voice</div>
+                    <div class="sub">Synthetic navigation voice</div>
+                </div>
+                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
+            </div>
+            <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
+                <div>
+                    <div class="label">Home Address</div>
+                    <div class="sub" id="homeAddressSub">Not set — tap to set</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:#64748b; font-size:11px;"></i>
+            </div>
+            <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
+                <div>
+                    <div class="label" style="color:#fca5a5;">Clear All Data</div>
+                    <div class="sub">Removes recents, saved places, home</div>
+                </div>
+                <i class="fa-solid fa-trash" style="color:#ef4444; font-size:11px;">}</i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        let map, userMarker, accuracyCircle, userCoords = null;
+        let activeDestination = null, destMarker = null;
+        let watchId = null, simInterval = null;
+        let isNavigating = false, isSimulating = false, isTrackingCamera = true;
+        let ultronEnabled = true, synth = window.speechSynthesis, audioCtx = null;
+        let travelMode = 'car';
+
+        let routesList = [];
+        let selectedRouteIndex = 0;
+        let currentRoutePolyline = null;
+        let activeRouteCoordinates = [];
+        let activeRouteInstructions = [];
+        let lastSpokenInstructionIndex = -1;
+        let debounceTimer = null;
+
+        let recents = JSON.parse(localStorage.getItem('raon_recents') || '[]');
+        let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
+        let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
+
+        const DEFAULT_LOCATION = [1.4927, 103.7414];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            initAudioContext();
+            requestLocationWithSafariFallback();
+            updateHomeSubLabel();
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function initMap() {
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+            map.on('click', (e) => {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if (!userCoords) requestLocationWithSafariFallback();
+                setDestination(e.latlng);
+            });
+            map.on('dragstart', () => { isTrackingCamera = false; });
+        }
+
+        function initAudioContext() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            } catch(e) {}
+        }
+
+        function playUltronMetallicPulse() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            try {
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                const gain = audioCtx.createGain();
+
+                osc1.type = 'sawtooth'; 
+                osc2.type = 'square';
+                osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
+                
+                filter.type = 'lowpass'; 
+                filter.frequency.setValueAtTime(320, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+
+                osc1.connect(filter); 
+                osc2.connect(filter);
+                filter.connect(gain); 
+                gain.connect(audioCtx.destination);
+                
+                osc1.start(); osc2.start();
+                osc1.stop(audioCtx.currentTime + 0.45);
+                osc2.stop(audioCtx.currentTime + 0.45);
+            } catch(e) {}
+        }
+
+        function speakUltron(text) {
+            if (!ultronEnabled || !('speechSynthesis' in window)) return;
+            synth.cancel();
+            playUltronMetallicPulse();
+
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.add('speaking');
+
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = 0.01; 
+                utterance.rate = 0.78; 
+                utterance.volume = 1.0;
+
+                const voices = synth.getVoices();
+                const deepVoice = voices.find(v => v.lang.startsWith('en') && (
+                    v.name.includes('David') || 
+                    v.name.includes('Male') || 
+                    v.name.includes('Daniel') || 
+                    v.name.includes('Google US English')
+                )) || voices[0];
+                
+                if (deepVoice) utterance.voice = deepVoice;
+
+                utterance.onend = () => { btn.classList.remove('speaking'); };
+                utterance.onerror = () => { btn.classList.remove('speaking'); };
+                synth.speak(utterance);
+            }, 180);
+        }
+
+        function requestLocationWithSafariFallback() {
+            if (!("geolocation" in navigator)) {
+                userCoords = L.latLng(DEFAULT_LOCATION);
+                updateUserMarker(userCoords, 100);
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isTrackingCamera) map.setView(userCoords, 16);
+                    startGPSWatch();
+                },
+                () => {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                            updateUserMarker(userCoords, pos.coords.accuracy || 100);
+                            if (isTrackingCamera) map.setView(userCoords, 15);
+                            startGPSWatch();
+                        },
+                        () => {
+                            if (!userCoords) {
+                                userCoords = L.latLng(DEFAULT_LOCATION);
+                                updateUserMarker(userCoords, 100);
+                                showToast("Using default fallback location");
+                            }
+                        },
+                        { enableHighAccuracy: false, timeout: 6000 }
+                    );
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
+            );
+        }
+
+        function startGPSWatch() {
+            if (watchId !== null) return;
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
+                    document.getElementById('speedValue').innerText = speed;
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    
+                    if (isNavigating) {
+                        // Dynamic zoom & re-center tracking during live navigation
+                        map.setView(userCoords, 17, { animate: true });
+                        checkManeuverProximity();
+                    } else if (isTrackingCamera) {
+                        map.panTo(userCoords, { animate: true });
+                    }
+                },
+                () => {},
+                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+            );
+        }
+
+        function updateUserMarker(coords, accuracy) {
+            if (userMarker) {
+                userMarker.setLatLng(coords);
+                accuracyCircle.setLatLng(coords);
+                accuracyCircle.setRadius(accuracy);
+            } else {
+                const icon = L.divIcon({
+                    className: 'user-location-marker',
+                    html: `<div class="user-pulse"></div><div class="user-dot"></div>`,
+                    iconSize: [28, 28], iconAnchor: [14, 14]
+                });
+                userMarker = L.marker(coords, { icon }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.1, weight: 1 }).addTo(map);
+            }
+        }
+
+        function recenterUser() {
+            isTrackingCamera = true;
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            if (userCoords) {
+                const targetZoom = isNavigating ? 17 : 16;
+                map.flyTo(userCoords, targetZoom, { animate: true });
+            } else {
+                requestLocationWithSafariFallback();
+            }
+        }
+
+        function handleSearchInput(query) {
+            const clearBtn = document.getElementById('searchClearBtn');
+            clearBtn.style.display = query ? 'block' : 'none';
+            clearTimeout(debounceTimer);
+            if (!query || query.trim().length < 2) {
+                document.getElementById('searchResults').classList.remove('active');
+                return;
+            }
+            debounceTimer = setTimeout(() => {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
+            }, 300);
+        }
+
+        function renderSearchResults(results) {
+            const dropdown = document.getElementById('searchResults');
+            dropdown.innerHTML = '';
+            if (results.length === 0) { dropdown.classList.remove('active'); return; }
+            results.forEach(res => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--primary-red);"></i> <span>${res.display_name}</span>`;
+                item.onclick = () => {
+                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+                    const name = res.display_name.split(',')[0];
+                    setDestination(latLng, name);
+                    dropdown.classList.remove('active');
+                    document.getElementById('searchInput').value = name;
+                    addRecent({ name, lat: latLng.lat, lng: latLng.lng });
+                };
+                dropdown.appendChild(item);
+            });
+            dropdown.classList.add('active');
+        }
+
+        function searchCategory(cat) {
+            if (!userCoords) return;
+            document.getElementById('searchInput').value = cat;
+            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
+        }
+
+        function clearSearchInput() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            document.getElementById('searchResults').classList.remove('active');
+        }
+
+        function setDestination(latLng, label = "Selected Target") {
+            activeDestination = latLng;
+            if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
+            if (destMarker) map.removeLayer(destMarker);
+            const pinIcon = L.divIcon({
+                className: 'dest-pin',
+                html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
+                iconSize: [30, 30], iconAnchor: [15, 30]
+            });
+            destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
+            calculateRoutes(label);
+        }
+
+        function calculateRoutes(label) {
