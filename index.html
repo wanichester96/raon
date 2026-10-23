@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>RAON</title>
+
+    <!-- Editorial serif: Playfair Display (Vogue-adjacent) + clean sans body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #08080a;
+            color: #f5f3ef;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Very faint vignette — barely-there depth, no color */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.035) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 120%, rgba(255,255,255,0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Thin hairline border frame — the "magazine edge" */
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(245, 243, 239, 0.06);
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Editorial card */
+        .glass-card {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            max-width: 400px;
+            padding: 72px 36px 64px;
+            text-align: center;
+            background: rgba(16, 16, 18, 0.45);
+            backdrop-filter: blur(40px) saturate(120%);
+            -webkit-backdrop-filter: blur(40px) saturate(120%);
+            border: 1px solid rgba(245, 243, 239, 0.07);
+            border-radius: 2px;
+            box-shadow:
+                0 40px 100px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            animation: cardIn 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Top editorial label */
+        .eyebrow {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(245, 243, 239, 0.4);
+            margin-bottom: 32px;
+        }
+
+        /* Minimal monogram */
+        .monogram {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: rgba(245, 243, 239, 0.85);
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(245, 243, 239, 0.18);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .monogram::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 1px;
+            background: rgba(245, 243, 239, 0.25);
+        }
+
+        /* The Vogue headline */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 54px;
+            font-weight: 400;
+            line-height: 0.95;
+            letter-spacing: -1.5px;
+            color: #f5f3ef;
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+
+        h1 em {
+            font-style: italic;
+            font-weight: 400;
+            color: rgba(245, 243, 239, 0.75);
+        }
+
+        /* Italic subtitle */
+        .subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(245, 243, 239, 0.5);
+            margin-bottom: 44px;
+            margin-top: 20px;
+            font-weight: 400;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ---------- Glass Enter Button ---------- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 18px 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #f5f3ef;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 16px;
+            background: rgba(245, 243, 239, 0.06);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(245, 243, 239, 0.14);
+            box-shadow:
+                0 12px 36px rgba(0, 0, 0, 0.5),
+                inset 0 1px 1px rgba(255, 255, 255, 0.12);
+            transition:
+                background 0.4s ease,
+                border-color 0.4s ease,
+                letter-spacing 0.4s ease,
+                transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn:hover {
+            background: rgba(245, 243, 239, 0.1);
+            border-color: rgba(245, 243, 239, 0.28);
+            letter-spacing: 5px;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+            background: rgba(245, 243, 239, 0.14);
+        }
+
+        .btn::after {
+            content: '→';
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0;
+            transition: transform 0.4s ease;
+        }
+
+        .btn:hover::after {
+            transform: translateX(4px);
+        }
+
+        /* Home indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: rgba(245, 243, 239, 0.25);
+            border-radius: 2px;
+            z-index: 2;
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 44px; }
+            .glass-card { padding: 56px 28px 52px; }
+            .monogram { width: 56px; height: 56px; font-size: 18px; margin-bottom: 30px; }
+            body::after { inset: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+
+        <div class="eyebrow">Est. 2026 — Navigation</div>
+
+        <div class="monogram">raon.</div>
+
+        <h1>Local Map<br><em>Raon</em></h1>
+
+        <p class="subtitle">A quiet companion for the roads less traveled.</p>
+
+        <a href="raon.htm" class="btn">Enter</a>
+
+    </div>
+
+    <div class="home-indicator"></div>
+
+</body>
+</html>
