@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>raon // vogue nav</title>
+    <title>raon // dark vogue nav</title>
 
-    <!-- Refined Vogue Fonts -->
+    <!-- Vogue Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -15,28 +15,27 @@
 
     <style>
         :root {
-            /* Vogue Glass White Theme */
-            --bg-color: #f8f9fa;
-            --ink: #111111;
-            --ink-soft: rgba(17, 17, 17, 0.65);
-            --ink-faint: rgba(17, 17, 17, 0.38);
+            /* Dark Muted Vogue Aesthetics */
+            --bg-color: #0f1115;
+            --bg-deep: #090a0d;
+            --ink: #e2e8f0;
+            --ink-soft: rgba(226, 232, 240, 0.65);
+            --ink-faint: rgba(226, 232, 240, 0.35);
 
-            /* Minimal Accents */
-            --accent-black: #000000;
-            --accent-gold: #c5a059;
+            /* Accents */
+            --accent-white: #ffffff;
             --accent-toll: #d97706;
-            --accent-red: #e11d48;
+            --accent-red: #f43f5e;
 
-            /* Pure White Glass */
-            --glass-bg: rgba(255, 255, 255, 0.72);
-            --glass-bg-deep: rgba(255, 255, 255, 0.92);
-            --hairline: rgba(0, 0, 0, 0.08);
-            --hairline-strong: rgba(0, 0, 0, 0.18);
+            /* Half See-Through / 50% Translucent Glass */
+            --glass-bg: rgba(22, 26, 33, 0.52);
+            --glass-bg-deep: rgba(15, 17, 21, 0.65);
+            --glass-card: rgba(30, 35, 45, 0.45);
+            --hairline: rgba(255, 255, 255, 0.08);
+            --hairline-strong: rgba(255, 255, 255, 0.16);
 
-            /* Route Colors */
-            --route-main: #111111;
-            --route-alt: #71717a;
-            --route-toll: #d97706;
+            /* Route Polyline */
+            --route-main: #e2e8f0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -49,21 +48,21 @@
             position: relative;
         }
 
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: #f0f0f0; }
+        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-deep); }
 
-        /* Subtle desaturated minimal light map tiles */
-        .vogue-tiles .leaflet-tile {
-            filter: grayscale(0.85) contrast(1.05) brightness(1.02);
+        /* Dark Muted Map Tile Filter */
+        .vogue-dark-tiles .leaflet-tile {
+            filter: brightness(0.55) contrast(1.1) saturate(0.25) invert(0.92) hue-rotate(180deg);
         }
-        .leaflet-container { background: #f0f0f0 !important; font-family: inherit; }
+        .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
 
-        /* Vogue Glass Panel */
+        /* 50% Translucent Frosted Glass Overlay */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(24px) saturate(160%);
-            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
             border: 1px solid var(--hairline);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
             border-radius: 12px;
             position: relative;
         }
@@ -84,15 +83,14 @@
 
         .search-input-wrapper {
             flex: 1; display: flex; align-items: center;
-            background: rgba(0, 0, 0, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid transparent;
             border-radius: 8px; padding: 10px 14px; gap: 10px;
             transition: all 0.25s ease;
         }
         .search-input-wrapper:focus-within {
-            border-color: var(--ink);
-            background: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-color: var(--hairline-strong);
+            background: rgba(255, 255, 255, 0.08);
         }
         .search-input-wrapper input {
             background: transparent; border: none; outline: none; color: var(--ink);
@@ -105,12 +103,12 @@
         }
 
         .mic-btn {
-            background: transparent; border: none; color: var(--ink);
+            background: transparent; border: none; color: var(--ink-soft);
             width: 32px; height: 32px; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 13px; transition: all 0.2s ease; flex-shrink: 0;
         }
-        .mic-btn:hover { background: rgba(0,0,0,0.05); }
+        .mic-btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.06); }
         .mic-btn.listening { color: var(--accent-red); animation: pulseListening 1.2s infinite; }
         @keyframes pulseListening { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
@@ -121,7 +119,7 @@
             background: var(--glass-bg-deep);
             backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
             border: 1px solid var(--hairline-strong);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
             border-radius: 12px;
         }
         .search-results-dropdown.active { display: flex; }
@@ -133,7 +131,7 @@
             border-bottom: 1px solid var(--hairline); font-weight: 400;
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover { background: rgba(0, 0, 0, 0.04); border-radius: 6px; }
+        .search-item:hover { background: rgba(255, 255, 255, 0.06); border-radius: 6px; }
 
         .shortcuts-row {
             display: flex; gap: 6px; overflow-x: auto;
@@ -143,14 +141,14 @@
 
         .chip-btn {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--hairline); border-radius: 20px;
             padding: 8px 16px; font-family: 'Inter', sans-serif;
             font-size: 11px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase;
-            color: var(--ink); white-space: nowrap; cursor: pointer;
+            color: var(--ink-soft); white-space: nowrap; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
         }
-        .chip-btn:hover { background: #ffffff; border-color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .chip-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--ink); border-color: var(--hairline-strong); }
 
         .header-controls-bar {
             padding: 6px 10px; display: flex; align-items: center;
@@ -158,18 +156,18 @@
         }
 
         .mode-selector {
-            display: flex; background: rgba(0, 0, 0, 0.04);
+            display: flex; background: rgba(0, 0, 0, 0.2);
             border-radius: 8px; padding: 2px; gap: 2px;
+            border: 1px solid var(--hairline);
         }
         .mode-btn {
-            background: transparent; border: none; color: var(--ink-soft);
+            background: transparent; border: none; color: var(--ink-faint);
             padding: 6px 12px; border-radius: 6px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
             cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
         }
         .mode-btn.active {
-            background: #ffffff; color: var(--ink); font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            background: rgba(255, 255, 255, 0.12); color: var(--ink); font-weight: 600;
         }
 
         .toll-toggle-btn, .ultron-voice-btn {
@@ -180,8 +178,7 @@
             display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
         }
         .toll-toggle-btn.active, .ultron-voice-btn.active {
-            background: #ffffff; color: var(--ink); border-color: var(--ink);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.12); color: var(--ink); border-color: var(--hairline-strong);
         }
 
         .turn-banner {
@@ -191,15 +188,15 @@
             background: var(--glass-bg-deep);
             backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
             border: 1px solid var(--hairline-strong); border-radius: 12px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.06);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
             width: 44px; height: 44px; border-radius: 50%;
-            background: var(--ink); border: none;
+            background: rgba(255, 255, 255, 0.12); border: 1px solid var(--hairline-strong);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: #ffffff; flex-shrink: 0;
+            font-size: 18px; color: var(--ink); flex-shrink: 0;
         }
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction {
@@ -230,22 +227,22 @@
         .icon-circle-btn {
             width: 40px; height: 40px; border-radius: 50%;
             border: 1px solid var(--hairline); background: var(--glass-bg);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            color: var(--ink); display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 13px; transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        .icon-circle-btn:hover { background: #ffffff; border-color: var(--ink); }
+        .icon-circle-btn:hover { background: rgba(255, 255, 255, 0.12); color: var(--ink); border-color: var(--hairline-strong); }
 
         .recenter-pill {
             position: absolute; left: 50%; transform: translateX(-50%);
             bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 1001;
             display: none; align-items: center; gap: 8px; padding: 10px 20px;
-            background: var(--ink); color: #ffffff;
-            border: none; border-radius: 30px; cursor: pointer;
+            background: var(--glass-bg-deep); color: var(--ink);
+            border: 1px solid var(--hairline-strong); border-radius: 30px; cursor: pointer;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
             letter-spacing: 1.5px; text-transform: uppercase;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.5);
         }
         .recenter-pill.show { display: flex; }
 
@@ -258,13 +255,13 @@
         .route-selection-panel.active { display: flex; }
 
         .route-card {
-            background: rgba(255, 255, 255, 0.8);
+            background: var(--glass-card);
             border: 1px solid var(--hairline); border-radius: 10px;
             padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.2s ease;
         }
-        .route-card:hover { border-color: var(--ink); background: #ffffff; }
-        .route-card.selected { border-color: var(--ink); background: #ffffff; box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
+        .route-card:hover { border-color: var(--hairline-strong); background: rgba(255, 255, 255, 0.08); }
+        .route-card.selected { border-color: var(--hairline-strong); background: rgba(255, 255, 255, 0.12); }
         .route-card-title {
             font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600;
             display: flex; align-items: center; gap: 10px; color: var(--ink);
@@ -272,11 +269,11 @@
         .route-badge {
             font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
             letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px;
-            border-radius: 4px; border: 1px solid var(--hairline-strong);
+            border-radius: 4px; border: 1px solid var(--hairline);
             color: var(--ink-soft); background: transparent;
         }
-        .badge-toll { border-color: var(--accent-toll); color: var(--accent-toll); background: rgba(217, 119, 6, 0.08); }
-        .badge-notoll { border-color: var(--ink); color: var(--ink); }
+        .badge-toll { border-color: var(--accent-toll); color: var(--accent-toll); background: rgba(217, 119, 6, 0.12); }
+        .badge-notoll { border-color: var(--hairline-strong); color: var(--ink-soft); }
 
         .route-card-sub {
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400;
@@ -294,13 +291,14 @@
             border: 1px solid var(--hairline); padding: 12px 18px; border-radius: 8px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
             letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink);
-            background: #ffffff; cursor: pointer;
+            background: rgba(255, 255, 255, 0.06); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: all 0.2s ease; flex: 1;
         }
-        .btn-primary { background: var(--ink); color: #ffffff; border-color: var(--ink); }
-        .btn-primary:hover { background: #222222; }
-        .btn-danger { background: #ffffff; border-color: var(--accent-red); color: var(--accent-red); }
+        .btn:hover { background: rgba(255, 255, 255, 0.12); border-color: var(--hairline-strong); }
+        .btn-primary { background: rgba(255, 255, 255, 0.18); color: var(--ink); border-color: var(--hairline-strong); }
+        .btn-primary:hover { background: rgba(255, 255, 255, 0.28); }
+        .btn-danger { background: rgba(244, 63, 94, 0.12); border-color: var(--accent-red); color: var(--accent-red); }
 
         #routeMetrics {
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
@@ -309,22 +307,22 @@
         }
         #routeMetrics strong { color: var(--ink); font-weight: 700; }
 
-        /* Minimal User & Marker Icons */
+        /* Minimal Dark User Marker */
         .user-location-marker { position: relative; width: 24px; height: 24px; }
         .user-dot {
             width: 14px; height: 14px; background: var(--ink);
-            border: 3px solid #ffffff; border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            border: 2px solid var(--bg-deep); border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
             position: absolute; top: 5px; left: 5px; z-index: 2;
         }
-        .dest-pin-icon { font-size: 24px; color: var(--ink); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2)); }
+        .dest-pin-icon { font-size: 24px; color: var(--ink); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); }
 
         /* Toll Marker Styling */
         .toll-marker-icon {
-            background: #ffffff; border: 1.5px solid var(--accent-toll);
+            background: rgba(22, 26, 33, 0.85); border: 1.5px solid var(--accent-toll);
             color: var(--accent-toll); border-radius: 50%; width: 26px; height: 26px;
             display: flex; align-items: center; justify-content: center; font-size: 11px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); backdrop-filter: blur(12px);
         }
 
         .leaflet-routing-container { display: none !important; }
@@ -332,12 +330,13 @@
         .toast-msg {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%; transform: translateX(-50%);
-            background: var(--ink); color: #ffffff;
+            background: var(--glass-bg-deep); color: var(--ink);
+            border: 1px solid var(--hairline-strong);
             padding: 10px 20px; border-radius: 20px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.5px; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
             z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15); white-space: nowrap;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); white-space: nowrap;
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
@@ -359,8 +358,8 @@
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 3000; display: none;
-            background: rgba(248, 249, 250, 0.96);
-            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            background: rgba(15, 17, 21, 0.72);
+            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
             padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px calc(env(safe-area-inset-bottom, 0px) + 90px);
         }
         .overlay-panel.active { display: flex; flex-direction: column; }
@@ -381,7 +380,7 @@
         .overlay-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 
         .list-card {
-            background: #ffffff; border: 1px solid var(--hairline); border-radius: 10px;
+            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 10px;
             padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
         }
         .list-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--ink); }
@@ -389,33 +388,32 @@
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            background: #ffffff; border: 1px solid var(--hairline); border-radius: 10px;
+            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 10px;
         }
 
         .toggle-switch {
-            width: 44px; height: 24px; border-radius: 12px; background: rgba(0, 0, 0, 0.1);
+            width: 44px; height: 24px; border-radius: 12px; background: rgba(255, 255, 255, 0.1);
             position: relative; cursor: pointer; transition: all 0.2s ease;
         }
         .toggle-switch::after {
             content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
-            border-radius: 50%; background: #ffffff; transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            border-radius: 50%; background: var(--ink-soft); transition: all 0.2s ease;
         }
-        .toggle-switch.on { background: var(--ink); }
-        .toggle-switch.on::after { transform: translateX(20px); }
+        .toggle-switch.on { background: rgba(255, 255, 255, 0.25); }
+        .toggle-switch.on::after { transform: translateX(20px); background: var(--ink); }
 
         .route-loading {
             display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
             font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; color: var(--ink-soft);
         }
         .spinner {
-            width: 16px; height: 16px; border: 2px solid var(--hairline-strong);
+            width: 16px; height: 16px; border: 2px solid var(--hairline);
             border-top-color: var(--ink); border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="vogue-tiles">
+<body class="vogue-dark-tiles">
 
     <div id="toast" class="toast-msg">SYSTEM ONLINE</div>
 
@@ -569,7 +567,7 @@
         let isNavigating = false, isSimulating = false, isTrackingCamera = true;
         let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis;
         let nextStepIdx = 1, simSpeedKmh = 0;
-        let manualZoomUntil = 0, autoRecenterTimer = null;
+        let autoRecenterTimer = null;
         let normalMaleVoice = null;
         let travelMode = 'car';
 
@@ -623,7 +621,6 @@
             });
         }
 
-        /* Normal, natural male voice selection algorithm */
         const MALE_VOICE_PREFS = [
             'google uk english male', 'microsoft david', 'microsoft guy', 'microsoft mark',
             'daniel', 'alex', 'tom', 'aaron', 'arthur', 'male'
@@ -652,7 +649,6 @@
                 utterance.lang = normalMaleVoice.lang;
             }
             
-            // Standard male TTS parameters (natural pitch & standard cadence)
             utterance.pitch = 1.0;
             utterance.rate = 0.95;
             utterance.volume = 1.0;
@@ -712,7 +708,7 @@
                     iconSize: [24, 24], iconAnchor: [12, 12]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#111111', fillColor: '#111111', fillOpacity: 0.05, weight: 1 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#e2e8f0', fillColor: '#e2e8f0', fillOpacity: 0.05, weight: 1 }).addTo(map);
             }
         }
 
@@ -886,13 +882,11 @@
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
             activeRouteInstructions = routeData.legs[0].steps;
 
-            // Clean dark-grey polyline for minimal look
             const mainPolyline = L.polyline(activeRouteCoordinates, {
-                color: '#111111', weight: 5, opacity: 0.9
+                color: '#e2e8f0', weight: 5, opacity: 0.85
             }).addTo(map);
             currentRoutePolylines.push(mainPolyline);
 
-            // Render Toll Booth Markers on map
             if (routeData.tollPoints && routeData.tollPoints.length > 0) {
                 routeData.tollPoints.forEach((toll) => {
                     const icon = L.divIcon({
