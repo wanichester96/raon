@@ -7,83 +7,73 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            /* Deep warm charcoal base — no purple */
-            --bg-deep: #0a090c;
-            --bg-mid: #121015;
-            --ink-primary: #ece7e2;
-            --ink-soft: rgba(236, 231, 226, 0.72);
-            --ink-faint: rgba(200, 190, 182, 0.42);
+            --bg-color: #0b0c10;
+            --ink: #f0e6d2;
+            --ink-soft: rgba(240, 230, 210, 0.7);
+            --ink-faint: rgba(240, 230, 210, 0.35);
+            --hairline: rgba(212, 175, 55, 0.22);
+            --hairline-strong: rgba(212, 175, 55, 0.55);
+            --glass-bg: rgba(18, 15, 25, 0.45);
+            --glass-bg-deep: rgba(14, 11, 20, 0.72);
+            --accent: #d4af37;
+            --accent-soft: rgba(212, 175, 55, 0.15);
+            --evil-red: #ff2244;
+            --evil-red-soft: rgba(255, 34, 68, 0.2);
 
-            /* Darker muted pastels */
-            --rose-accent: #b88898;          /* dusty rose */
-            --rose-accent-soft: rgba(184, 136, 152, 0.14);
-            --gold-accent: #b3a382;          /* warm taupe */
-            --gold-soft: rgba(179, 163, 130, 0.12);
-            --sage-accent: #8a9d8c;          /* soft sage */
-
-            --evil-crimson: #a84f62;         /* muted burgundy */
-            --evil-crimson-soft: rgba(168, 79, 98, 0.16);
-
-            --glass-bg: rgba(18, 16, 21, 0.62);
-            --glass-bg-deep: rgba(14, 12, 18, 0.85);
-            --hairline-rose: rgba(200, 180, 190, 0.16);
-            --hairline-strong: rgba(220, 205, 212, 0.26);
-            --inner-glow: inset 0 1px 1px rgba(255, 245, 240, 0.08);
-
-            --traffic-clear: #8a9d8c;
-            --traffic-moderate: #b3a382;
-            --traffic-jammed: #8f4a5a;
+            /* Traffic Status Color Palette - Muted Luxury */
+            --traffic-clear: #7094a8;    /* Muted Steel Blue */
+            --traffic-moderate: #d4a359; /* Muted Warm Amber */
+            --traffic-jammed: #a83232;   /* Muted Crimson */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
             height: 100%; width: 100%; overflow: hidden;
-            background: var(--bg-deep);
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            color: var(--ink-primary);
+            background: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            color: var(--ink);
         }
 
-        #map {
-            position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
-            background: #0f0d12;
-        }
+        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
 
-        /* Warm dark map tiles — no purple hue-rotate */
+        /* Muted Sophisticated Map Coloring with Glass Feel */
         .leaflet-tile {
-            filter: brightness(0.55) contrast(1.05) saturate(0.35) sepia(0.15) !important;
+            filter: hue-rotate(195deg) invert(0.92) contrast(1.18) saturate(0.5) brightness(0.72) !important;
             transition: filter 0.5s ease;
         }
-        .leaflet-container { background: #0f0d12 !important; font-family: inherit; }
+        .leaflet-container { background: #08090d !important; font-family: inherit; }
 
+        /* Advanced High-End Frosted Glass Panel */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(28px) saturate(160%);
-            -webkit-backdrop-filter: blur(28px) saturate(160%);
-            border: 1px solid var(--hairline-rose);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid var(--hairline);
             box-shadow:
-                0 16px 36px rgba(5, 3, 8, 0.55),
-                0 4px 12px rgba(0, 0, 0, 0.35),
-                var(--inner-glow);
-            border-radius: 20px;
+                0 30px 60px rgba(0, 0, 0, 0.85),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
             position: relative;
             overflow: hidden;
         }
 
         .glass-panel::before {
             content: '';
-            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(200, 180, 190, 0.025) 1px, transparent 1px);
-            background-size: 14px 14px;
-            pointer-events: none; opacity: 0.5; z-index: 0;
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
         }
 
         .top-container {
@@ -95,113 +85,75 @@
         }
 
         .search-box-panel {
-            padding: 7px 10px;
+            padding: 6px;
             display: flex; align-items: center; gap: 8px;
             position: relative; z-index: 2500;
         }
 
         .search-input-wrapper {
             flex: 1; display: flex; align-items: center;
-            background: rgba(28, 24, 30, 0.7);
-            border: 1px solid var(--hairline-rose);
-            border-radius: 14px; padding: 10px 14px; gap: 10px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--hairline);
+            border-radius: 4px; padding: 10px 12px; gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         .search-input-wrapper:focus-within {
-            border-color: var(--rose-accent);
-            background: rgba(34, 29, 36, 0.9);
-            box-shadow: 0 0 14px rgba(184, 136, 152, 0.18), inset 0 2px 4px rgba(0,0,0,0.25);
+            border-color: var(--accent);
+            background: rgba(0, 0, 0, 0.55);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2), inset 0 2px 4px rgba(0,0,0,0.5);
         }
         .search-input-wrapper input {
-            background: transparent; border: none; outline: none; color: var(--ink-primary);
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 17px; width: 100%; font-weight: 600;
+            background: transparent; border: none; outline: none; color: var(--ink);
+            font-family: 'Playfair Display', serif;
+            font-size: 15px; width: 100%; font-weight: 400;
             font-style: italic; letter-spacing: 0.3px;
         }
         .search-input-wrapper input::placeholder {
-            color: var(--ink-faint); font-style: italic; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400;
+            color: var(--ink-faint); font-style: italic;
         }
 
         .mic-btn {
-            background: rgba(32, 27, 34, 0.75);
-            border: 1px solid var(--hairline-rose);
-            color: var(--rose-accent);
-            width: 36px; height: 36px; border-radius: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--hairline);
+            color: var(--ink-soft);
+            width: 32px; height: 32px; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 13px; transition: all 0.3s ease; flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            cursor: pointer; font-size: 12px; transition: all 0.3s ease; flex-shrink: 0;
         }
-        .mic-btn:hover { border-color: var(--rose-accent); color: var(--ink-primary); box-shadow: 0 0 10px rgba(184,136,152,0.3); }
+        .mic-btn:hover { border-color: var(--accent); color: var(--ink); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
         .mic-btn.listening {
-            background: var(--evil-crimson-soft); color: var(--evil-crimson); border-color: var(--evil-crimson);
+            background: var(--evil-red-soft); color: var(--evil-red); border-color: var(--evil-red);
             animation: micPulse 1s infinite alternate;
         }
         @keyframes micPulse {
-            0% { box-shadow: 0 0 0 0 rgba(168, 79, 98, 0.4); }
-            100% { box-shadow: 0 0 0 10px rgba(168, 79, 98, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 34, 68, 0.5); }
+            100% { box-shadow: 0 0 0 10px rgba(255, 34, 68, 0); }
         }
 
-        /* ===== Search Suggestions Dropdown ===== */
         .search-results-dropdown {
-            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-            max-height: 340px; overflow-y: auto;
-            display: none; flex-direction: column; z-index: 4000; padding: 6px;
-            background: rgba(16, 14, 20, 0.95);
-            backdrop-filter: blur(35px) saturate(160%);
-            -webkit-backdrop-filter: blur(35px) saturate(160%);
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+            max-height: 280px; overflow-y: auto;
+            display: none; flex-direction: column; z-index: 4000; padding: 4px;
+            background: var(--glass-bg-deep);
+            backdrop-filter: blur(32px) saturate(160%);
+            -webkit-backdrop-filter: blur(32px) saturate(160%);
             border: 1px solid var(--hairline-strong);
-            box-shadow: 0 20px 48px rgba(0,0,0,0.6);
-            border-radius: 18px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.95), 0 0 20px rgba(212,175,55,0.15);
+            border-radius: 6px;
         }
         .search-results-dropdown.active { display: flex; }
 
         .search-item {
             padding: 12px 14px; cursor: pointer; font-size: 13px;
             display: flex; align-items: center; gap: 12px;
-            transition: all 0.15s ease; color: var(--ink-soft);
-            border-bottom: 1px solid rgba(200,180,190,0.06);
-            border-radius: 12px;
+            transition: background 0.3s ease; color: var(--ink-soft);
+            border-bottom: 1px solid var(--hairline);
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item:active,
-        .search-item.highlighted { background: var(--rose-accent-soft); color: var(--ink-primary); }
-        .search-item i { color: var(--rose-accent); font-size: 14px; flex-shrink: 0; }
-        .search-item-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
-        .search-item-main {
-            font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 16px;
-            color: var(--ink-primary);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .search-item-main mark {
-            background: transparent;
-            color: var(--rose-accent);
-            font-weight: 700;
-        }
-        .search-item-sub {
-            font-size: 11px; color: var(--ink-faint);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
-        }
+        .search-item:hover, .search-item:active { background: var(--accent-soft); color: var(--ink); }
+        .search-item i { color: var(--accent); }
 
-        .search-loading, .search-empty {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            padding: 18px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 9px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase;
-            color: var(--rose-accent);
-            border-radius: 12px;
-        }
-        .search-spinner {
-            width: 14px; height: 14px;
-            border: 2px solid var(--hairline-strong);
-            border-top-color: var(--rose-accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ===== Shortcuts ===== */
         .shortcuts-row {
             display: flex; gap: 6px; overflow-x: auto;
             padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
@@ -211,93 +163,78 @@
         .chip-btn {
             background: var(--glass-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--hairline-rose); border-radius: 20px;
+            border: 1px solid var(--hairline); border-radius: 4px;
             padding: 8px 14px; font-family: 'Inter', sans-serif;
-            font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+            font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
             color: var(--ink-soft); white-space: nowrap; cursor: pointer;
-            display: flex; align-items: center; gap: 7px; transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
         .chip-btn:hover, .chip-btn:active {
-            background: rgba(34, 29, 36, 0.9); border-color: var(--rose-accent); color: var(--ink-primary);
-            box-shadow: 0 4px 15px rgba(184,136,152,0.2);
+            background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
+            box-shadow: 0 0 12px rgba(212,175,55,0.25);
         }
-        .chip-btn i { color: var(--rose-accent); }
+        .chip-btn i { color: var(--accent); opacity: 0.8; }
+        .chip-btn:hover i { opacity: 1; }
 
         .header-controls-bar {
-            padding: 6px 8px; display: flex; align-items: center;
+            padding: 6px; display: flex; align-items: center;
             justify-content: space-between; gap: 6px; z-index: 1000;
         }
 
         .mode-selector {
-            display: flex; background: rgba(12, 10, 14, 0.55);
-            border: 1px solid rgba(200, 180, 190, 0.1); border-radius: 12px; padding: 3px; gap: 2px;
+            display: flex; background: rgba(0,0,0,0.4);
+            border: 1px solid var(--hairline); border-radius: 4px; padding: 3px; gap: 2px;
         }
         .mode-btn {
             background: transparent; border: none; color: var(--ink-faint);
-            padding: 6px 12px; border-radius: 9px;
-            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
-            letter-spacing: 0.3px; cursor: pointer;
-            transition: all 0.25s ease; display: flex; align-items: center; gap: 6px;
+            padding: 6px 10px; border-radius: 2px;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;
         }
-        .mode-btn.active {
-            background: rgba(36, 30, 40, 0.9); color: var(--ink-primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 1px solid var(--hairline-rose);
-        }
-
-        .toll-toggle-btn {
-            background: rgba(28, 24, 30, 0.7);
-            border: 1px solid var(--hairline-rose);
-            color: var(--ink-soft); padding: 6px 12px; border-radius: 10px;
-            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; gap: 6px;
-            transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        }
-        .toll-toggle-btn.active {
-            background: var(--rose-accent-soft); color: var(--rose-accent); border-color: var(--rose-accent);
-            box-shadow: 0 0 10px rgba(184,136,152,0.25);
-        }
+        .mode-btn.active { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--hairline); }
 
         .ultron-voice-btn {
-            background: rgba(28, 24, 30, 0.7); border: 1px solid var(--hairline-rose);
-            color: var(--ink-soft); padding: 6px 12px; border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--hairline);
+            color: var(--ink-soft); padding: 8px 14px; border-radius: 4px;
             font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
-            display: flex; align-items: center; gap: 6px; transition: all 0.3s ease;
+            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; position: relative;
         }
-        .ultron-voice-btn.active { background: var(--evil-crimson-soft); color: var(--evil-crimson); border-color: var(--evil-crimson); }
+        .ultron-voice-btn.active { background: var(--evil-red-soft); color: var(--evil-red); border-color: var(--evil-red); }
         .ultron-voice-btn.speaking { animation: voicePulse 0.8s infinite alternate; }
         @keyframes voicePulse {
-            0% { box-shadow: 0 0 0 0 rgba(168,79,98,0.5); }
-            100% { box-shadow: 0 0 0 10px rgba(168,79,98,0); }
+            0% { box-shadow: 0 0 0 0 rgba(255,34,68,0.6); }
+            100% { box-shadow: 0 0 0 10px rgba(255,34,68,0); }
         }
 
         .turn-banner {
-            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 158px);
+            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 148px);
             left: 12px; right: 12px; z-index: 999; padding: 14px 18px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(35px) saturate(160%); -webkit-backdrop-filter: blur(35px) saturate(160%);
-            border: 1px solid var(--hairline-strong); border-radius: 20px;
-            box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+            backdrop-filter: blur(32px) saturate(160%); -webkit-backdrop-filter: blur(32px) saturate(160%);
+            border: 1px solid var(--hairline-strong); border-radius: 6px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.95), 0 0 20px rgba(212,175,55,0.1);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
-            width: 44px; height: 44px; border-radius: 14px;
-            background: var(--rose-accent-soft); border: 1px solid var(--hairline-strong);
+            width: 44px; height: 44px; border-radius: 4px;
+            background: var(--accent-soft); border: 1px solid var(--hairline-strong);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: var(--rose-accent); flex-shrink: 0;
-            box-shadow: inset 0 0 8px rgba(184,136,152,0.15);
+            font-size: 18px; color: var(--accent); flex-shrink: 0;
+            box-shadow: inset 0 0 8px rgba(212,175,55,0.2);
         }
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction {
-            font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700;
-            color: var(--ink-primary); letter-spacing: -0.2px; line-height: 1.3; font-style: italic;
+            font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 500;
+            color: var(--ink); letter-spacing: -0.2px; line-height: 1.3;
         }
         .turn-distance {
             font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; color: var(--evil-crimson); margin-top: 4px;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--evil-red); margin-top: 4px;
         }
 
         .speed-badge {
@@ -305,110 +242,107 @@
             left: 12px; z-index: 999; padding: 10px 16px;
             display: flex; align-items: center; gap: 10px;
             font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint);
-            border-radius: 18px;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
         }
         .speed-value {
             font-family: 'Orbitron', sans-serif; font-size: 22px;
-            color: var(--rose-accent); letter-spacing: -0.5px; font-weight: 700;
+            color: var(--accent); letter-spacing: -0.5px; font-weight: 700;
+            text-shadow: 0 0 10px rgba(212,175,55,0.4);
         }
-        .speed-badge i { color: var(--evil-crimson); font-size: 13px; }
+        .speed-badge i { color: var(--evil-red); font-size: 13px; }
 
         .side-controls {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
             right: 12px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
         }
         .icon-circle-btn {
-            width: 44px; height: 44px; border-radius: 16px;
-            border: 1px solid var(--hairline-rose); background: var(--glass-bg);
+            width: 40px; height: 40px; border-radius: 4px;
+            border: 1px solid var(--hairline); background: var(--glass-bg);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            color: var(--rose-accent); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 15px; transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
         }
         .icon-circle-btn:hover {
-            background: rgba(36,30,40,0.95); border-color: var(--rose-accent); color: var(--ink-primary);
-            box-shadow: 0 0 14px rgba(184,136,152,0.3);
+            background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
         }
 
         .route-selection-panel {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
-            left: 12px; right: 12px; z-index: 1000; padding: 12px;
-            display: none; flex-direction: column; gap: 8px;
-            max-height: 40vh; overflow-y: auto; border-radius: 20px;
+            left: 12px; right: 12px; z-index: 1000; padding: 10px;
+            display: none; flex-direction: column; gap: 6px;
+            max-height: 38vh; overflow-y: auto;
         }
         .route-selection-panel.active { display: flex; }
 
         .route-card {
-            background: rgba(24, 20, 26, 0.7); border: 1px solid var(--hairline-rose); border-radius: 14px;
-            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--hairline); border-radius: 4px;
+            padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.3s ease; gap: 12px;
         }
         .route-card:hover, .route-card.selected {
-            background: rgba(36, 30, 40, 0.92); border-color: var(--rose-accent);
-            box-shadow: 0 6px 20px rgba(184,136,152,0.18);
+            background: var(--accent-soft); border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(212,175,55,0.2);
         }
         .route-card-title {
-            font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700;
-            display: flex; align-items: center; gap: 8px; color: var(--ink-primary); letter-spacing: -0.1px;
-            font-style: italic;
+            font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.1px;
         }
         .route-badge {
-            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
-            letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 8px;
-            border-radius: 12px; border: 1px solid transparent; font-style: normal;
+            font-family: 'Orbitron', sans-serif; font-size: 8px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 7px;
+            border-radius: 2px; border: 1px solid var(--hairline-strong);
+            color: var(--ink-soft); background: transparent;
         }
-        .badge-fast { border-color: var(--rose-accent); color: var(--rose-accent); background: var(--rose-accent-soft); }
-        .badge-free { border-color: rgba(255,255,255,0.08); color: var(--ink-faint); background: rgba(255,255,255,0.02); }
-        .badge-toll { border-color: var(--evil-crimson); color: var(--evil-crimson); background: var(--evil-crimson-soft); }
-        .badge-notoll { border-color: var(--sage-accent); color: var(--sage-accent); background: rgba(138,157,140,0.12); }
-
+        .badge-fast { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px rgba(212,175,55,0.3); }
+        .badge-free { border-color: var(--hairline-strong); color: var(--ink-soft); }
         .route-card-sub {
-            font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
-            color: var(--ink-faint); margin-top: 4px; display: flex; align-items: center; gap: 8px;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px;
         }
-        .route-card i { color: var(--ink-faint); font-size: 13px; }
-        .route-card.selected i { color: var(--rose-accent); }
+        .route-card i { color: var(--ink-faint); font-size: 12px; }
+        .route-card.selected i { color: var(--accent); }
 
         .bottom-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
-            left: 12px; right: 12px; z-index: 1000; padding: 12px 16px;
-            display: flex; flex-direction: column; gap: 10px; border-radius: 20px;
+            left: 12px; right: 12px; z-index: 1000; padding: 12px 14px;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        .action-buttons { display: flex; gap: 8px; width: 100%; }
+        .action-buttons { display: flex; gap: 6px; width: 100%; }
 
         .btn {
-            border: 1px solid var(--hairline-rose); padding: 12px 14px; border-radius: 12px;
+            border: 1px solid var(--hairline); padding: 12px 14px; border-radius: 4px;
             font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft);
-            background: rgba(30, 25, 32, 0.75); cursor: pointer;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft);
+            background: rgba(0,0,0,0.4); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.3s ease; flex: 1; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease; flex: 1;
         }
-        .btn:hover { border-color: var(--rose-accent); color: var(--ink-primary); background: rgba(42, 36, 46, 0.95); box-shadow: 0 0 12px rgba(184,136,152,0.25); }
-        .btn-primary { background: var(--rose-accent); color: #1a0f14; border-color: var(--rose-accent); box-shadow: 0 4px 18px rgba(184,136,152,0.35); }
-        .btn-primary:hover { background: #c99aa8; color: #120a0e; box-shadow: 0 6px 22px rgba(184,136,152,0.5); }
-        .btn-secondary { background: rgba(30, 25, 32, 0.9); }
-        .btn-danger { background: var(--evil-crimson-soft); border-color: var(--evil-crimson); color: var(--evil-crimson); }
-        .btn-danger:hover { background: var(--evil-crimson); color: #fff; box-shadow: 0 4px 15px rgba(168,79,98,0.45); }
-        .btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+        .btn:hover { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); box-shadow: 0 0 12px rgba(212,175,55,0.25); }
+        .btn-primary { background: var(--accent); color: #08080a; border-color: var(--accent); box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+        .btn-primary:hover { background: #f0e6d2; color: #000; box-shadow: 0 0 20px rgba(212,175,55,0.6); }
+        .btn-secondary { background: transparent; }
+        .btn-danger { background: rgba(255,34,68,0.15); border-color: var(--evil-red); color: var(--evil-red); }
+        .btn-danger:hover { background: var(--evil-red); color: #fff; box-shadow: 0 0 15px rgba(255,34,68,0.6); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
 
         #routeMetrics {
-            font-family: 'Inter', sans-serif; font-size: 12px;
-            color: var(--ink-soft); display: flex; align-items: center; justify-content: space-between;
+            font-family: 'Inter', sans-serif; font-size: 10px;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
         }
-        #routeMetrics strong { color: var(--rose-accent); font-weight: 700; }
+        #routeMetrics strong { color: var(--accent); font-weight: 600; }
 
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
-            width: 14px; height: 14px; background: var(--evil-crimson);
-            border: 2px solid #ffffff; border-radius: 50%;
-            box-shadow: 0 0 0 2px var(--evil-crimson), 0 0 15px rgba(168,79,98,0.8);
+            width: 14px; height: 14px; background: var(--evil-red);
+            border: 2px solid var(--bg-color); border-radius: 50%;
+            box-shadow: 0 0 0 2px var(--evil-red), 0 0 20px rgba(255,34,68,0.9);
             position: absolute; top: 7px; left: 7px; z-index: 2;
         }
         .user-pulse {
             width: 40px; height: 40px;
-            background: radial-gradient(circle, rgba(168,79,98,0.35) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,34,68,0.45) 0%, transparent 70%);
             border-radius: 50%; position: absolute; top: -6px; left: -6px;
             animation: pulse-ring 2s infinite ease-out;
         }
@@ -417,22 +351,22 @@
             100% { transform: scale(2.0); opacity: 0; }
         }
         .dest-pin-icon {
-            font-size: 28px; color: var(--rose-accent);
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
+            font-size: 26px; color: var(--accent);
+            filter: drop-shadow(0 0 10px rgba(212,175,55,0.8));
         }
         .leaflet-routing-container { display: none !important; }
 
         .toast-msg {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%; transform: translateX(-50%);
-            background: var(--glass-bg-deep); backdrop-filter: blur(35px) saturate(160%);
-            -webkit-backdrop-filter: blur(35px) saturate(160%);
-            border: 1px solid var(--hairline-strong); color: var(--ink-primary);
-            padding: 10px 22px; border-radius: 20px;
+            background: var(--glass-bg-deep); backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
+            border: 1px solid var(--hairline-strong); color: var(--ink);
+            padding: 10px 20px; border-radius: 4px;
             font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase;
+            letter-spacing: 2px; text-transform: uppercase;
             z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.55); white-space: nowrap;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 15px rgba(212,175,55,0.2); white-space: nowrap;
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
@@ -440,23 +374,23 @@
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             left: 12px; right: 12px; z-index: 1100;
             display: flex; align-items: center; justify-content: space-around;
-            padding: 8px; border-radius: 20px;
+            padding: 8px; border-radius: 6px;
         }
         .tab-btn {
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
             background: transparent; border: none; color: var(--ink-faint);
             padding: 6px 0; font-family: 'Inter', sans-serif;
-            font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-            cursor: pointer; transition: all 0.3s ease; border-radius: 12px;
+            font-size: 8px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s ease; border-radius: 3px;
         }
-        .tab-btn i { font-size: 15px; }
-        .tab-btn.active { color: var(--rose-accent); font-weight: 700; }
-        .tab-btn.active i { filter: drop-shadow(0 2px 6px rgba(184,136,152,0.5)); }
+        .tab-btn i { font-size: 14px; }
+        .tab-btn.active { color: var(--accent); }
+        .tab-btn.active i { filter: drop-shadow(0 0 6px rgba(212,175,55,0.8)); }
 
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 3000; display: none; background: rgba(12, 10, 14, 0.95);
-            backdrop-filter: blur(35px) saturate(160%); -webkit-backdrop-filter: blur(35px) saturate(160%);
+            z-index: 3000; display: none; background: rgba(10, 8, 14, 0.92);
+            backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);
             padding: calc(env(safe-area-inset-top, 0px) + 32px) 20px calc(env(safe-area-inset-bottom, 0px) + 90px);
             animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -465,115 +399,110 @@
 
         .overlay-header {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(200,180,190,0.12);
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);
         }
         .overlay-title {
-            font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600;
-            letter-spacing: -0.5px; color: var(--ink-primary); font-style: italic;
+            font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400;
+            letter-spacing: -0.8px; color: var(--ink); font-style: italic;
         }
         .overlay-close {
-            width: 38px; height: 38px; border-radius: 12px; background: rgba(30, 25, 32, 0.85);
-            border: 1px solid var(--hairline-rose); color: var(--rose-accent);
-            font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+            width: 36px; height: 36px; border-radius: 4px; background: transparent;
+            border: 1px solid var(--hairline); color: var(--ink-soft);
+            font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
         }
-        .overlay-close:hover { border-color: var(--rose-accent); color: var(--ink-primary); box-shadow: 0 0 10px rgba(184,136,152,0.3); }
+        .overlay-close:hover { border-color: var(--accent); color: var(--ink); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
 
         .overlay-content {
             flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
         }
 
         .list-card {
-            background: rgba(24, 20, 26, 0.7); border: 1px solid var(--hairline-rose); border-radius: 14px;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--hairline); border-radius: 4px;
             padding: 14px 16px; display: flex; align-items: center; gap: 14px;
-            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            cursor: pointer; transition: all 0.3s ease;
         }
-        .list-card:hover { background: rgba(36, 30, 40, 0.92); border-color: var(--rose-accent); box-shadow: 0 4px 18px rgba(184,136,152,0.18); }
+        .list-card:hover { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 12px rgba(212,175,55,0.2); }
         .list-icon {
-            width: 38px; height: 38px; border-radius: 12px; background: var(--rose-accent-soft);
-            color: var(--rose-accent); display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0; border: 1px solid var(--hairline-rose);
+            width: 36px; height: 36px; border-radius: 4px; background: var(--accent-soft);
+            color: var(--accent); display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0; border: 1px solid var(--hairline);
         }
         .list-main { flex: 1; min-width: 0; }
         .list-title {
-            font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700;
-            color: var(--ink-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic;
+            font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 500;
+            color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.1px;
         }
         .list-sub {
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
-            color: var(--ink-faint); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 400;
+            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint);
+            margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .list-action {
-            width: 34px; height: 34px; border-radius: 10px; background: rgba(30, 25, 32, 0.85);
-            color: var(--rose-accent); border: 1px solid var(--hairline-rose);
+            width: 32px; height: 32px; border-radius: 4px; background: transparent;
+            color: var(--ink-faint); border: 1px solid var(--hairline);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 12px; flex-shrink: 0; transition: all 0.3s ease;
+            cursor: pointer; font-size: 11px; flex-shrink: 0; transition: all 0.3s ease;
         }
-        .list-action:hover { color: var(--ink-primary); border-color: var(--rose-accent); background: var(--rose-accent-soft); }
+        .list-action:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
         .empty-state {
             text-align: center; color: var(--ink-faint); padding: 60px 20px;
-            font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; line-height: 1.6;
+            font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; line-height: 1.6;
         }
-        .empty-state i { font-size: 34px; display: block; margin-bottom: 18px; opacity: 0.4; color: var(--rose-accent); }
+        .empty-state i { font-size: 32px; display: block; margin-bottom: 20px; opacity: 0.3; color: var(--accent); }
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            background: rgba(24, 20, 26, 0.7); border: 1px solid var(--hairline-rose); border-radius: 14px; transition: all 0.3s ease;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--hairline); border-radius: 4px; transition: all 0.3s ease;
         }
-        .settings-row[onclick]:hover { background: rgba(36, 30, 40, 0.92); border-color: var(--rose-accent); }
-        .settings-row .label { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: var(--ink-primary); font-style: italic; }
+        .settings-row[onclick]:hover { background: var(--accent-soft); border-color: var(--accent); }
+        .settings-row .label { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500; color: var(--ink); }
         .settings-row .sub {
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
-            color: var(--ink-faint); margin-top: 3px;
+            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 400;
+            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px;
         }
 
         .toggle-switch {
-            width: 44px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12); position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
+            width: 42px; height: 24px; border-radius: 12px; background: rgba(0,0,0,0.5);
+            border: 1px solid var(--hairline); position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
         }
         .toggle-switch::after {
-            content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
-            border-radius: 50%; background: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.35); transition: all 0.3s ease;
+            content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--ink-faint); transition: all 0.3s ease;
         }
-        .toggle-switch.on { background: var(--evil-crimson); border-color: var(--evil-crimson); }
-        .toggle-switch.on::after { transform: translateX(18px); }
+        .toggle-switch.on { background: var(--evil-red-soft); border-color: var(--evil-red); box-shadow: 0 0 10px rgba(255,34,68,0.3); }
+        .toggle-switch.on::after { transform: translateX(18px); background: var(--evil-red); }
 
         .route-loading {
             display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
             font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
-            letter-spacing: 1.5px; text-transform: uppercase; color: var(--rose-accent);
+            letter-spacing: 2px; text-transform: uppercase; color: var(--accent);
         }
         .spinner {
-            width: 16px; height: 16px; border: 2px solid var(--hairline-strong);
-            border-top-color: var(--rose-accent); border-radius: 50%; animation: spin 0.9s linear infinite;
+            width: 14px; height: 14px; border: 1.5px solid var(--hairline-strong);
+            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 480px) {
             .mode-btn span { display: none; }
             .ultron-voice-btn span { display: none; }
-            .overlay-title { font-size: 28px; }
+            .overlay-title { font-size: 26px; }
         }
     </style>
 </head>
-<body>
+<body class="dark-tiles">
 
-    <div id="toast" class="toast-msg">Mandroid Matrix Engaged</div>
+    <div id="toast" class="toast-msg">Mandroid System Initialized</div>
 
+    <!-- Top Header -->
     <div class="top-container">
-        <div class="glass-panel search-box-panel" id="searchBoxPanel">
+        <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--rose-accent); font-size: 13px;"></i>
-                <input type="text"
-                       id="searchInput"
-                       placeholder="Search destination or address..."
-                       autocomplete="off"
-                       oninput="handleSearchInput(this.value)"
-                       onfocus="handleSearchInput(this.value)"
-                       onkeydown="handleSearchKeydown(event)">
-                <i class="fa-solid fa-xmark" id="searchClearBtn"
-                   style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 13px;"
-                   onclick="clearSearchInput()"></i>
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--accent); font-size: 12px;"></i>
+                <input type="text" id="searchInput" placeholder="Enter target coordinates..." oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 12px;" onclick="clearSearchInput()"></i>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
@@ -586,7 +515,7 @@
             <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> Parking</button>
             <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> Coffee</button>
             <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> Dining</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Base</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home Base</button>
         </div>
 
         <div class="glass-panel header-controls-bar">
@@ -595,17 +524,13 @@
                 <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>Bike</span></button>
                 <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
             </div>
-
-            <button class="toll-toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
-                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">Avoid Tolls</span>
-            </button>
-
             <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
                 <i class="fa-solid fa-robot"></i> <span>Mandroid</span>
             </button>
         </div>
     </div>
 
+    <!-- Turn Banner -->
     <div class="turn-banner" id="turnBanner">
         <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
         <div class="turn-details">
@@ -614,25 +539,30 @@
         </div>
     </div>
 
+    <!-- Speed Badge -->
     <div class="speed-badge glass-panel">
         <i class="fa-solid fa-bolt"></i>
         <span class="speed-value" id="speedValue">0</span>
         <span>KM/H</span>
     </div>
 
+    <!-- Side Controls -->
     <div class="side-controls">
         <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
 
+    <!-- Route Selection -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--rose-accent); padding: 2px 4px 6px;">
+        <div style="font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); padding: 4px 4px 8px;">
             Calculated Trajectories
         </div>
         <div id="routeCardsContainer"></div>
     </div>
 
+    <!-- Map -->
     <div id="map"></div>
 
+    <!-- Bottom Action Bar -->
     <div class="bottom-bar glass-panel">
         <div id="routeMetrics">
             <span>Designate destination...</span>
@@ -650,6 +580,7 @@
         </div>
     </div>
 
+    <!-- Tab Bar -->
     <div class="tab-bar glass-panel">
         <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
             <i class="fa-solid fa-map"></i><span>Map</span>
@@ -665,6 +596,7 @@
         </button>
     </div>
 
+    <!-- Overlay Panels -->
     <div class="overlay-panel" id="panel-recents">
         <div class="overlay-header">
             <div class="overlay-title">Recents</div>
@@ -690,30 +622,23 @@
             <div class="settings-row">
                 <div>
                     <div class="label">Mandroid Voice Matrix</div>
-                    <div class="sub">Deep robotic voice synthesis & guidance</div>
+                    <div class="sub">Spoken evil machine guidance</div>
                 </div>
                 <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
             </div>
-            <div class="settings-row">
-                <div>
-                    <div class="label">Avoid Toll Roads</div>
-                    <div class="sub">Filter out routes containing toll booths</div>
-                </div>
-                <div class="toggle-switch" id="settingsTollToggle" onclick="toggleAvoidTolls()"></div>
-            </div>
             <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
                 <div>
-                    <div class="label">Secret Base Location</div>
+                    <div class="label">Secret Home Base</div>
                     <div class="sub" id="homeAddressSub">Not set — tap to calibrate</div>
                 </div>
-                <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint); font-size:12px;"></i>
+                <i class="fa-solid fa-chevron-right" style="color:var(--hairline-strong); font-size:10px;"></i>
             </div>
             <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
                 <div>
-                    <div class="label">Purge Tactical Logs</div>
-                    <div class="sub">Clear recents, saved places, and home location</div>
+                    <div class="label">Purge Tactical Data</div>
+                    <div class="sub">Recents, saved coordinates, base location</div>
                 </div>
-                <i class="fa-solid fa-trash" style="color:var(--evil-crimson); font-size:12px;"></i>
+                <i class="fa-solid fa-trash" style="color:var(--evil-red); font-size:10px;"></i>
             </div>
         </div>
     </div>
@@ -726,7 +651,7 @@
         let activeDestination = null, destMarker = null;
         let watchId = null, simInterval = null;
         let isNavigating = false, isSimulating = false, isTrackingCamera = true;
-        let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis, audioCtx = null;
+        let ultronEnabled = true, synth = window.speechSynthesis, audioCtx = null;
         let travelMode = 'car';
 
         let routesList = [];
@@ -741,11 +666,6 @@
         let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
         let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
 
-        let currentSuggestions = [];
-        let highlightedSuggestionIndex = -1;
-        let activeSearchController = null;
-        let lastQuery = '';
-
         const DEFAULT_LOCATION = [1.4927, 103.7414];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -753,14 +673,6 @@
             initAudioContext();
             requestLocationWithSafariFallback();
             updateHomeSubLabel();
-
-            /* Click-outside now uses setTimeout so item clicks register first */
-            document.addEventListener('mousedown', (e) => {
-                const searchBox = document.getElementById('searchBoxPanel');
-                if (searchBox && !searchBox.contains(e.target)) {
-                    setTimeout(closeSuggestions, 150);
-                }
-            });
         });
 
         function showToast(msg) {
@@ -776,7 +688,6 @@
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
-
             map.on('click', (e) => {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 if (!userCoords) requestLocationWithSafariFallback();
@@ -792,6 +703,7 @@
             } catch(e) {}
         }
 
+        /* Dark Synth & Metallic Evil Pulse Sound FX */
         function playUltronMetallicPulse() {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -804,27 +716,28 @@
                 osc1.type = 'sawtooth';
                 osc2.type = 'square';
 
-                osc1.frequency.setValueAtTime(32, audioCtx.currentTime);
-                osc1.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.3);
+                osc1.frequency.setValueAtTime(30, audioCtx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
 
-                osc2.frequency.setValueAtTime(64, audioCtx.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(240, audioCtx.currentTime + 0.3);
+                osc2.frequency.setValueAtTime(60, audioCtx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.3);
 
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(350, audioCtx.currentTime);
+                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
 
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
 
                 osc1.connect(filter); osc2.connect(filter);
                 filter.connect(gain); gain.connect(audioCtx.destination);
 
                 osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.4);
-                osc2.stop(audioCtx.currentTime + 0.4);
+                osc1.stop(audioCtx.currentTime + 0.45);
+                osc2.stop(audioCtx.currentTime + 0.45);
             } catch(e) {}
         }
 
+        /* Evil Villain Machine / Mandroid Speech Modulation */
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
@@ -832,28 +745,31 @@
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.add('speaking');
 
+            // Prepend villain machine persona phrasing
             const villainPhrases = [
-                "Directive acknowledged. ",
+                "Directive received. ",
                 "Mandroid system active. ",
-                "Target locked. ",
-                "Commencing maneuver. "
+                "Target acquired. ",
+                "Commencing maneuver. ",
+                "Obey command. "
             ];
             const evilText = text.length > 25 ? text : villainPhrases[Math.floor(Math.random() * villainPhrases.length)] + text;
 
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(evilText);
-                utterance.pitch = 0.1;
-                utterance.rate = 0.82;
+                utterance.pitch = 0.1;  /* Deep robot bass */
+                utterance.rate = 0.85;   /* Slow, sinister cadence */
                 utterance.volume = 1.0;
 
                 const voices = synth.getVoices();
+                /* Prefer robotic/male english voices if available */
                 const v = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Male') || v.name.includes('David') || v.name.includes('Daniel'))) || voices[0];
                 if (v) utterance.voice = v;
 
                 utterance.onend = () => btn.classList.remove('speaking');
                 utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
-            }, 160);
+            }, 180);
         }
 
         function requestLocationWithSafariFallback() {
@@ -923,7 +839,7 @@
                     iconSize: [28, 28], iconAnchor: [14, 14]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#a84f62', fillColor: '#a84f62', fillOpacity: 0.12, weight: 1 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#ff2244', fillColor: '#ff2244', fillOpacity: 0.08, weight: 0.8 }).addTo(map);
             }
         }
 
@@ -938,230 +854,52 @@
             }
         }
 
-        /* =====================================================
-           LIVE SEARCH SUGGESTIONS — FIXED
-           ===================================================== */
-
         function handleSearchInput(query) {
             const clearBtn = document.getElementById('searchClearBtn');
             clearBtn.style.display = query ? 'block' : 'none';
-
             clearTimeout(debounceTimer);
-
             if (!query || query.trim().length < 2) {
-                closeSuggestions();
+                document.getElementById('searchResults').classList.remove('active');
                 return;
             }
-
-            /* Only show loading if the query actually changed */
-            if (query !== lastQuery) {
-                lastQuery = query;
-                showSearchLoading();
-            }
-
             debounceTimer = setTimeout(() => {
-                fetchSuggestions(query.trim());
-            }, 200);
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
+            }, 300);
         }
 
-        function showSearchLoading() {
-            const dropdown = document.getElementById('searchResults');
-            dropdown.innerHTML = `
-                <div class="search-loading">
-                    <div class="search-spinner"></div>
-                    Scanning coordinates
-                </div>
-            `;
-            dropdown.classList.add('active');
-        }
-
-        async function fetchSuggestions(query) {
-            /* Cancel only the PREVIOUS network request, not the whole flow */
-            if (activeSearchController) {
-                try { activeSearchController.abort(); } catch(e) {}
-            }
-            activeSearchController = new AbortController();
-            const myController = activeSearchController;
-
-            try {
-                let url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=6&accept-language=en`;
-                if (userCoords) {
-                    const lat = userCoords.lat, lng = userCoords.lng;
-                    const viewbox = `${lng-0.3},${lat+0.3},${lng+0.3},${lat-0.3}`;
-                    url += `&viewbox=${viewbox}&bounded=0`;
-                }
-
-                let response = await fetch(url, {
-                    signal: myController.signal,
-                    headers: { 'Accept': 'application/json' }
-                });
-                let data = await response.json();
-
-                /* If the user already typed something else, discard this result */
-                if (activeSearchController !== myController) return;
-
-                if (!data || data.length === 0) {
-                    const fallbackUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=6&accept-language=en`;
-                    const fallbackResp = await fetch(fallbackUrl, {
-                        signal: myController.signal,
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    data = await fallbackResp.json();
-                    if (activeSearchController !== myController) return;
-                }
-
-                renderSearchResults(data || [], query);
-            } catch (err) {
-                if (err.name === 'AbortError') return;
-                if (activeSearchController !== myController) return;
-                renderSearchResults([], query);
-            }
-        }
-
-        function renderSearchResults(results, query = '') {
+        function renderSearchResults(results) {
             const dropdown = document.getElementById('searchResults');
             dropdown.innerHTML = '';
-            currentSuggestions = [];
-            highlightedSuggestionIndex = -1;
-
-            if (!results || results.length === 0) {
-                dropdown.innerHTML = `
-                    <div class="search-empty">
-                        <i class="fa-solid fa-radar" style="opacity:0.5;"></i>
-                        No targets located
-                    </div>
-                `;
-                dropdown.classList.add('active');
-                return;
-            }
-
-            results.forEach((res, index) => {
-                const nameParts = res.display_name.split(',');
-                const mainName = nameParts[0].trim();
-                const subName = nameParts.slice(1).join(',').trim();
-
+            if (results.length === 0) { dropdown.classList.remove('active'); return; }
+            results.forEach(res => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                item.dataset.index = index;
-                item.innerHTML = `
-                    <i class="fa-solid fa-location-dot"></i>
-                    <div class="search-item-text">
-                        <span class="search-item-main">${highlightMatch(mainName, query)}</span>
-                        <span class="search-item-sub">${subName || 'Target Sector'}</span>
-                    </div>
-                `;
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    selectSuggestion(res, mainName);
-                });
-                item.addEventListener('mouseenter', () => {
-                    highlightedSuggestionIndex = index;
-                    updateHighlight();
-                });
+                item.innerHTML = `<i class="fa-solid fa-location-crosshairs"></i> <span>${res.display_name}</span>`;
+                item.onclick = () => {
+                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+                    const name = res.display_name.split(',')[0];
+                    setDestination(latLng, name);
+                    dropdown.classList.remove('active');
+                    document.getElementById('searchInput').value = name;
+                    addRecent({ name, lat: latLng.lat, lng: latLng.lng });
+                };
                 dropdown.appendChild(item);
-
-                currentSuggestions.push({ data: res, name: mainName });
             });
-
             dropdown.classList.add('active');
-        }
-
-        function highlightMatch(text, query) {
-            if (!query) return escapeHtml(text);
-            const safeText = escapeHtml(text);
-            const safeQuery = escapeHtml(query);
-            const regex = new RegExp(`(${safeQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i');
-            return safeText.replace(regex, '<mark>$1</mark>');
-        }
-
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function selectSuggestion(res, mainName) {
-            const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
-            setDestination(latLng, mainName);
-            closeSuggestions();
-            document.getElementById('searchInput').value = mainName;
-            document.getElementById('searchClearBtn').style.display = 'block';
-            addRecent({ name: mainName, lat: latLng.lat, lng: latLng.lng });
-        }
-
-        function closeSuggestions() {
-            document.getElementById('searchResults').classList.remove('active');
-            currentSuggestions = [];
-            highlightedSuggestionIndex = -1;
-        }
-
-        function updateHighlight() {
-            const items = document.querySelectorAll('#searchResults .search-item');
-            items.forEach((el, i) => {
-                el.classList.toggle('highlighted', i === highlightedSuggestionIndex);
-            });
-        }
-
-        function handleSearchKeydown(event) {
-            const dropdown = document.getElementById('searchResults');
-            if (!dropdown.classList.contains('active') || currentSuggestions.length === 0) {
-                if (event.key === 'Enter') {
-                    const q = document.getElementById('searchInput').value.trim();
-                    if (q.length >= 2) fetchSuggestions(q);
-                }
-                return;
-            }
-
-            if (event.key === 'ArrowDown') {
-                event.preventDefault();
-                highlightedSuggestionIndex = Math.min(highlightedSuggestionIndex + 1, currentSuggestions.length - 1);
-                updateHighlight();
-                scrollHighlightedIntoView();
-            } else if (event.key === 'ArrowUp') {
-                event.preventDefault();
-                highlightedSuggestionIndex = Math.max(highlightedSuggestionIndex - 1, 0);
-                updateHighlight();
-                scrollHighlightedIntoView();
-            } else if (event.key === 'Enter') {
-                event.preventDefault();
-                if (highlightedSuggestionIndex >= 0 && currentSuggestions[highlightedSuggestionIndex]) {
-                    const s = currentSuggestions[highlightedSuggestionIndex];
-                    selectSuggestion(s.data, s.name);
-                }
-            } else if (event.key === 'Escape') {
-                closeSuggestions();
-            }
-        }
-
-        function scrollHighlightedIntoView() {
-            const items = document.querySelectorAll('#searchResults .search-item');
-            if (items[highlightedSuggestionIndex]) {
-                items[highlightedSuggestionIndex].scrollIntoView({ block: 'nearest' });
-            }
         }
 
         function searchCategory(cat) {
+            if (!userCoords) return;
             document.getElementById('searchInput').value = cat;
-            document.getElementById('searchClearBtn').style.display = 'block';
-            lastQuery = cat;
-            showSearchLoading();
-            fetchSuggestions(cat);
+            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
         }
 
         function clearSearchInput() {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchClearBtn').style.display = 'none';
-            lastQuery = '';
-            closeSuggestions();
+            document.getElementById('searchResults').classList.remove('active');
         }
-
-        /* =====================================================
-           ROUTING / MAP / NAV (unchanged)
-           ===================================================== */
 
         function setDestination(latLng, label = "Target Sector") {
             activeDestination = latLng;
@@ -1183,35 +921,13 @@
             panel.classList.add('active');
             container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Computing optimal trajectory</div>`;
 
-            let profile = 'driving';
-            if (travelMode === 'bike') profile = 'bike';
-            if (travelMode === 'foot') profile = 'foot';
-
-            const url = `https://router.project-osrm.org/route/v1/${profile}/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
+            const url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
 
             fetch(url)
                 .then(r => r.json())
                 .then(data => {
                     if (data.routes && data.routes.length > 0) {
-                        routesList = data.routes.map(r => {
-                            let hasToll = false;
-                            if (r.legs && r.legs[0] && r.legs[0].steps) {
-                                hasToll = r.legs[0].steps.some(step => {
-                                    const inst = (step.maneuver.instruction || '').toLowerCase();
-                                    const name = (step.name || '').toLowerCase();
-                                    return inst.includes('toll') || name.includes('toll') || name.includes('expressway') || name.includes('highway') || name.includes('e1') || name.includes('e2');
-                                });
-                            }
-                            return { ...r, hasToll };
-                        });
-
-                        let filteredRoutes = avoidTolls ? routesList.filter(r => !r.hasToll) : routesList;
-                        if (filteredRoutes.length === 0) {
-                            showToast("No toll-free route found. Showing all options.");
-                            filteredRoutes = routesList;
-                        }
-
-                        routesList = filteredRoutes;
+                        routesList = data.routes;
                         renderRouteCards(label);
                         selectRoute(0);
                         enableActionButtons();
@@ -1231,10 +947,7 @@
             routesList.forEach((r, idx) => {
                 const mins = Math.round(r.duration / 60);
                 const km = (r.distance / 1000).toFixed(1);
-
-                let primaryBadge = idx === 0 ? '<span class="route-badge badge-fast">Primary</span>' : '<span class="route-badge badge-free">Alt</span>';
-                let tollBadge = r.hasToll ? '<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> Toll</span>' : '<span class="route-badge badge-notoll"><i class="fa-solid fa-shield-halved"></i> Toll-Free</span>';
-
+                let badge = idx === 0 ? '<span class="route-badge badge-fast">Primary</span>' : '<span class="route-badge badge-free">Alternate</span>';
                 const card = document.createElement('div');
                 card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
                 card.id = `routeCard-${idx}`;
@@ -1243,12 +956,11 @@
                     <div>
                         <div class="route-card-title">
                             <span>${label}</span>
-                            ${primaryBadge}
-                            ${tollBadge}
+                            ${badge}
                         </div>
-                        <div class="route-card-sub"><i class="fa-regular fa-clock"></i> ${mins} min &nbsp;·&nbsp; <i class="fa-solid fa-route"></i> ${km} km</div>
+                        <div class="route-card-sub">${mins} min · ${km} km</div>
                     </div>
-                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-circle-check' : 'fa-circle'}" id="checkRoute-${idx}"></i>
+                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" id="checkRoute-${idx}" style="font-size:10px;"></i>
                 `;
                 container.appendChild(card);
             });
@@ -1261,25 +973,14 @@
                 const icon = document.getElementById(`checkRoute-${i}`);
                 if (card && icon) {
                     card.classList.toggle('selected', i === idx);
-                    icon.className = i === idx ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle';
+                    icon.className = i === idx ? 'fa-solid fa-check' : 'fa-solid fa-circle';
+                    icon.style.fontSize = '10px';
                 }
             });
             renderRouteOnMap(routesList[idx]);
         }
 
-        function toggleAvoidTolls() {
-            avoidTolls = !avoidTolls;
-            document.getElementById('tollToggleBtn').classList.toggle('active', avoidTolls);
-            document.getElementById('settingsTollToggle').classList.toggle('on', avoidTolls);
-            document.getElementById('tollBtnLabel').innerText = avoidTolls ? "Tolls Avoided" : "Avoid Tolls";
-
-            if (activeDestination) {
-                calculateRoutes("Target");
-            } else {
-                showToast(avoidTolls ? "Tolls Avoidance Active" : "Tolls Allowed");
-            }
-        }
-
+        /* Colorized Traffic Segments - Muted Steel Blue, Muted Amber, Muted Crimson */
         function renderRouteOnMap(routeData) {
             clearPolylines();
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
@@ -1294,26 +995,30 @@
                 const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
                 const jammedSegment = activeRouteCoordinates.slice(jamEnd);
 
+                // Muted Steel Blue for Clear
                 if (clearSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(clearSegment, { color: '#8a9d8c', weight: 7, opacity: 0.95, lineCap: 'round' }).addTo(map));
+                    currentRoutePolylines.push(L.polyline(clearSegment, {
+                        color: '#7094a8', weight: 6, opacity: 0.95
+                    }).addTo(map));
                 }
+                // Muted Amber for Moderate
                 if (moderateSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(moderateSegment, { color: '#b3a382', weight: 7, opacity: 0.95, lineCap: 'round' }).addTo(map));
+                    currentRoutePolylines.push(L.polyline(moderateSegment, {
+                        color: '#d4a359', weight: 6, opacity: 0.95
+                    }).addTo(map));
                 }
+                // Muted Crimson for Jammed
                 if (jammedSegment.length > 1) {
-                    currentRoutePolylines.push(L.polyline(jammedSegment, { color: '#8f4a5a', weight: 7, opacity: 0.95, lineCap: 'round' }).addTo(map));
+                    currentRoutePolylines.push(L.polyline(jammedSegment, {
+                        color: '#a83232', weight: 6, opacity: 0.95
+                    }).addTo(map));
                 }
             }
 
             map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
             const mins = Math.round(routeData.duration / 60);
             const km = (routeData.distance / 1000).toFixed(1);
-            const tollStatus = routeData.hasToll ? `<span style="color:var(--evil-crimson);"><i class="fa-solid fa-receipt"></i> Toll Road</span>` : `<span style="color:var(--sage-accent);"><i class="fa-solid fa-shield-halved"></i> Toll-Free</span>`;
-
-            document.getElementById('routeMetrics').innerHTML = `
-                <span><strong>ETA</strong> ${mins} min &nbsp;·&nbsp; <strong>DIST</strong> ${km} km</span>
-                ${tollStatus}
-            `;
+            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA</strong> ${mins} min &nbsp;&nbsp; <strong>DIST</strong> ${km} km</span>`;
 
             if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
         }
@@ -1474,7 +1179,7 @@
             const list = document.getElementById('recentsList');
             list.innerHTML = '';
             if (recents.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent targets logged</div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent targets</div>`;
                 return;
             }
             recents.forEach(r => {
@@ -1504,7 +1209,7 @@
             const list = document.getElementById('savedList');
             list.innerHTML = '';
             if (savedPlaces.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved target coordinates</div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved targets</div>`;
                 return;
             }
             savedPlaces.forEach(s => {
@@ -1573,7 +1278,6 @@
             recognition.onresult = (e) => {
                 const text = e.results[0][0].transcript;
                 document.getElementById('searchInput').value = text;
-                document.getElementById('searchClearBtn').style.display = 'block';
                 handleSearchInput(text);
                 micBtn.classList.remove('listening');
             };
