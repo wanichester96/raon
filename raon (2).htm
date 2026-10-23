@@ -16,7 +16,6 @@
 
     <style>
         :root {
-            /* Warm fall base — brown-charcoal */
             --bg-color: #0d0a08;
             --ink: #efe6d8;
             --ink-soft: rgba(239, 230, 216, 0.58);
@@ -29,9 +28,9 @@
             --accent-soft: rgba(239, 230, 216, 0.14);
 
             /* Muted fall traffic palette */
-            --traffic-clear: #8a9a7b;     /* warm sage */
-            --traffic-moderate: #c98a4b;  /* burnt amber */
-            --traffic-jammed: #7a3524;    /* deep rust */
+            --traffic-clear: #8a9a7b;
+            --traffic-moderate: #c98a4b;
+            --traffic-jammed: #7a3524;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -45,9 +44,9 @@
 
         #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
 
-        /* Warm fall filter on map tiles */
+        /* Muted colorful map — keep some natural color, but dark and warm */
         .dark-tiles .leaflet-tile {
-            filter: grayscale(0.55) brightness(0.62) contrast(1.05) sepia(0.35) hue-rotate(-10deg) saturate(0.85);
+            filter: brightness(0.7) contrast(1.08) saturate(0.55) sepia(0.18) hue-rotate(-8deg);
         }
         .leaflet-container { background: var(--bg-color) !important; font-family: inherit; }
 
@@ -177,6 +176,21 @@
         }
         .mode-btn.active { background: var(--accent-soft); color: var(--ink); }
 
+        /* NEW — Avoid Tolls toggle button */
+        .toll-toggle-btn {
+            background: transparent; border: 1px solid var(--hairline);
+            color: var(--ink-soft); padding: 8px 14px; border-radius: 2px;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; transition: all 0.3s ease;
+        }
+        .toll-toggle-btn:hover { border-color: var(--hairline-strong); color: var(--ink); }
+        .toll-toggle-btn.active {
+            background: var(--traffic-clear);
+            color: #0d0a08;
+            border-color: var(--traffic-clear);
+        }
+
         .ultron-voice-btn {
             background: transparent; border: 1px solid var(--hairline);
             color: var(--ink-soft); padding: 8px 14px; border-radius: 2px;
@@ -274,6 +288,8 @@
         }
         .badge-fast { border-color: var(--ink); color: var(--ink); }
         .badge-free { border-color: var(--hairline-strong); color: var(--ink-soft); }
+        .badge-toll { border-color: var(--traffic-jammed); color: var(--traffic-jammed); }
+        .badge-notoll { border-color: var(--traffic-clear); color: var(--traffic-clear); }
         .route-card-sub {
             font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 400;
             letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px;
@@ -465,6 +481,7 @@
         @media (max-width: 480px) {
             .mode-btn span { display: none; }
             .ultron-voice-btn span { display: none; }
+            .toll-toggle-btn span { display: none; }
             .overlay-title { font-size: 26px; }
         }
     </style>
@@ -500,6 +517,11 @@
                 <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>Bike</span></button>
                 <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
             </div>
+
+            <button class="toll-toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
+                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">Tolls</span>
+            </button>
+
             <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
                 <i class="fa-solid fa-volume-high"></i> <span>Voice</span>
             </button>
@@ -594,6 +616,13 @@
                 </div>
                 <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
             </div>
+            <div class="settings-row">
+                <div>
+                    <div class="label">Avoid Tolls</div>
+                    <div class="sub">Prefer routes without toll booths</div>
+                </div>
+                <div class="toggle-switch" id="settingsTollToggle" onclick="toggleAvoidTolls()"></div>
+            </div>
             <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
                 <div>
                     <div class="label">Home Address</div>
@@ -619,7 +648,7 @@
         let activeDestination = null, destMarker = null;
         let watchId = null, simInterval = null;
         let isNavigating = false, isSimulating = false, isTrackingCamera = true;
-        let ultronEnabled = true, synth = window.speechSynthesis, audioCtx = null;
+        let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis, audioCtx = null;
         let travelMode = 'car';
 
         let routesList = [];
@@ -671,7 +700,6 @@
             } catch(e) {}
         }
 
-        /* Deeper, slower metallic pulse */
         function playUltronMetallicPulse() {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -681,58 +709,39 @@
                 const filter = audioCtx.createBiquadFilter();
                 const gain = audioCtx.createGain();
                 osc1.type = 'sawtooth'; osc2.type = 'square';
-                osc1.frequency.setValueAtTime(36, audioCtx.currentTime);
-                osc2.frequency.setValueAtTime(72, audioCtx.currentTime);
+                osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(280, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.28, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.55);
+                filter.frequency.setValueAtTime(320, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
                 osc1.connect(filter); osc2.connect(filter);
                 filter.connect(gain); gain.connect(audioCtx.destination);
                 osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.55);
-                osc2.stop(audioCtx.currentTime + 0.55);
+                osc1.stop(audioCtx.currentTime + 0.4);
+                osc2.stop(audioCtx.currentTime + 0.4);
             } catch(e) {}
         }
 
-        /* Deeper, slower voice */
+        /* Voice reverted to previous pitch/rate */
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
             playUltronMetallicPulse();
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.add('speaking');
-
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.pitch = 0.05;   /* lowest possible */
-                utterance.rate = 0.72;    /* slow, ominous */
+                utterance.pitch = 0.4;
+                utterance.rate = 0.92;
                 utterance.volume = 1.0;
-
                 const voices = synth.getVoices();
-                /* Prefer the deepest male voice available */
-                const preferredVoices = [
-                    'Google UK English Male',
-                    'Microsoft David',
-                    'Microsoft Guy',
-                    'Daniel',
-                    'Alex',
-                    'Male'
-                ];
-                let chosen = null;
-                for (const name of preferredVoices) {
-                    chosen = voices.find(v => v.name === name || v.name.includes(name));
-                    if (chosen) break;
-                }
-                if (!chosen) {
-                    chosen = voices.find(v => v.lang && v.lang.startsWith('en') && v.name.toLowerCase().includes('male')) || voices[0];
-                }
-                if (chosen) utterance.voice = chosen;
-
+                const v = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                if (v) utterance.voice = v;
                 utterance.onend = () => btn.classList.remove('speaking');
                 utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
-            }, 220);
+            }, 180);
         }
 
         function requestLocationWithSafariFallback() {
@@ -890,7 +899,30 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.routes && data.routes.length > 0) {
-                        routesList = data.routes;
+                        /* Tag each route with hasToll flag */
+                        routesList = data.routes.map(r => {
+                            let hasToll = false;
+                            if (r.legs && r.legs[0] && r.legs[0].steps) {
+                                hasToll = r.legs[0].steps.some(step => {
+                                    const inst = (step.maneuver.instruction || '').toLowerCase();
+                                    const name = (step.name || '').toLowerCase();
+                                    return inst.includes('toll') || name.includes('toll') ||
+                                           name.includes('expressway') || name.includes('highway') ||
+                                           name.includes('e1') || name.includes('e2') ||
+                                           name.includes('plaza') || name.includes('lebuhraya');
+                                });
+                            }
+                            return { ...r, hasToll };
+                        });
+
+                        /* If avoidTolls is on, filter to toll-free routes */
+                        let filtered = avoidTolls ? routesList.filter(r => !r.hasToll) : routesList;
+                        if (filtered.length === 0) {
+                            showToast("No toll-free route — showing all");
+                            filtered = routesList;
+                        }
+
+                        routesList = filtered;
                         renderRouteCards(label);
                         selectRoute(0);
                         enableActionButtons();
@@ -910,7 +942,11 @@
             routesList.forEach((r, idx) => {
                 const mins = Math.round(r.duration / 60);
                 const km = (r.distance / 1000).toFixed(1);
-                let badge = idx === 0 ? '<span class="route-badge badge-fast">Fastest</span>' : '<span class="route-badge badge-free">Alternate</span>';
+                let primaryBadge = idx === 0 ? '<span class="route-badge badge-fast">Fastest</span>' : '<span class="route-badge badge-free">Alternate</span>';
+                let tollBadge = r.hasToll
+                    ? '<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> Toll</span>'
+                    : '<span class="route-badge badge-notoll"><i class="fa-solid fa-shield-halved"></i> Toll-Free</span>';
+
                 const card = document.createElement('div');
                 card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
                 card.id = `routeCard-${idx}`;
@@ -919,7 +955,8 @@
                     <div>
                         <div class="route-card-title">
                             <span>${label}</span>
-                            ${badge}
+                            ${primaryBadge}
+                            ${tollBadge}
                         </div>
                         <div class="route-card-sub">${mins} min · ${km} km</div>
                     </div>
@@ -943,7 +980,19 @@
             renderRouteOnMap(routesList[idx]);
         }
 
-        /* Muted fall traffic segments */
+        function toggleAvoidTolls() {
+            avoidTolls = !avoidTolls;
+            const btn = document.getElementById('tollToggleBtn');
+            const label = document.getElementById('tollBtnLabel');
+            const settingsToggle = document.getElementById('settingsTollToggle');
+            btn.classList.toggle('active', avoidTolls);
+            settingsToggle.classList.toggle('on', avoidTolls);
+            label.innerText = avoidTolls ? "No Tolls" : "Tolls";
+            showToast(avoidTolls ? "Avoiding tolls" : "Tolls allowed");
+            if (activeDestination) calculateRoutes("Target");
+        }
+
+        /* Muted colorful traffic segments */
         function renderRouteOnMap(routeData) {
             clearPolylines();
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
@@ -958,19 +1007,16 @@
                 const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
                 const jammedSegment = activeRouteCoordinates.slice(jamEnd);
 
-                /* Warm sage — clear */
                 if (clearSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(clearSegment, {
                         color: '#8a9a7b', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
-                /* Burnt amber — moderate */
                 if (moderateSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(moderateSegment, {
                         color: '#c98a4b', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
-                /* Deep rust — jammed */
                 if (jammedSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(jammedSegment, {
                         color: '#7a3524', weight: 6, opacity: 0.95
@@ -981,7 +1027,14 @@
             map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
             const mins = Math.round(routeData.duration / 60);
             const km = (routeData.distance / 1000).toFixed(1);
-            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA</strong> ${mins} min &nbsp;&nbsp; <strong>DIST</strong> ${km} km</span>`;
+            const tollStatus = routeData.hasToll
+                ? `<span style="color:var(--traffic-jammed);"><i class="fa-solid fa-receipt"></i> Toll</span>`
+                : `<span style="color:var(--traffic-clear);"><i class="fa-solid fa-shield-halved"></i> Toll-Free</span>`;
+
+            document.getElementById('routeMetrics').innerHTML = `
+                <span><strong>ETA</strong> ${mins} min &nbsp; <strong>DIST</strong> ${km} km</span>
+                ${tollStatus}
+            `;
 
             if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
         }
