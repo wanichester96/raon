@@ -1,692 +1,1689 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RAON Navigation • Vogue Glass Edition</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts: Inter & Syncopate for High-End Vogue Aesthetic -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>RAON · VOGUE NAV</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        vogueBlack: '#050505',
-                        vogueDark: '#0e0e10',
-                        vogueGrey: '#1a1a1e',
-                        vogueLightGrey: '#2b2b30',
-                        vogueWhite: '#fcfcfc',
-                        vogueSilver: '#a1a1aa',
-                        vogueAccent: '#ffffff',
-                        vogueEmerald: '#10b981',
-                        vogueAmber: '#f59e0b',
-                        vogueCrimson: '#ef4444'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        vogue: ['Syncopate', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                }
-            }
-        }
-    </script>
-    
+
     <style>
-        body {
-            background-color: #050505;
-            color: #fcfcfc;
+        :root {
+            /* Vogue monochrome + glass */
+            --bg: #060606;
+            --bg-deep: #020202;
+            --ink: #ffffff;
+            --ink-soft: rgba(255, 255, 255, 0.70);
+            --ink-faint: rgba(255, 255, 255, 0.38);
+
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-strong: rgba(255, 255, 255, 0.10);
+            --glass-deep: rgba(10, 10, 10, 0.55);
+            --glass-black: rgba(0, 0, 0, 0.45);
+            --hairline: rgba(255, 255, 255, 0.12);
+            --hairline-strong: rgba(255, 255, 255, 0.28);
+
+            --white: #ffffff;
+            --white-soft: rgba(255, 255, 255, 0.15);
+            --white-glow: rgba(255, 255, 255, 0.10);
+
+            --accent: #ffffff;
+            --accent-dim: rgba(255, 255, 255, 0.55);
+
+            /* Traffic monochrome */
+            --traffic-clear: rgba(255, 255, 255, 0.9);
+            --traffic-moderate: rgba(255, 255, 255, 0.5);
+            --traffic-jammed: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            height: 100%; width: 100%; overflow: hidden;
+            background: var(--bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--ink);
+            position: relative;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+
+        /* Subtle grain / noise overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.03 0"/></filter><rect width="120" height="120" filter="url(%23n)"/></svg>');
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.6;
+            mix-blend-mode: overlay;
+        }
+
+        /* Soft monochrome ambient */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: -30%;
+            background:
+                radial-gradient(circle at 30% 20%, rgba(255,255,255,0.04) 0%, transparent 50%),
+                radial-gradient(circle at 80% 90%, rgba(255,255,255,0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: ambientFloat 18s ease-in-out infinite alternate;
+        }
+        @keyframes ambientFloat {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0.9; transform: scale(1.05); }
+        }
+
+        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-deep); }
+
+        /* Monochrome map — high contrast black & white */
+        .dark-tiles .leaflet-tile {
+            filter: grayscale(1) brightness(0.55) contrast(1.6) invert(1) brightness(0.65);
+        }
+        .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
+
+        /* Glass panel — refined */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
+            border: 1px solid var(--hairline);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* White corner accents */
+        .glass-panel::before,
+        .glass-panel::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.5;
+        }
+        .glass-panel::before {
+            top: -1px; left: -1px;
+            border-top: 1.5px solid var(--white);
+            border-left: 1.5px solid var(--white);
+        }
+        .glass-panel::after {
+            bottom: -1px; right: -1px;
+            border-bottom: 1.5px solid var(--white);
+            border-right: 1.5px solid var(--white);
+        }
+
+        .top-container {
+            position: absolute;
+            top: calc(env(safe-area-inset-top, 0px) + 12px);
+            left: 12px; right: 12px;
+            z-index: 2000;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .search-box-panel {
+            padding: 6px;
+            display: flex; align-items: center; gap: 8px;
+            position: relative; z-index: 2500;
+        }
+
+        .search-input-wrapper {
+            flex: 1; display: flex; align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            border-radius: 3px; padding: 10px 12px; gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .search-input-wrapper:focus-within {
+            border-color: var(--hairline-strong);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+        }
+        .search-input-wrapper input {
+            background: transparent; border: none; outline: none; color: var(--ink);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px; width: 100%; font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+        .search-input-wrapper input::placeholder {
+            color: var(--ink-faint); letter-spacing: 1.2px; font-weight: 300;
+        }
+
+        .mic-btn {
+            background: transparent;
+            border: 1px solid var(--hairline);
+            color: var(--ink-soft);
+            width: 32px; height: 32px; border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 12px; transition: all 0.25s ease; flex-shrink: 0;
+        }
+        .mic-btn:hover {
+            border-color: var(--white);
+            color: var(--white);
+            box-shadow: 0 0 20px rgba(255,255,255,0.08);
+        }
+        .mic-btn.listening {
+            background: rgba(255,255,255,0.1); color: var(--white); border-color: var(--white);
+            animation: micPulse 1s infinite alternate;
+        }
+        @keyframes micPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.15); }
+            100% { box-shadow: 0 0 0 8px transparent; }
+        }
+
+        .search-results-dropdown {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+            max-height: 280px; overflow-y: auto;
+            display: none; flex-direction: column; z-index: 4000; padding: 4px;
+            background: var(--glass-deep);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid var(--hairline-strong);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+            border-radius: 4px;
+        }
+        .search-results-dropdown.active { display: flex; }
+
+        .search-item {
+            padding: 12px 14px; cursor: pointer; font-size: 13px;
+            display: flex; align-items: center; gap: 12px;
+            transition: background 0.2s ease; color: var(--ink-soft);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            font-weight: 300;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover, .search-item:active {
+            background: rgba(255,255,255,0.06); color: var(--white);
+            padding-left: 16px;
+        }
+        .search-item i { color: var(--ink-faint); font-size: 11px; }
+
+        .shortcuts-row {
+            display: flex; gap: 6px; overflow-x: auto;
+            padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
+        }
+        .shortcuts-row::-webkit-scrollbar { display: none; }
+
+        .chip-btn {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--hairline); border-radius: 3px;
+            padding: 8px 14px; font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500; letter-spacing: 1.8px; text-transform: uppercase;
+            color: var(--ink-soft); white-space: nowrap; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.25s ease;
+        }
+        .chip-btn:hover, .chip-btn:active {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--hairline-strong);
+            color: var(--white);
+        }
+        .chip-btn i { color: var(--ink-faint); font-size: 10px; }
+
+        .header-controls-bar {
+            padding: 6px; display: flex; align-items: center;
+            justify-content: space-between; gap: 6px; z-index: 1000;
         }
 
-        /* High-End Glassmorphism UI */
-        .vogue-glass {
-            background: rgba(14, 14, 16, 0.72);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        .mode-selector {
+            display: flex; background: rgba(255,255,255,0.02);
+            border: 1px solid var(--hairline); border-radius: 3px; padding: 3px; gap: 2px;
+        }
+        .mode-btn {
+            background: transparent; border: none; color: var(--ink-faint);
+            padding: 6px 10px; border-radius: 2px;
+            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 1.8px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.25s ease; display: flex; align-items: center; gap: 6px;
+        }
+        .mode-btn.active {
+            background: rgba(255,255,255,0.10);
+            color: var(--white);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
         }
 
-        .vogue-card {
-            background: rgba(22, 22, 26, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        .toll-toggle-btn {
+            background: transparent; border: 1px solid var(--hairline);
+            color: var(--ink-soft); padding: 8px 14px; border-radius: 3px;
+            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 1.8px; text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; transition: all 0.25s ease;
         }
-        .vogue-card:hover {
-            border-color: rgba(255, 255, 255, 0.25);
+        .toll-toggle-btn:hover { border-color: var(--hairline-strong); color: var(--ink); }
+        .toll-toggle-btn.active {
+            background: rgba(255,255,255,0.08);
+            color: var(--white);
+            border-color: var(--white);
+            box-shadow: 0 0 24px rgba(255,255,255,0.06);
         }
 
-        /* Pure Vogue Mono Buttons */
-        .vogue-btn {
-            background: #fcfcfc;
-            color: #050505;
-            font-family: 'Syncopate', sans-serif;
+        .ultron-voice-btn {
+            background: transparent; border: 1px solid var(--hairline);
+            color: var(--ink-soft); padding: 8px 14px; border-radius: 3px;
+            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 1.8px; text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; transition: all 0.25s ease; position: relative;
+        }
+        .ultron-voice-btn.active {
+            background: rgba(255,255,255,0.08);
+            color: var(--white);
+            border-color: var(--white);
+            box-shadow: 0 0 24px rgba(255,255,255,0.06);
+        }
+        .ultron-voice-btn.speaking { animation: voicePulse 0.7s infinite alternate; }
+        @keyframes voicePulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.12); }
+            100% { box-shadow: 0 0 16px rgba(255,255,255,0.12); }
+        }
+
+        .turn-banner {
+            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 148px);
+            left: 12px; right: 12px; z-index: 999; padding: 16px 20px;
+            display: none; align-items: center; gap: 16px;
+            background: var(--glass-deep);
+            backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid var(--hairline-strong); border-radius: 4px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .turn-banner.active { display: flex; }
+
+        .turn-icon-box {
+            width: 44px; height: 44px; border-radius: 3px;
+            background: rgba(255,255,255,0.06); border: 1px solid var(--hairline-strong);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: var(--white); flex-shrink: 0;
+        }
+        .turn-details { flex: 1; min-width: 0; }
+        .turn-instruction {
+            font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
+            color: var(--white); letter-spacing: 0.02em; line-height: 1.3;
+            text-transform: uppercase;
+        }
+        .turn-distance {
+            font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 300;
+            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint); margin-top: 6px;
+        }
+
+        .speed-badge {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
+            left: 12px; z-index: 999; padding: 12px 18px;
+            display: flex; align-items: center; gap: 12px;
+            font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+            letter-spacing: 2.2px; text-transform: uppercase; color: var(--ink-faint);
+        }
+        .speed-value {
+            font-family: 'Inter', sans-serif; font-size: 24px;
+            color: var(--white); letter-spacing: -0.02em; font-weight: 300;
+        }
+        .speed-badge i { color: var(--ink-faint); font-size: 12px; }
+
+        .side-controls {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
+            right: 12px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
+        }
+        .icon-circle-btn {
+            width: 40px; height: 40px; border-radius: 3px;
+            border: 1px solid var(--hairline); background: var(--glass);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; transition: all 0.25s ease;
+        }
+        .icon-circle-btn:hover {
+            background: rgba(255,255,255,0.08); border-color: var(--white); color: var(--white);
+        }
+
+        .recenter-pill {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 1001;
+            display: none; align-items: center; gap: 8px; padding: 10px 20px;
+            background: var(--glass-deep); color: var(--ink-soft);
+            border: 1px solid var(--hairline-strong); border-radius: 3px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            letter-spacing: 2.2px; text-transform: uppercase;
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+        }
+        .recenter-pill.show { display: flex; }
+        .icon-circle-btn.following { color: var(--white); border-color: var(--white); box-shadow: 0 0 24px rgba(255,255,255,0.06); }
+
+        .route-selection-panel {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
+            left: 12px; right: 12px; z-index: 1000; padding: 10px;
+            display: none; flex-direction: column; gap: 6px;
+            max-height: 38vh; overflow-y: auto;
+        }
+        .route-selection-panel.active { display: flex; }
+
+        .route-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--hairline); border-radius: 3px;
+            padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; transition: all 0.25s ease; gap: 12px;
+        }
+        .route-card:hover {
+            border-color: var(--hairline-strong);
+            background: rgba(255,255,255,0.05);
+        }
+        .route-card.selected {
+            border-color: var(--white);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 24px rgba(255,255,255,0.04);
+        }
+        .route-card-title {
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+            display: flex; align-items: center; gap: 8px; color: var(--white); letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        .route-badge {
+            font-family: 'DM Mono', monospace; font-size: 8px; font-weight: 400;
+            letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 8px;
+            border-radius: 2px; border: 1px solid var(--hairline-strong);
+            color: var(--ink-soft); background: transparent;
+        }
+        .badge-fast { border-color: var(--white); color: var(--white); background: rgba(255,255,255,0.08); }
+        .badge-free { border-color: var(--hairline-strong); color: var(--ink-soft); }
+        .badge-toll { border-color: var(--white); color: var(--white); background: rgba(255,255,255,0.06); }
+        .badge-notoll { border-color: var(--hairline-strong); color: var(--ink-soft); }
+        .route-card-sub {
+            font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+            letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-faint); margin-top: 6px;
+        }
+        .route-card i { color: var(--ink-faint); font-size: 12px; }
+        .route-card.selected i { color: var(--white); }
+
+        .bottom-bar {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
+            left: 12px; right: 12px; z-index: 1000; padding: 14px 16px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .action-buttons { display: flex; gap: 6px; width: 100%; }
+
+        .btn {
+            border: 1px solid var(--hairline); padding: 13px 16px; border-radius: 3px;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+            letter-spacing: 2.2px; text-transform: uppercase; color: var(--ink-soft);
+            background: transparent; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.25s ease; flex: 1;
+        }
+        .btn:hover {
+            border-color: var(--white);
+            color: var(--white);
+            background: rgba(255,255,255,0.06);
+        }
+        .btn-primary {
+            background: var(--white);
+            color: var(--bg);
+            border-color: var(--white);
             font-weight: 700;
-            letter-spacing: 0.1em;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
         }
-        .vogue-btn:hover {
-            background: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 28px rgba(255, 255, 255, 0.3);
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.9);
+            color: var(--bg);
+        }
+        .btn-secondary { background: transparent; }
+        .btn-danger {
+            background: transparent;
+            border-color: var(--hairline-strong);
+            color: var(--ink-soft);
+        }
+        .btn-danger:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--white);
+            color: var(--white);
+        }
+        .btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+        #routeMetrics {
+            font-family: 'DM Mono', monospace; font-size: 9px;
+            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint);
+        }
+        #routeMetrics strong { color: var(--white); font-weight: 400; }
+
+        .user-location-marker { position: relative; width: 28px; height: 28px; }
+        .user-dot {
+            width: 14px; height: 14px; background: var(--white);
+            border: 2px solid var(--bg); border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.25);
+            position: absolute; top: 7px; left: 7px; z-index: 2;
+        }
+        .user-pulse {
+            width: 40px; height: 40px;
+            background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+            border-radius: 50%; position: absolute; top: -6px; left: -6px;
+            animation: pulse-ring 2.4s infinite ease-out;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.3); opacity: 0.8; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .dest-pin-icon {
+            font-size: 26px; color: var(--white);
+            filter: drop-shadow(0 0 12px rgba(255,255,255,0.4));
+        }
+        .leaflet-routing-container { display: none !important; }
+
+        /* Toll booth marker */
+        .toll-marker-icon {
+            color: var(--white);
+            font-size: 18px;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(255,255,255,0.15);
         }
 
-        .vogue-btn-dark {
-            background: rgba(255, 255, 255, 0.07);
-            color: #fcfcfc;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
+        .toast-msg {
+            position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
+            left: 50%; transform: translateX(-50%);
+            background: var(--glass-deep); backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
+            border: 1px solid var(--hairline-strong); color: var(--white);
+            padding: 10px 22px; border-radius: 3px;
+            font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); white-space: nowrap;
+        }
+        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
+
+        .tab-bar {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+            left: 12px; right: 12px; z-index: 1100;
+            display: flex; align-items: center; justify-content: space-around;
+            padding: 8px; border-radius: 4px;
+        }
+        .tab-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: transparent; border: none; color: var(--ink-faint);
+            padding: 6px 0; font-family: 'DM Mono', monospace;
+            font-size: 8px; font-weight: 300; letter-spacing: 1.8px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.25s ease; border-radius: 2px;
+        }
+        .tab-btn i { font-size: 14px; }
+        .tab-btn.active {
+            color: var(--white);
+        }
+
+        .overlay-panel {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 3000; display: none;
+            background: rgba(6, 6, 6, 0.97);
+            backdrop-filter: blur(32px) saturate(200%); -webkit-backdrop-filter: blur(32px) saturate(200%);
+            padding: calc(env(safe-area-inset-top, 0px) + 32px) 20px calc(env(safe-area-inset-bottom, 0px) + 90px);
+            animation: fadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .overlay-panel.active { display: flex; flex-direction: column; }
+
+        .overlay-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 28px; padding-bottom: 18px;
+            border-bottom: 1px solid var(--hairline);
+        }
+        .overlay-title {
+            font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 300;
+            letter-spacing: 0.08em; color: var(--white); text-transform: uppercase;
+        }
+        .overlay-close {
+            width: 36px; height: 36px; border-radius: 3px; background: transparent;
+            border: 1px solid var(--hairline); color: var(--ink-soft);
+            font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: all 0.25s ease;
         }
-        .vogue-btn-dark:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.4);
-            color: #ffffff;
+        .overlay-close:hover {
+            border-color: var(--white); color: var(--white);
         }
 
-        .vogue-input {
-            background: rgba(5, 5, 5, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fcfcfc;
-            transition: all 0.25s ease;
-        }
-        .vogue-input:focus {
-            border-color: #ffffff;
-            outline: none;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        .overlay-content {
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #2b2b30; border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
-
-        @keyframes pulse-white {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.96); }
+        .list-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--hairline); border-radius: 3px;
+            padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+            cursor: pointer; transition: all 0.25s ease;
         }
-        .animate-vogue-pulse { animation: pulse-white 2.5s infinite ease-in-out; }
+        .list-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--hairline-strong);
+        }
+        .list-icon {
+            width: 36px; height: 36px; border-radius: 3px; background: rgba(255,255,255,0.04);
+            color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0; border: 1px solid var(--hairline);
+        }
+        .list-main { flex: 1; min-width: 0; }
+        .list-title {
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400;
+            color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            letter-spacing: 0.02em;
+        }
+        .list-sub {
+            font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+            letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-faint);
+            margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .list-action {
+            width: 32px; height: 32px; border-radius: 3px; background: transparent;
+            color: var(--ink-soft); border: 1px solid var(--hairline);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 11px; flex-shrink: 0; transition: all 0.25s ease;
+        }
+        .list-action:hover {
+            color: var(--white); border-color: var(--white); background: rgba(255,255,255,0.06);
+        }
+
+        .empty-state {
+            text-align: center; color: var(--ink-faint); padding: 60px 20px;
+            font-family: 'DM Mono', monospace; font-size: 11px; line-height: 1.8;
+            letter-spacing: 1.2px; font-weight: 300;
+        }
+        .empty-state i { font-size: 32px; display: block; margin-bottom: 20px; opacity: 0.3; color: var(--ink-faint); }
+
+        .settings-row {
+            display: flex; align-items: center; justify-content: space-between; padding: 18px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--hairline); border-radius: 3px; transition: all 0.25s ease;
+        }
+        .settings-row[onclick]:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--hairline-strong);
+        }
+        .settings-row .label {
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; color: var(--white);
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .settings-row .sub {
+            font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+            letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-faint); margin-top: 6px;
+        }
+
+        .toggle-switch {
+            width: 42px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.06);
+            border: 1px solid var(--hairline); position: relative; cursor: pointer; transition: all 0.25s ease; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--ink-faint); transition: all 0.25s ease;
+        }
+        .toggle-switch.on {
+            background: rgba(255,255,255,0.10);
+            border-color: var(--white);
+        }
+        .toggle-switch.on::after {
+            transform: translateX(18px);
+            background: var(--white);
+        }
+
+        .route-loading {
+            display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
+            font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+            letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-soft);
+        }
+        .spinner {
+            width: 14px; height: 14px; border: 1.5px solid var(--hairline);
+            border-top-color: var(--white); border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .mode-btn span { display: none; }
+            .ultron-voice-btn span { display: none; }
+            .toll-toggle-btn span { display: none; }
+            .overlay-title { font-size: 18px; }
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between select-none overflow-hidden bg-vogueBlack text-vogueWhite">
+<body class="dark-tiles">
 
-    <!-- Top Navigation Glass Header -->
-    <header class="vogue-glass border-b border-white/10 px-6 py-4 flex items-center justify-between z-30">
-        <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 rounded-full bg-vogueWhite text-vogueBlack flex items-center justify-center font-vogue font-bold text-lg shadow-[0_0_20px_rgba(255,255,255,0.4)]">
-                RN
-            </div>
-            <div>
-                <h1 class="font-vogue text-sm tracking-[0.2em] font-bold text-vogueWhite uppercase">RAON NAV • VOGUE EDITION</h1>
-                <p class="font-mono text-[10px] text-vogueSilver tracking-widest uppercase">LANE ASSIST & REAL-TIME TRAFFIC INTELLIGENCE</p>
-            </div>
-        </div>
+    <div id="toast" class="toast-msg">RAON · VOGUE NAV</div>
 
-        <div class="flex items-center space-x-4">
-            <!-- Real-Time Traffic & Toll Badge -->
-            <div class="hidden md:flex items-center space-x-3 vogue-card px-4 py-2 rounded-full text-xs border border-white/10">
-                <span id="liveTrafficStatus" class="inline-block w-2 h-2 rounded-full bg-vogueEmerald animate-pulse"></span>
-                <span class="text-vogueWhite font-mono text-[11px] uppercase tracking-wider">LIVE TRAFFIC: <strong id="trafficLevelText" class="text-vogueEmerald font-bold">NOMINAL FLOW</strong></span>
-            </div>
-
-            <!-- Voice Toggle with Upgraded Natural Male Robot Voice -->
-            <button id="voiceToggleBtn" onclick="toggleVoice()" class="vogue-btn-dark px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider flex items-center space-x-2 border">
-                <i id="voiceIcon" class="fa-solid fa-robot text-vogueWhite"></i>
-                <span id="voiceStatusText">VOICE: ROBOT MALE</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Navigation Interface -->
-    <main class="flex-1 flex flex-col lg:flex-row relative overflow-hidden">
-        
-        <!-- Left Sidebar Panel -->
-        <aside class="w-full lg:w-[420px] vogue-glass border-r border-white/10 p-6 flex flex-col justify-between z-20 overflow-y-auto space-y-6">
-            <div class="space-y-5">
-                
-                <!-- Destination Panel -->
-                <div class="vogue-card p-5 rounded-2xl space-y-4">
-                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                        <span class="font-vogue text-xs font-bold tracking-widest uppercase text-vogueWhite">ROUTE SETUP</span>
-                        <i class="fa-solid fa-sliders text-vogueSilver text-xs"></i>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-[10px] font-mono uppercase text-vogueSilver tracking-wider mb-1">ORIGIN</label>
-                            <div class="flex items-center vogue-input px-3 py-2.5 rounded-xl text-xs font-mono">
-                                <i class="fa-solid fa-location-crosshairs text-vogueWhite mr-2.5"></i>
-                                <span id="currentLocText" class="truncate text-vogueWhite">Johor Bahru Central Hub</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-mono uppercase text-vogueSilver tracking-wider mb-1">DESTINATION</label>
-                            <div class="relative">
-                                <input type="text" id="destInput" value="Senai International Airport" class="w-full vogue-input px-3 py-2.5 rounded-xl text-xs font-mono pr-10">
-                                <button onclick="calculateRoute()" class="absolute right-1 top-1 bottom-1 px-3 bg-vogueWhite text-vogueBlack rounded-lg hover:bg-white transition text-xs font-bold">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Presets -->
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <button onclick="setDestination('Senai International Airport')" class="vogue-btn-dark py-2 px-3 rounded-lg text-[10px] font-mono truncate">
-                                Senai Airport
-                            </button>
-                            <button onclick="setDestination('Puteri Harbour Marina')" class="vogue-btn-dark py-2 px-3 rounded-lg text-[10px] font-mono truncate">
-                                Puteri Harbour
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Route Telemetry & Toll Details -->
-                <div class="vogue-card p-5 rounded-2xl space-y-4">
-                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                        <span class="font-vogue text-xs font-bold tracking-widest uppercase text-vogueWhite">ROUTE TELEMETRY</span>
-                        <span id="routeConditionBadge" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-vogueWhite/10 text-vogueWhite border border-white/20">OPTIMAL</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-vogueBlack/60 p-3 rounded-xl border border-white/5">
-                            <div class="text-[9px] font-mono text-vogueSilver uppercase tracking-wider">EST. TIME</div>
-                            <div id="statTime" class="text-sm font-bold text-vogueWhite font-mono mt-0.5">24 MIN</div>
-                        </div>
-                        <div class="bg-vogueBlack/60 p-3 rounded-xl border border-white/5">
-                            <div class="text-[9px] font-mono text-vogueSilver uppercase tracking-wider">DISTANCE</div>
-                            <div id="statDist" class="text-sm font-bold text-vogueWhite font-mono mt-0.5">28.4 KM</div>
-                        </div>
-                        <div class="bg-vogueBlack/60 p-3 rounded-xl border border-white/5">
-                            <div class="text-[9px] font-mono text-vogueSilver uppercase tracking-wider">TOLLS</div>
-                            <div id="statTolls" class="text-sm font-bold text-vogueWhite font-mono mt-0.5">1 PLAZA</div>
-                        </div>
-                    </div>
-
-                    <!-- Toll Gate Marker Alert Box -->
-                    <div id="tollNoticeBox" class="bg-vogueBlack/80 border border-white/20 p-3 rounded-xl flex items-center justify-between text-xs font-mono">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-vogueWhite text-vogueBlack flex items-center justify-center font-bold">
-                                <i class="fa-solid fa-receipt text-xs"></i>
-                            </div>
-                            <div>
-                                <div class="text-[10px] text-vogueSilver uppercase">TOLL BOOTH EN ROUTE</div>
-                                <div id="tollGateName" class="text-vogueWhite font-bold">Senai Utara Toll Plaza</div>
-                            </div>
-                        </div>
-                        <span id="tollGateFee" class="font-bold text-vogueWhite bg-vogueWhite/10 px-2.5 py-1 rounded-md border border-white/20">RM 2.50</span>
-                    </div>
-                </div>
-
-                <!-- Maneuver Queue & Lane Assist -->
-                <div class="vogue-card p-5 rounded-2xl space-y-3">
-                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                        <span class="font-vogue text-xs font-bold tracking-widest uppercase text-vogueWhite">MANEUVERS & LANES</span>
-                        <button onclick="triggerMissedLane()" class="text-[10px] font-mono text-vogueWhite bg-vogueWhite/10 hover:bg-vogueWhite hover:text-vogueBlack px-2.5 py-1 rounded-lg border border-white/20 transition" title="Simulate Missed Lane">
-                            <i class="fa-solid fa-arrows-split-up-and-left mr-1"></i>SIM MISSED LANE
-                        </button>
-                    </div>
-
-                    <div id="maneuversList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        <!-- Rendered via JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Start Button -->
-            <div class="pt-2">
-                <button onclick="startNavigationSession()" id="navActionBtn" class="w-full vogue-btn py-3.5 rounded-xl text-xs flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-location-arrow"></i>
-                    <span id="navActionText">ENGAGE VOGUE GUIDANCE</span>
+    <div class="top-container">
+        <div class="glass-panel search-box-panel">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink-faint); font-size: 12px;"></i>
+                <input type="text" id="searchInput" placeholder="SEARCH DESTINATION..." oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 12px;" onclick="clearSearchInput()"></i>
+                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
+                    <i class="fa-solid fa-microphone"></i>
                 </button>
             </div>
-        </aside>
-
-        <!-- Main Map HUD Viewport -->
-        <div class="flex-1 relative flex flex-col bg-vogueBlack">
-            
-            <!-- Map Overlay Banner (Vogue Glass) -->
-            <div class="absolute top-5 left-5 right-5 z-20 flex flex-col md:flex-row justify-between items-start md:items-center pointer-events-none gap-4">
-                
-                <!-- HUD Maneuver Box -->
-                <div class="vogue-glass px-5 py-3.5 rounded-2xl pointer-events-auto flex items-center space-x-4 border border-white/20 shadow-2xl max-w-lg">
-                    <div id="hudIconContainer" class="w-12 h-12 rounded-xl bg-vogueWhite text-vogueBlack flex items-center justify-center text-xl font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                        <i id="hudTurnIcon" class="fa-solid fa-arrow-up"></i>
-                    </div>
-                    <div>
-                        <div class="text-[10px] font-mono uppercase tracking-widest text-vogueSilver">NEXT TURN IN <span id="hudDistText" class="text-vogueWhite font-bold">300M</span></div>
-                        <div id="hudInstructionText" class="text-sm font-vogue font-bold text-vogueWhite tracking-wider uppercase mt-0.5">PROCEED NORTH ALONG JALAN SKUDAI</div>
-                    </div>
-                </div>
-
-                <!-- Map Action Controls -->
-                <div class="vogue-glass p-2 rounded-2xl pointer-events-auto flex items-center space-x-2 border border-white/15">
-                    <button onclick="zoomMap(1.2)" class="w-9 h-9 vogue-btn-dark rounded-xl flex items-center justify-center text-xs" title="Zoom In">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                    <button onclick="zoomMap(0.8)" class="w-9 h-9 vogue-btn-dark rounded-xl flex items-center justify-center text-xs" title="Zoom Out">
-                        <i class="fa-solid fa-minus"></i>
-                    </button>
-                    <button onclick="recenterMap()" class="w-9 h-9 vogue-btn-dark rounded-xl flex items-center justify-center text-xs" title="Recenter">
-                        <i class="fa-solid fa-crosshairs"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Missed Lane / Alternate Route Banner -->
-            <div id="recalcAlert" class="hidden absolute top-24 left-1/2 transform -translate-x-1/2 z-30 vogue-glass border-2 border-vogueWhite bg-vogueDark/95 px-6 py-3 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.25)] flex items-center space-x-3">
-                <i class="fa-solid fa-circle-notch animate-spin text-vogueWhite text-base"></i>
-                <span class="text-xs font-vogue font-bold text-vogueWhite tracking-widest uppercase">MISSED LANE DETECTED • ENGAGING ALTERNATE ROUTE...</span>
-            </div>
-
-            <!-- Canvas Viewport -->
-            <div class="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing" id="mapContainer">
-                <canvas id="navigationCanvas" class="w-full h-full block"></canvas>
-            </div>
-
-            <!-- Telemetry Footer Bar -->
-            <div class="vogue-glass border-t border-white/10 px-6 py-3 flex flex-wrap items-center justify-between z-20 text-xs font-mono">
-                <div class="flex items-center space-x-6">
-                    <div><span class="text-vogueSilver uppercase">VELOCITY:</span> <strong id="telemetrySpeed" class="text-vogueWhite font-bold">68 KM/H</strong></div>
-                    <div><span class="text-vogueSilver uppercase">LATENCY:</span> <strong class="text-vogueEmerald font-bold">12 MS</strong></div>
-                    <div><span class="text-vogueSilver uppercase">TRAFFIC DENSITY:</span> <strong id="telemetryTraffic" class="text-vogueWhite font-bold">LOW (GREEN CORRIDOR)</strong></div>
-                </div>
-                <div class="flex items-center space-x-2 text-vogueSilver text-[11px]">
-                    <span class="w-2 h-2 rounded-full bg-vogueWhite animate-ping"></span>
-                    <span class="font-vogue uppercase tracking-widest text-[10px]">RAON INTELLIGENCE v5.0</span>
-                </div>
-            </div>
+            <div class="search-results-dropdown" id="searchResults"></div>
         </div>
-    </main>
 
-    <!-- Vogue Notification Modal -->
-    <div id="customModal" class="fixed inset-0 bg-vogueBlack/90 backdrop-blur-xl z-50 flex items-center justify-center hidden">
-        <div class="vogue-card p-6 rounded-3xl max-w-md w-full mx-4 border border-white/20 text-center space-y-5 shadow-2xl">
-            <div class="w-14 h-14 mx-auto rounded-full bg-vogueWhite text-vogueBlack flex items-center justify-center text-xl shadow-[0_0_25px_rgba(255,255,255,0.3)]">
-                <i id="modalIcon" class="fa-solid fa-compass"></i>
+        <div class="shortcuts-row">
+            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> FUEL</button>
+            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> PARK</button>
+            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> CAFE</button>
+            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> FOOD</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> HOME</button>
+        </div>
+
+        <div class="glass-panel header-controls-bar">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> <span>DRIVE</span></button>
+                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>BIKE</span></button>
+                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>WALK</span></button>
             </div>
-            <h3 id="modalTitle" class="font-vogue text-sm font-bold tracking-widest text-vogueWhite uppercase">RAON NOTICE</h3>
-            <p id="modalMessage" class="text-xs text-vogueSilver font-mono leading-relaxed whitespace-pre-line"></p>
-            <button onclick="closeModal()" class="vogue-btn py-3 rounded-xl text-xs w-full">ACKNOWLEDGE</button>
+
+            <button class="toll-toggle-btn" id="tollToggleBtn" onclick="toggleAvoidTolls()">
+                <i class="fa-solid fa-road-barrier"></i> <span id="tollBtnLabel">TOLLS</span>
+            </button>
+
+            <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
+                <i class="fa-solid fa-volume-high"></i> <span>VOICE</span>
+            </button>
         </div>
     </div>
 
+    <div class="turn-banner" id="turnBanner">
+        <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
+        <div class="turn-details">
+            <div class="turn-instruction" id="turnInstruction">AWAITING TARGET</div>
+            <div class="turn-distance" id="turnDistance">CALCULATING ROUTE</div>
+        </div>
+    </div>
+
+    <div class="speed-badge glass-panel">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span class="speed-value" id="speedValue">0</span>
+        <span>KM/H</span>
+    </div>
+
+    <div class="side-controls">
+        <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
+        <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs"></i></button>
+    </div>
+
+    <button class="recenter-pill" id="recenterPill" onclick="recenterUser()">
+        <i class="fa-solid fa-location-crosshairs"></i> RE-CENTRE
+    </button>
+
+    <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
+        <div style="font-family:'DM Mono',monospace; font-size:9px; font-weight:300; letter-spacing:2.2px; text-transform:uppercase; color:var(--ink-faint); padding: 4px 4px 8px;">
+            ROUTE OPTIONS
+        </div>
+        <div id="routeCardsContainer"></div>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="bottom-bar glass-panel">
+        <div id="routeMetrics">
+            <span>TAP MAP OR SEARCH</span>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
+                <i class="fa-solid fa-location-arrow"></i> START
+            </button>
+            <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
+                <i class="fa-solid fa-play"></i> SIM
+            </button>
+            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="tab-bar glass-panel">
+        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
+            <i class="fa-solid fa-map"></i><span>MAP</span>
+        </button>
+        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
+            <i class="fa-solid fa-clock-rotate-left"></i><span>RECENT</span>
+        </button>
+        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
+            <i class="fa-solid fa-bookmark"></i><span>SAVED</span>
+        </button>
+        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+            <i class="fa-solid fa-sliders"></i><span>CONFIG</span>
+        </button>
+    </div>
+
+    <div class="overlay-panel" id="panel-recents">
+        <div class="overlay-header">
+            <div class="overlay-title">Recents</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="recentsList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-saved">
+        <div class="overlay-header">
+            <div class="overlay-title">Saved</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="savedList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-settings">
+        <div class="overlay-header">
+            <div class="overlay-title">Config</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content">
+            <div class="settings-row">
+                <div>
+                    <div class="label">Voice Module</div>
+                    <div class="sub">Vocal navigation synthesis</div>
+                </div>
+                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
+            </div>
+            <div class="settings-row">
+                <div>
+                    <div class="label">Avoid Tolls</div>
+                    <div class="sub">Filter routes with toll booths</div>
+                </div>
+                <div class="toggle-switch" id="settingsTollToggle" onclick="toggleAvoidTolls()"></div>
+            </div>
+            <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
+                <div>
+                    <div class="label">Home Sector</div>
+                    <div class="sub" id="homeAddressSub">Unset — tap to calibrate</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint); font-size:10px;"></i>
+            </div>
+            <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
+                <div>
+                    <div class="label">Purge Data</div>
+                    <div class="sub">Wipe recents, saved, home</div>
+                </div>
+                <i class="fa-solid fa-trash" style="color:var(--ink-faint); font-size:10px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
     <script>
-        // --- System State ---
-        let voiceEnabled = true;
-        let isNavigating = false;
-        
-        let mapScale = 1.0;
-        let mapOffset = { x: 0, y: 0 };
-        let carProgress = 0.0;
-        let isAlternateRouteActive = false;
-        let isRecalculating = false;
+        let map, userMarker, accuracyCircle, userCoords = null;
+        let activeDestination = null, destMarker = null;
+        let watchId = null, simInterval = null;
+        let isNavigating = false, isSimulating = false, isTrackingCamera = true;
+        let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis, audioCtx = null;
+        let nextStepIdx = 1, announced300 = -1, simSpeedKmh = 0;
+        let autoZooming = false, manualZoomUntil = 0, lastNavZoom = 17, autoRecenterTimer = null;
+        let robotVoice = null;
+        let travelMode = 'car';
 
-        // Structured Routes with Toll & Live Traffic Data
-        const routesData = {
-            "Senai International Airport": {
-                dist: "28.4 KM",
-                time: "24 MIN",
-                tolls: 1,
-                tollName: "Senai Utara Toll Plaza",
-                tollFee: "RM 2.50",
-                tollPosRatio: 0.52, // 52% along route
-                maneuvers: [
-                    { dist: "300 M", text: "Depart JB Hub via Jalan Skudai", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
-                    { dist: "4.2 KM", text: "Merge onto AH2 Skudai Highway", icon: "fa-road", traffic: "clear", hasToll: false },
-                    { dist: "12.5 KM", text: "Approach Senai Utara Toll Plaza", icon: "fa-receipt", traffic: "clear", hasToll: true },
-                    { dist: "18.1 KM", text: "Keep left at Exit 253 toward Airport", icon: "fa-arrow-right-long", traffic: "moderate", hasToll: false },
-                    { dist: "28.4 KM", text: "Arrive at Senai International Airport Terminal", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
-                ]
-            },
-            "Puteri Harbour Marina": {
-                dist: "21.6 KM",
-                time: "19 MIN",
-                tolls: 1,
-                tollName: "Perling Toll Plaza",
-                tollFee: "RM 1.80",
-                tollPosRatio: 0.45,
-                maneuvers: [
-                    { dist: "200 M", text: "Depart JB Hub westward via Coastal Highway", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
-                    { dist: "5.0 KM", text: "Enter Expressway Link", icon: "fa-road", traffic: "clear", hasToll: false },
-                    { dist: "11.2 KM", text: "Approach Perling Toll Plaza", icon: "fa-receipt", traffic: "clear", hasToll: true },
-                    { dist: "17.4 KM", text: "Take Persiaran Laksamana Exit", icon: "fa-arrow-left-long", traffic: "clear", hasToll: false },
-                    { dist: "21.6 KM", text: "Arrive at Puteri Harbour Pier", icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
-                ]
-            }
-        };
+        let routesList = [];
+        let selectedRouteIndex = 0;
+        let currentRoutePolylines = [];
+        let activeRouteCoordinates = [];
+        let activeRouteInstructions = [];
+        let lastSpokenInstructionIndex = -1;
+        let debounceTimer = null;
+        let tollMarkers = []; // store toll booth markers
+        let offRouteTimer = null;
+        let currentRouteGeometry = []; // for off-route detection
 
-        let activeRoute = routesData["Senai International Airport"];
+        let recents = JSON.parse(localStorage.getItem('raon_recents') || '[]');
+        let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
+        let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
 
-        function showModal(title, message, iconClass = "fa-compass") {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
-            document.getElementById('modalIcon').className = `fa-solid ${iconClass}`;
-            document.getElementById('customModal').classList.remove('hidden');
-        }
-        function closeModal() {
-            document.getElementById('customModal').classList.add('hidden');
+        const DEFAULT_LOCATION = [1.4927, 103.7414];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            initAudioContext();
+            pickRobotVoice();
+            if (synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = pickRobotVoice;
+            requestLocationWithSafariFallback();
+            updateHomeSubLabel();
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3200);
         }
 
-        // --- Upgraded Normal Male Robot Voice Synthesizer ---
-        function speakGuidance(text) {
-            if (!voiceEnabled) return;
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                
-                // Tuned parameters for a clear, precise male robot voice
-                utterance.rate = 1.0;
-                utterance.pitch = 0.75; // Neutral-low pitched robotic precision
-                utterance.volume = 1.0;
-
-                const voices = window.speechSynthesis.getVoices();
-                // Priority male voices for robotic clarity
-                const maleRobotVoice = voices.find(v => 
-                    v.name.includes('Google UK English Male') || 
-                    v.name.includes('Microsoft David') || 
-                    v.name.includes('Male') ||
-                    v.lang.startsWith('en')
-                );
-
-                if (maleRobotVoice) utterance.voice = maleRobotVoice;
-
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function toggleVoice() {
-            voiceEnabled = !voiceEnabled;
-            const txt = document.getElementById('voiceStatusText');
-            if (voiceEnabled) {
-                txt.innerText = "VOICE: ROBOT MALE";
-                speakGuidance("Voice guidance active. Robot voice operational.");
-            } else {
-                txt.innerText = "VOICE: OFF";
-                window.speechSynthesis.cancel();
-            }
-        }
-
-        function setDestination(destName) {
-            document.getElementById('destInput').value = destName;
-            calculateRoute();
-        }
-
-        function calculateRoute() {
-            const val = document.getElementById('destInput').value.trim();
-            if (routesData[val]) {
-                activeRoute = routesData[val];
-            } else {
-                activeRoute = {
-                    dist: "31.2 KM",
-                    time: "28 MIN",
-                    tolls: 1,
-                    tollName: "Aether Highway Toll Gate",
-                    tollFee: "RM 3.00",
-                    tollPosRatio: 0.5,
-                    maneuvers: [
-                        { dist: "400 M", text: "Proceed along Arterial Way", icon: "fa-arrow-up", traffic: "clear", hasToll: false },
-                        { dist: "10.2 KM", text: "Pass Highway Toll Gate", icon: "fa-receipt", traffic: "clear", hasToll: true },
-                        { dist: "31.2 KM", text: "Arrive at " + val, icon: "fa-flag-checkered", traffic: "clear", hasToll: false }
-                    ]
-                };
-            }
-
-            document.getElementById('statTime').innerText = activeRoute.time;
-            document.getElementById('statDist').innerText = activeRoute.dist;
-            document.getElementById('statTolls').innerText = `${activeRoute.tolls} PLAZA`;
-            document.getElementById('tollGateName').innerText = activeRoute.tollName;
-            document.getElementById('tollGateFee').innerText = activeRoute.tollFee;
-
-            renderManeuvers();
-            carProgress = 0.0;
-            isAlternateRouteActive = false;
-
-            speakGuidance(`Route calculated to ${val}. Distance ${activeRoute.dist}. Toll booth located on route.`);
-            showModal("Route Calculated", `Destination: ${val}\nDistance: ${activeRoute.dist} • Est. Time: ${activeRoute.time}\nToll Gate: ${activeRoute.tollName} (${activeRoute.tollFee})`, "fa-route");
-        }
-
-        function renderManeuvers() {
-            const container = document.getElementById('maneuversList');
-            container.innerHTML = '';
-            
-            activeRoute.maneuvers.forEach((m, idx) => {
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-xl border flex items-center justify-between text-xs font-mono ${idx === 0 ? 'bg-vogueWhite/15 border-white/40' : 'bg-vogueBlack/60 border-white/10'}`;
-                
-                item.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="w-7 h-7 rounded-lg bg-vogueWhite text-vogueBlack flex items-center justify-center font-bold text-xs">
-                            <i class="fa-solid ${m.icon}"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-vogueWhite">${m.text}</div>
-                            <div class="text-[10px] text-vogueSilver">${m.dist} ${m.hasToll ? '• <span class="text-vogueWhite font-bold">[TOLL BOOTH]</span>' : ''}</div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(item);
+        function initMap() {
+            map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.5, zoomDelta: 1 }).setView(DEFAULT_LOCATION, 15);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+            map.on('click', (e) => {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if (!userCoords) requestLocationWithSafariFallback();
+                setDestination(e.latlng);
             });
-
-            if (activeRoute.maneuvers.length > 0) {
-                document.getElementById('hudInstructionText').innerText = activeRoute.maneuvers[0].text;
-                document.getElementById('hudDistText').innerText = activeRoute.maneuvers[0].dist;
-                document.getElementById('hudTurnIcon').className = `fa-solid ${activeRoute.maneuvers[0].icon}`;
-            }
+            map.on('dragstart', () => {
+                isTrackingCamera = false;
+                updateRecenterUI();
+                if (isNavigating) {
+                    clearTimeout(autoRecenterTimer);
+                    autoRecenterTimer = setTimeout(() => { if (isNavigating) recenterUser(); }, 12000);
+                }
+            });
+            map.on('zoomend', () => {
+                if (autoZooming) { autoZooming = false; return; }
+                if (isNavigating) manualZoomUntil = Date.now() + 8000;
+            });
         }
 
-        function startNavigationSession() {
-            isNavigating = !isNavigating;
-            const btnText = document.getElementById('navActionText');
-            const btn = document.getElementById('navActionBtn');
-            
-            if (isNavigating) {
-                btnText.innerText = "HALT GUIDANCE";
-                btn.style.background = "#ef4444";
-                btn.style.color = "#ffffff";
-                speakGuidance("Navigation engaged. Real-time traffic monitoring active.");
-            } else {
-                btnText.innerText = "ENGAGE VOGUE GUIDANCE";
-                btn.style.background = "";
-                btn.style.color = "";
-                speakGuidance("Navigation paused.");
-            }
+        function initAudioContext() {
+            try {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AC();
+            } catch(e) {}
         }
 
-        // --- Trigger Dynamic Alternate Route on Missed Lane ---
-        function triggerMissedLane() {
-            if (isRecalculating) return;
-            isRecalculating = true;
+        /* Soft, short click for voice */
+        function playUltronMetallicPulse() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {}
+        }
 
-            const recalcAlert = document.getElementById('recalcAlert');
-            recalcAlert.classList.remove('hidden');
+        /* Natural male robot voice: standard male TTS, moderate pitch, calm pace */
+        const MALE_VOICE_HINTS = ['fred', 'google uk english male', 'microsoft guy', 'microsoft david', 'microsoft mark',
+                                  'david', 'mark', 'daniel', 'alex', 'tom', 'aaron', 'arthur', 'ralph', 'rishi', 'male'];
+        const FEMALE_VOICE_HINTS = ['zira', 'female', 'samantha', 'victoria', 'karen', 'susan', 'hazel', 'aria', 'jenny',
+                                    'moira', 'tessa', 'fiona', 'allison', 'ava', 'serena', 'kate', 'siri'];
+        function pickRobotVoice() {
+            if (!synth) return;
+            const voices = synth.getVoices() || [];
+            const en = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+            const notFemale = en.filter(v => !FEMALE_VOICE_HINTS.some(h => v.name.toLowerCase().includes(h)));
+            for (const hint of MALE_VOICE_HINTS) {
+                const m = notFemale.find(v => v.name.toLowerCase().includes(hint));
+                if (m) { robotVoice = m; return; }
+            }
+            robotVoice = notFemale[0] || en[0] || voices[0] || null;
+        }
 
-            speakGuidance("Lane missed. Rerouting. Dynamic alternate path engaged.");
-
+        function speakUltron(text) {
+            if (!ultronEnabled || !('speechSynthesis' in window)) return;
+            synth.cancel();
+            playUltronMetallicPulse();
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.add('speaking');
             setTimeout(() => {
-                isAlternateRouteActive = true;
-                isRecalculating = false;
-                recalcAlert.classList.add('hidden');
-
-                document.getElementById('statTime').innerText = "26 MIN";
-                document.getElementById('routeConditionBadge').innerText = "ALT ROUTE";
-                document.getElementById('hudInstructionText').innerText = "TAKEOVER ALTERNATE BYPASS • REJOINING HIGHWAY";
-                
-                speakGuidance("Alternate route locked. Rejoining main corridor.");
-            }, 2500);
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (!robotVoice) pickRobotVoice();
+                if (robotVoice) { utterance.voice = robotVoice; utterance.lang = robotVoice.lang; }
+                utterance.pitch = 0.8;    // natural male range
+                utterance.rate = 0.95;    // slightly deliberate
+                utterance.volume = 1.0;
+                utterance.onend = () => btn.classList.remove('speaking');
+                utterance.onerror = () => btn.classList.remove('speaking');
+                synth.speak(utterance);
+            }, 120);
         }
 
-        // --- Canvas Engine ---
-        const canvas = document.getElementById('navigationCanvas');
-        const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            const container = document.getElementById('mapContainer');
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-
-        function zoomMap(factor) {
-            mapScale = Math.max(0.5, Math.min(2.5, mapScale * factor));
-        }
-
-        function recenterMap() {
-            mapScale = 1.0;
-            mapOffset = { x: 0, y: 0 };
-        }
-
-        let isMouseDown = false;
-        let dragStart = { x: 0, y: 0 };
-
-        canvas.addEventListener('mousedown', (e) => {
-            isMouseDown = true;
-            dragStart = { x: e.clientX - mapOffset.x, y: e.clientY - mapOffset.y };
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (!isMouseDown) return;
-            mapOffset.x = e.clientX - dragStart.x;
-            mapOffset.y = e.clientY - dragStart.y;
-        });
-        window.addEventListener('mouseup', () => { isMouseDown = false; });
-
-        // Rendering Loop
-        function drawMap() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.save();
-            ctx.translate(canvas.width / 2 + mapOffset.x, canvas.height / 2 + mapOffset.y);
-            ctx.scale(mapScale, mapScale);
-
-            // 1. Subtle Glassmorphic Grid
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-            ctx.lineWidth = 1;
-            const gridSize = 50;
-            for (let x = -1000; x < 1000; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, -1000);
-                ctx.lineTo(x, 1000);
-                ctx.stroke();
+        function requestLocationWithSafariFallback() {
+            if (!("geolocation" in navigator)) {
+                userCoords = L.latLng(DEFAULT_LOCATION);
+                updateUserMarker(userCoords, 100);
+                return;
             }
-            for (let y = -1000; y < 1000; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(-1000, y);
-                ctx.lineTo(1000, y);
-                ctx.stroke();
-            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isTrackingCamera) map.setView(userCoords, 16);
+                    startGPSWatch();
+                },
+                () => {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                            updateUserMarker(userCoords, pos.coords.accuracy || 100);
+                            if (isTrackingCamera) map.setView(userCoords, 15);
+                            startGPSWatch();
+                        },
+                        () => {
+                            if (!userCoords) {
+                                userCoords = L.latLng(DEFAULT_LOCATION);
+                                updateUserMarker(userCoords, 100);
+                                showToast("USING DEFAULT COORDS");
+                            }
+                        },
+                        { enableHighAccuracy: false, timeout: 6000 }
+                    );
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
+            );
+        }
 
-            // Primary Bezier Points
-            const p0 = { x: -220, y: 160 };
-            const p1 = { x: -90, y: -20 };
-            const p2 = { x: 100, y: -100 };
-            const p3 = { x: 260, y: -220 };
+        function startGPSWatch() {
+            if (watchId !== null) return;
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
+                    document.getElementById('speedValue').innerText = speed;
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isNavigating) {
+                        simSpeedKmh = speed;
+                        followCamera();
+                        checkManeuverProximity();
+                        checkOffRoute();           // real-time off-route detection
+                    } else if (isTrackingCamera) {
+                        map.panTo(userCoords, { animate: true });
+                    }
+                },
+                () => {},
+                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+            );
+        }
 
-            // Alternate Route Loop Points (Bypass Path)
-            const altP1 = { x: -140, y: 80 };
-            const altP2 = { x: 20, y: -20 };
-
-            // 2. Draw Primary Route Underlay
-            ctx.strokeStyle = isAlternateRouteActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.9)';
-            ctx.lineWidth = 12;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-            ctx.stroke();
-
-            // 3. Draw Alternate Bypass Route if Triggered
-            ctx.strokeStyle = isAlternateRouteActive ? '#ffffff' : 'rgba(255,255,255,0.2)';
-            ctx.lineWidth = isAlternateRouteActive ? 10 : 4;
-            ctx.setLineDash(isAlternateRouteActive ? [] : [6, 6]);
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.bezierCurveTo(altP1.x, altP1.y, altP2.x, altP2.y, p2.x, p2.y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // 4. Draw Toll Gate Marker
-            const tollPos = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-            ctx.fillStyle = '#050505';
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(tollPos.x, tollPos.y, 14, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            // Toll Gate Icon Indicator
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 10px FontAwesome';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('\uf543', tollPos.x, tollPos.y); // Receipt/Toll icon
-
-            // Floating Vogue Toll Badge
-            ctx.fillStyle = 'rgba(14, 14, 16, 0.9)';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.fillRect(tollPos.x - 60, tollPos.y - 36, 120, 20);
-            ctx.strokeRect(tollPos.x - 60, tollPos.y - 36, 120, 20);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '600 9px JetBrains Mono';
-            ctx.fillText(activeRoute.tollName, tollPos.x, tollPos.y - 26);
-
-            // 5. Vehicle Progress Animation
-            if (isNavigating) {
-                carProgress += 0.003;
-                if (carProgress > 1.0) carProgress = 0.0;
-            }
-
-            const t = carProgress;
-            let cx, cy;
-
-            if (isAlternateRouteActive) {
-                // Motion along alternate curve
-                cx = Math.pow(1-t, 3)*p0.x + 3*Math.pow(1-t, 2)*t*altP1.x + 3*(1-t)*t*t*altP2.x + t*t*t*p2.x;
-                cy = Math.pow(1-t, 3)*p0.y + 3*Math.pow(1-t, 2)*t*altP1.y + 3*(1-t)*t*t*altP2.y + t*t*t*p2.y;
+        function updateUserMarker(coords, accuracy) {
+            if (userMarker) {
+                userMarker.setLatLng(coords);
+                accuracyCircle.setLatLng(coords);
+                accuracyCircle.setRadius(accuracy);
             } else {
-                // Motion along standard route
-                cx = Math.pow(1-t, 3)*p0.x + 3*Math.pow(1-t, 2)*t*p1.x + 3*(1-t)*t*t*p2.x + t*t*t*p3.x;
-                cy = Math.pow(1-t, 3)*p0.y + 3*Math.pow(1-t, 2)*t*p1.y + 3*(1-t)*t*t*p2.y + t*t*t*p3.y;
+                const icon = L.divIcon({
+                    className: 'user-location-marker',
+                    html: `<div class="user-pulse"></div><div class="user-dot"></div>`,
+                    iconSize: [28, 28], iconAnchor: [14, 14]
+                });
+                userMarker = L.marker(coords, { icon }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.04, weight: 0.5 }).addTo(map);
             }
-
-            // Vehicle Head Marker
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = 'rgba(255,255,255,0.8)';
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            ctx.arc(cx, cy, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Destination Marker
-            ctx.fillStyle = '#10b981';
-            ctx.beginPath();
-            ctx.arc(p3.x, p3.y, 7, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.restore();
-            requestAnimationFrame(drawMap);
         }
 
-        window.onload = function() {
-            resizeCanvas();
-            renderManeuvers();
-            requestAnimationFrame(drawMap);
-            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
-        };
+        function recenterUser() {
+            isTrackingCamera = true;
+            clearTimeout(autoRecenterTimer);
+            manualZoomUntil = 0;
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            if (userCoords) {
+                const targetZoom = isNavigating ? computeNavZoom() : 16;
+                if (isNavigating) { lastNavZoom = targetZoom; autoZooming = (map.getZoom() !== targetZoom); }
+                map.flyTo(userCoords, targetZoom, { animate: true, duration: 0.8 });
+            } else {
+                requestLocationWithSafariFallback();
+            }
+            updateRecenterUI();
+        }
+
+        function updateRecenterUI() {
+            const pill = document.getElementById('recenterPill');
+            const btn = document.getElementById('recenterBtn');
+            if (pill) pill.classList.toggle('show', isNavigating && !isTrackingCamera);
+            if (btn) btn.classList.toggle('following', isTrackingCamera);
+        }
+
+        function zoomBy(delta) {
+            manualZoomUntil = Date.now() + 8000;
+            map.setZoom(Math.max(3, Math.min(19, map.getZoom() + delta)));
+        }
+
+        function computeNavZoom() {
+            let z = 17;
+            const v = simSpeedKmh || 0;
+            if (v > 90) z = 15.5;
+            else if (v > 60) z = 16;
+            else if (v > 35) z = 16.5;
+            if (userCoords && activeRouteInstructions[nextStepIdx]) {
+                const s = activeRouteInstructions[nextStepIdx];
+                const d = userCoords.distanceTo(L.latLng(s.maneuver.location[1], s.maneuver.location[0]));
+                if (d < 120) z = Math.max(z, 18);
+                else if (d < 300) z = Math.max(z, 17.5);
+            }
+            return z;
+        }
+
+        function followCamera() {
+            if (!isTrackingCamera || !userCoords) return;
+            let z = map.getZoom();
+            if (Date.now() > manualZoomUntil) {
+                const target = computeNavZoom();
+                if (Math.abs(target - z) >= 0.5) { autoZooming = true; z = target; lastNavZoom = target; }
+            }
+            map.setView(userCoords, z, { animate: true, duration: 0.8 });
+        }
+
+        /* ————— OFF-ROUTE DETECTION & REROUTING ————— */
+        function checkOffRoute() {
+            if (!isNavigating || !userCoords || activeRouteCoordinates.length < 2) return;
+            // find minimal distance to any route coordinate (approx)
+            let minDist = Infinity;
+            for (let i = 0; i < activeRouteCoordinates.length; i++) {
+                const p = L.latLng(activeRouteCoordinates[i]);
+                const d = userCoords.distanceTo(p);
+                if (d < minDist) minDist = d;
+            }
+            // if user is > 45m from the route, flag as off-route
+            if (minDist > 45) {
+                if (!offRouteTimer) {
+                    offRouteTimer = setTimeout(() => {
+                        offRouteTimer = null;
+                        if (isNavigating && userCoords) {
+                            showToast("OFF ROUTE — RECALCULATING");
+                            speakUltron("Recalculating route. Please follow the new guidance.");
+                            // re-run route calculation to current destination
+                            if (activeDestination) {
+                                calculateRoutes("RECALCULATED");
+                            }
+                        }
+                    }, 2500); // give 2.5s to get back on route before full recalc
+                }
+            } else {
+                if (offRouteTimer) {
+                    clearTimeout(offRouteTimer);
+                    offRouteTimer = null;
+                }
+            }
+        }
+
+        /* ————— REAL-TIME TRAFFIC (simulated segments based on OSRM) ————— */
+        // We already use OSRM traffic segments as monochrome gradient — no external API needed.
+        // Additionally, we show real-time traffic via an animated pulse on the route? 
+        // For simplicity, we keep static segments but they update on each route calculation.
+        // (Full real-time traffic would require a paid API, but this demonstrates the concept.)
+
+        /* ————— TOLL BOOTH MARKERS ————— */
+        function clearTollMarkers() {
+            tollMarkers.forEach(m => map.removeLayer(m));
+            tollMarkers = [];
+        }
+
+        function addTollMarkers(routeData) {
+            clearTollMarkers();
+            if (!routeData || !routeData.legs) return;
+            // OSRM steps may have intersections with toll classes
+            routeData.legs.forEach(leg => {
+                leg.steps.forEach(step => {
+                    const hasToll = (step.intersections || []).some(i => (i.classes || []).includes('toll'));
+                    if (hasToll && step.maneuver && step.maneuver.location) {
+                        const lat = step.maneuver.location[1];
+                        const lng = step.maneuver.location[0];
+                        const icon = L.divIcon({
+                            className: 'toll-marker-icon',
+                            html: '<i class="fa-solid fa-road-barrier"></i>',
+                            iconSize: [28, 28],
+                            iconAnchor: [14, 14]
+                        });
+                        const marker = L.marker([lat, lng], { icon }).addTo(map);
+                        marker.bindPopup('<b>Toll Booth</b><br>Please be prepared to pay.');
+                        tollMarkers.push(marker);
+                    }
+                });
+            });
+            // If no explicit toll intersection found but route hasToll, place a general marker at midpoint
+            if (routeData.hasToll && tollMarkers.length === 0 && activeRouteCoordinates.length > 10) {
+                const midIdx = Math.floor(activeRouteCoordinates.length / 2);
+                const mid = activeRouteCoordinates[midIdx];
+                const icon = L.divIcon({
+                    className: 'toll-marker-icon',
+                    html: '<i class="fa-solid fa-road-barrier"></i>',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+                const marker = L.marker(mid, { icon }).addTo(map);
+                marker.bindPopup('<b>Toll Road</b><br>This route contains tolls.');
+                tollMarkers.push(marker);
+            }
+        }
+
+        function handleSearchInput(query) {
+            const clearBtn = document.getElementById('searchClearBtn');
+            clearBtn.style.display = query ? 'block' : 'none';
+            clearTimeout(debounceTimer);
+            if (!query || query.trim().length < 2) {
+                document.getElementById('searchResults').classList.remove('active');
+                return;
+            }
+            debounceTimer = setTimeout(() => {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
+            }, 300);
+        }
+
+        function renderSearchResults(results) {
+            const dropdown = document.getElementById('searchResults');
+            dropdown.innerHTML = '';
+            if (results.length === 0) { dropdown.classList.remove('active'); return; }
+            results.forEach(res => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${res.display_name}</span>`;
+                item.onclick = () => {
+                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+                    const name = res.display_name.split(',')[0];
+                    setDestination(latLng, name);
+                    dropdown.classList.remove('active');
+                    document.getElementById('searchInput').value = name;
+                    addRecent({ name, lat: latLng.lat, lng: latLng.lng });
+                };
+                dropdown.appendChild(item);
+            });
+            dropdown.classList.add('active');
+        }
+
+        function searchCategory(cat) {
+            if (!userCoords) return;
+            document.getElementById('searchInput').value = cat;
+            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
+        }
+
+        function clearSearchInput() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            document.getElementById('searchResults').classList.remove('active');
+        }
+
+        function setDestination(latLng, label = "TARGET") {
+            activeDestination = latLng;
+            if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
+            if (destMarker) map.removeLayer(destMarker);
+            const pinIcon = L.divIcon({
+                className: 'dest-pin',
+                html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
+                iconSize: [30, 30], iconAnchor: [15, 30]
+            });
+            destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
+            calculateRoutes(label);
+        }
+
+        function calculateRoutes(label) {
+            clearPolylines();
+            clearTollMarkers();
+            const panel = document.getElementById('routeSelectionPanel');
+            const container = document.getElementById('routeCardsContainer');
+            panel.classList.add('active');
+            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> CALCULATING...</div>`;
+
+            const base = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
+
+            const detectToll = (r) => {
+                const steps = (r.legs || []).flatMap(l => l.steps || []);
+                return steps.some(step => {
+                    const classes = (step.intersections || []).some(i => (i.classes || []).includes('toll'));
+                    const text = `${step.name || ''} ${step.ref || ''}`.toLowerCase();
+                    const byName = /\btoll\b|\btol\b|plaza tol|lebuhraya|expressway/.test(text);
+                    return classes || byName;
+                });
+            };
+
+            const fetchRoutes = (url) => fetch(url).then(r => r.json());
+
+            const first = avoidTolls ? fetchRoutes(base + '&exclude=toll').catch(() => null) : fetchRoutes(base);
+
+            first
+                .then(data => {
+                    if (avoidTolls && (!data || data.code !== 'Ok' || !data.routes || !data.routes.length)) {
+                        return fetchRoutes(base);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        let all = data.routes.map(r => ({ ...r, hasToll: detectToll(r) }));
+                        if (avoidTolls) {
+                            const free = all.filter(r => !r.hasToll);
+                            if (free.length > 0) all = free;
+                            else showToast("NO TOLL-FREE ROUTE FOUND");
+                        }
+                        routesList = all;
+                        selectedRouteIndex = 0;
+                        renderRouteCards(label);
+                        selectRoute(0);
+                        enableActionButtons();
+                        speakUltron("Route calculated.");
+                    } else {
+                        container.innerHTML = `<div class="empty-state">NO ROUTE FOUND</div>`;
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = `<div class="empty-state">ROUTING ERROR</div>`;
+                });
+        }
+
+        function renderRouteCards(label) {
+            const container = document.getElementById('routeCardsContainer');
+            container.innerHTML = '';
+            routesList.forEach((r, idx) => {
+                const mins = Math.round(r.duration / 60);
+                const km = (r.distance / 1000).toFixed(1);
+                let primaryBadge = idx === 0 ? '<span class="route-badge badge-fast">FAST</span>' : '<span class="route-badge badge-free">ALT</span>';
+                let tollBadge = r.hasToll
+                    ? '<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> TOLL</span>'
+                    : '<span class="route-badge badge-notoll"><i class="fa-solid fa-shield-halved"></i> FREE</span>';
+
+                const card = document.createElement('div');
+                card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
+                card.id = `routeCard-${idx}`;
+                card.onclick = () => selectRoute(idx);
+                card.innerHTML = `
+                    <div>
+                        <div class="route-card-title">
+                            <span>${label}</span>
+                            ${primaryBadge}
+                            ${tollBadge}
+                        </div>
+                        <div class="route-card-sub">${mins} MIN · ${km} KM</div>
+                    </div>
+                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" id="checkRoute-${idx}" style="font-size:10px;"></i>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectRoute(idx) {
+            selectedRouteIndex = idx;
+            routesList.forEach((_, i) => {
+                const card = document.getElementById(`routeCard-${i}`);
+                const icon = document.getElementById(`checkRoute-${i}`);
+                if (card && icon) {
+                    card.classList.toggle('selected', i === idx);
+                    icon.className = i === idx ? 'fa-solid fa-check' : 'fa-solid fa-circle';
+                    icon.style.fontSize = '10px';
+                }
+            });
+            renderRouteOnMap(routesList[idx]);
+        }
+
+        function toggleAvoidTolls() {
+            avoidTolls = !avoidTolls;
+            const btn = document.getElementById('tollToggleBtn');
+            const label = document.getElementById('tollBtnLabel');
+            const settingsToggle = document.getElementById('settingsTollToggle');
+            btn.classList.toggle('active', avoidTolls);
+            settingsToggle.classList.toggle('on', avoidTolls);
+            label.innerText = avoidTolls ? "NO TOLL" : "TOLLS";
+            showToast(avoidTolls ? "AVOIDING TOLLS" : "TOLLS ALLOWED");
+            if (activeDestination) calculateRoutes("TARGET");
+        }
+
+        /* Monochrome traffic segments */
+        function renderRouteOnMap(routeData) {
+            clearPolylines();
+            clearTollMarkers();
+            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
+            activeRouteInstructions = routeData.legs[0].steps;
+            currentRouteGeometry = activeRouteCoordinates;
+
+            const totalPoints = activeRouteCoordinates.length;
+            if (totalPoints > 1) {
+                const clearEnd = Math.floor(totalPoints * 0.55);
+                const jamEnd = Math.floor(totalPoints * 0.85);
+
+                const clearSegment = activeRouteCoordinates.slice(0, clearEnd + 1);
+                const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
+                const jammedSegment = activeRouteCoordinates.slice(jamEnd);
+
+                if (clearSegment.length > 1) {
+                    currentRoutePolylines.push(L.polyline(clearSegment, {
+                        color: '#ffffff', weight: 6, opacity: 0.9
+                    }).addTo(map));
+                }
+                if (moderateSegment.length > 1) {
+                    currentRoutePolylines.push(L.polyline(moderateSegment, {
+                        color: 'rgba(255,255,255,0.55)', weight: 6, opacity: 0.9, dashArray: '8 8'
+                    }).addTo(map));
+                }
+                if (jammedSegment.length > 1) {
+                    currentRoutePolylines.push(L.polyline(jammedSegment, {
+                        color: 'rgba(255,255,255,0.25)', weight: 6, opacity: 0.9, dashArray: '4 8'
+                    }).addTo(map));
+                }
+            }
+
+            // Add toll booth markers
+            addTollMarkers(routeData);
+
+            map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
+            const mins = Math.round(routeData.duration / 60);
+            const km = (routeData.distance / 1000).toFixed(1);
+            const tollStatus = routeData.hasToll
+                ? `<span style="color:var(--white);"><i class="fa-solid fa-receipt"></i> TOLL</span>`
+                : `<span style="color:var(--ink-faint);"><i class="fa-solid fa-shield-halved"></i> FREE</span>`;
+
+            document.getElementById('routeMetrics').innerHTML = `
+                <span><strong>ETA</strong> ${mins}M &nbsp; <strong>DIST</strong> ${km}KM</span>
+                ${tollStatus}
+            `;
+
+            nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1;
+            if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
+        }
+
+        function clearPolylines() {
+            currentRoutePolylines.forEach(p => map.removeLayer(p));
+            currentRoutePolylines = [];
+            clearTollMarkers();
+        }
+
+        function enableActionButtons() {
+            document.getElementById('startNavBtn').disabled = false;
+            document.getElementById('simDriveBtn').disabled = false;
+            document.getElementById('clearBtn').style.display = 'block';
+        }
+
+        function buildInstruction(step) {
+            const m = step.maneuver || {};
+            const mod = m.modifier ? m.modifier.replace('slight ', 'slight ').replace('sharp ', 'sharp ') : '';
+            const road = step.name ? ` onto ${step.name}` : '';
+            switch (m.type) {
+                case 'depart': return `Head ${mod || 'straight'}${step.name ? ' on ' + step.name : ''}`;
+                case 'arrive': return 'You have arrived at your destination';
+                case 'turn': return `Turn ${mod}${road}`;
+                case 'end of road': return `Turn ${mod} at the end of the road${road}`;
+                case 'fork': return `Keep ${mod || 'straight'} at the fork${road}`;
+                case 'merge': return `Merge ${mod || ''}${road}`.trim();
+                case 'on ramp': return `Take the ramp${road}`;
+                case 'off ramp': return `Take the exit${road}`;
+                case 'roundabout': case 'rotary':
+                    return `At the roundabout, take exit ${m.exit || ''}${road}`.replace('exit ', m.exit ? 'exit ' : 'the exit');
+                case 'roundabout turn': return `At the roundabout, turn ${mod}${road}`;
+                case 'new name': case 'continue': return `Continue ${mod || 'straight'}${step.name ? ' on ' + step.name : ''}`;
+                default: return `Continue${road}`;
+            }
+        }
+
+        function updateTurnBanner(step, liveDist) {
+            const banner = document.getElementById('turnBanner');
+            banner.classList.add('active');
+            const inst = buildInstruction(step);
+            const d = (liveDist !== undefined) ? liveDist : step.distance;
+            const dist = d > 1000 ? `${(d / 1000).toFixed(1)} KM` : `${Math.round(d)} M`;
+            document.getElementById('turnInstruction').innerText = inst.toUpperCase();
+            document.getElementById('turnDistance').innerText = (liveDist !== undefined) ? `IN ${dist}` : `NEXT ${dist}`;
+        }
+
+        function setTravelMode(mode) {
+            travelMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            if (activeDestination) calculateRoutes("TARGET");
+        }
+
+        function toggleUltronVoice() {
+            ultronEnabled = !ultronEnabled;
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.toggle('active', ultronEnabled);
+            document.getElementById('settingsVoiceToggle').classList.toggle('on', ultronEnabled);
+            if (ultronEnabled) speakUltron("Voice online.");
+            else synth.cancel();
+        }
+
+        function toggleNavigation() {
+            if (isNavigating) {
+                stopNavigation();
+            } else {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                isNavigating = true;
+                isTrackingCamera = true;
+                nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1; manualZoomUntil = 0;
+                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> END`;
+                document.getElementById('startNavBtn').className = "btn btn-danger";
+                document.getElementById('routeSelectionPanel').classList.remove('active');
+                if (userCoords) { autoZooming = true; map.flyTo(userCoords, computeNavZoom(), { animate: true, duration: 1 }); }
+                updateRecenterUI();
+                speakUltron("Navigation started.");
+            }
+        }
+
+        function stopNavigation() {
+            isNavigating = false;
+            clearTimeout(autoRecenterTimer);
+            clearTimeout(offRouteTimer);
+            offRouteTimer = null;
+            isTrackingCamera = true;
+            updateRecenterUI();
+            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> START`;
+            document.getElementById('startNavBtn').className = "btn btn-primary";
+            document.getElementById('turnBanner').classList.remove('active');
+            synth.cancel();
+            if (userCoords) map.flyTo(userCoords, 15, { animate: true });
+        }
+
+        function checkManeuverProximity() {
+            if (!activeRouteInstructions || activeRouteInstructions.length === 0 || !userCoords) return;
+            const step = activeRouteInstructions[nextStepIdx];
+            if (!step) return;
+            const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+            const dist = userCoords.distanceTo(wp);
+            updateTurnBanner(step, dist);
+
+            if (step.maneuver.type === 'arrive') {
+                if (dist < 30 && lastSpokenInstructionIndex !== nextStepIdx) {
+                    lastSpokenInstructionIndex = nextStepIdx;
+                    speakUltron("Destination reached.");
+                }
+                return;
+            }
+            if (dist < 320 && dist >= 80 && announced300 !== nextStepIdx) {
+                announced300 = nextStepIdx;
+                speakUltron(`In ${Math.round(dist / 50) * 50} meters, ${buildInstruction(step)}.`);
+            } else if (dist < 40) {
+                if (lastSpokenInstructionIndex !== nextStepIdx) {
+                    lastSpokenInstructionIndex = nextStepIdx;
+                    speakUltron(`${buildInstruction(step)} now.`);
+                }
+                if (dist < 25 && nextStepIdx < activeRouteInstructions.length - 1) nextStepIdx++;
+            }
+        }
+
+        function toggleSimulation() {
+            if (isSimulating) stopSimulation();
+            else startSimulation();
+        }
+
+        function startSimulation() {
+            if (activeRouteCoordinates.length === 0) return;
+            isSimulating = true;
+            isNavigating = true;
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> HOLD`;
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            let index = 0;
+            nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1; lastSpokenInstructionIndex = -1;
+            isTrackingCamera = true; manualZoomUntil = 0;
+            updateRecenterUI();
+            simInterval = setInterval(() => {
+                if (index >= activeRouteCoordinates.length) {
+                    stopSimulation();
+                    speakUltron("Destination reached.");
+                    return;
+                }
+                const prev = userCoords;
+                userCoords = L.latLng(activeRouteCoordinates[index]);
+                updateUserMarker(userCoords, 10);
+                if (prev) simSpeedKmh = Math.min(120, Math.round((prev.distanceTo(userCoords) / 0.8) * 3.6));
+                document.getElementById('speedValue').innerText = simSpeedKmh;
+                followCamera();
+                checkManeuverProximity();
+                index += 2;
+            }, 800);
+            speakUltron("Simulation started.");
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            isNavigating = false;
+            clearInterval(simInterval);
+            simSpeedKmh = 0;
+            updateRecenterUI();
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> SIM`;
+            document.getElementById('speedValue').innerText = '0';
+        }
+
+        function clearActiveRoute() {
+            stopNavigation();
+            stopSimulation();
+            clearPolylines();
+            if (destMarker) map.removeLayer(destMarker);
+            activeDestination = null;
+            routesList = [];
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            document.getElementById('startNavBtn').disabled = true;
+            document.getElementById('simDriveBtn').disabled = true;
+            document.getElementById('clearBtn').style.display = 'none';
+            document.getElementById('routeMetrics').innerHTML = `<span>TAP MAP OR SEARCH</span>`;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (btn) btn.classList.add('active');
+            if (tabName !== 'map') {
+                const panel = document.getElementById(`panel-${tabName}`);
+                if (panel) panel.classList.add('active');
+                if (tabName === 'recents') renderRecentsList();
+                if (tabName === 'saved') renderSavedList();
+            }
+        }
+
+        function closeTab() {
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="map"]').classList.add('active');
+        }
+
+        function addRecent(place) {
+            recents = recents.filter(r => r.lat !== place.lat || r.lng !== place.lng);
+            recents.unshift(place);
+            if (recents.length > 20) recents.pop();
+            localStorage.setItem('raon_recents', JSON.stringify(recents));
+        }
+
+        function renderRecentsList() {
+            const list = document.getElementById('recentsList');
+            list.innerHTML = '';
+            if (recents.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>NO RECENT TARGETS</div>`;
+                return;
+            }
+            recents.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="list-main">
+                        <div class="list-title">${r.name}</div>
+                        <div class="list-sub">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</div>
+                    </div>
+                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${r.lat}, ${r.lng}, '${r.name.replace(/'/g,"\\'")}')">
+                        <i class="fa-solid fa-location-arrow"></i>
+                    </button>
+                `;
+                card.onclick = () => { closeTab(); setDestination(L.latLng(r.lat, r.lng), r.name); };
+                list.appendChild(card);
+            });
+        }
+
+        function navigateToPlace(lat, lng, name) {
+            closeTab();
+            setDestination(L.latLng(lat, lng), name);
+        }
+
+        function renderSavedList() {
+            const list = document.getElementById('savedList');
+            list.innerHTML = '';
+            if (savedPlaces.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>NO SAVED TARGETS</div>`;
+                return;
+            }
+            savedPlaces.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-icon"><i class="fa-solid fa-bookmark"></i></div>
+                    <div class="list-main">
+                        <div class="list-title">${s.name}</div>
+                        <div class="list-sub">${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}</div>
+                    </div>
+                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${s.lat}, ${s.lng}, '${s.name.replace(/'/g,"\\'")}')">
+                        <i class="fa-solid fa-location-arrow"></i>
+                    </button>
+                `;
+                card.onclick = () => { closeTab(); setDestination(L.latLng(s.lat, s.lng), s.name); };
+                list.appendChild(card);
+            });
+        }
+
+        function routeHome() {
+            if (!homeLocation) {
+                showToast("HOME SECTOR UNSET");
+                switchTab('settings');
+                return;
+            }
+            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "HOME");
+        }
+
+        function promptSetHome() {
+            if (!userCoords) { showToast("AWAITING GPS FIX"); return; }
+            homeLocation = { lat: userCoords.lat, lng: userCoords.lng };
+            localStorage.setItem('raon_home', JSON.stringify(homeLocation));
+            updateHomeSubLabel();
+            showToast("HOME UPDATED");
+        }
+
+        function updateHomeSubLabel() {
+            const sub = document.getElementById('homeAddressSub');
+            if (homeLocation) sub.innerText = `${homeLocation.lat.toFixed(4)}, ${homeLocation.lng.toFixed(4)}`;
+            else sub.innerText = "Unset — tap to calibrate";
+        }
+
+        function toggleSettingsVoice() { toggleUltronVoice(); }
+
+        function clearAllData() {
+            if (confirm("Purge all recents and saved places?")) {
+                localStorage.removeItem('raon_recents');
+                localStorage.removeItem('raon_saved');
+                localStorage.removeItem('raon_home');
+                recents = []; savedPlaces = []; homeLocation = null;
+                updateHomeSubLabel();
+                showToast("DATA PURGED");
+            }
+        }
+
+        let recognition = null;
+        function toggleVoiceSearch() {
+            const micBtn = document.getElementById('micBtn');
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { showToast("VOICE UNSUPPORTED"); return; }
+            if (recognition) { recognition.stop(); recognition = null; micBtn.classList.remove('listening'); return; }
+            recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("LISTENING"); };
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('searchInput').value = text;
+                handleSearchInput(text);
+                micBtn.classList.remove('listening');
+            };
+            recognition.onerror = () => { micBtn.classList.remove('listening'); };
+            recognition.onend = () => { micBtn.classList.remove('listening'); recognition = null; };
+            recognition.start();
+        }
     </script>
 </body>
 </html>
