@@ -360,6 +360,20 @@
             box-shadow: 0 0 16px var(--cyan-glow);
         }
 
+        .recenter-pill {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 1001;
+            display: none; align-items: center; gap: 8px; padding: 10px 18px;
+            background: var(--glass-bg-deep); color: var(--cyan);
+            border: 1px solid var(--cyan); border-radius: 2px; cursor: pointer;
+            font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            box-shadow: 0 0 16px var(--cyan-glow);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        }
+        .recenter-pill.show { display: flex; }
+        .icon-circle-btn.following { color: var(--magenta); border-color: var(--magenta); box-shadow: 0 0 12px var(--magenta-glow); }
+
         .route-selection-panel {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
             left: 12px; right: 12px; z-index: 1000; padding: 10px;
@@ -709,8 +723,14 @@
     </div>
 
     <div class="side-controls">
-        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus"></i></button>
+        <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
+        <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
+
+    <button class="recenter-pill" id="recenterPill" onclick="recenterUser()">
+        <i class="fa-solid fa-location-crosshairs"></i> RE-CENTRE
+    </button>
 
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
         <div style="font-family:'Share Tech Mono',monospace; font-size:9px; font-weight:400; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); padding: 4px 4px 8px;">
@@ -815,6 +835,9 @@
         let watchId = null, simInterval = null;
         let isNavigating = false, isSimulating = false, isTrackingCamera = true;
         let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis, audioCtx = null;
+        let nextStepIdx = 1, announced300 = -1, simSpeedKmh = 0;
+        let autoZooming = false, manualZoomUntil = 0, lastNavZoom = 17, autoRecenterTimer = null;
+        let robotVoice = null;
         let travelMode = 'car';
 
         let routesList = [];
@@ -834,6 +857,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             initMap();
             initAudioContext();
+            pickRobotVoice();
+            if (synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = pickRobotVoice;
             requestLocationWithSafariFallback();
             updateHomeSubLabel();
         });
@@ -846,7 +871,7 @@
         }
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
+            map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.5, zoomDelta: 1 }).setView(DEFAULT_LOCATION, 15);
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
@@ -856,7 +881,20 @@
                 if (!userCoords) requestLocationWithSafariFallback();
                 setDestination(e.latlng);
             });
-            map.on('dragstart', () => { isTrackingCamera = false; });
+            map.on('dragstart', () => {
+                isTrackingCamera = false;
+                updateRecenterUI();
+                // while navigating, snap back to the car after 10s of no touching
+                if (isNavigating) {
+                    clearTimeout(autoRecenterTimer);
+                    autoRecenterTimer = setTimeout(() => { if (isNavigating) recenterUser(); }, 10000);
+                }
+            });
+            // user pinch / wheel zoom pauses auto-zoom for 8s (camera still follows)
+            map.on('zoomend', () => {
+                if (autoZooming) { autoZooming = false; return; }
+                if (isNavigating) manualZoomUntil = Date.now() + 8000;
+            });
         }
 
         function initAudioContext() {
@@ -893,7 +931,23 @@
             } catch(e) {}
         }
 
-        /* Cold, fast, slightly synthetic voice */
+        /* Male robot voice: deep male TTS voice, low pitch, measured pace + metallic pulse */
+        const MALE_VOICE_HINTS = ['fred', 'google uk english male', 'microsoft guy', 'microsoft david', 'microsoft mark',
+                                  'david', 'mark', 'daniel', 'alex', 'tom', 'aaron', 'arthur', 'ralph', 'rishi', 'male'];
+        const FEMALE_VOICE_HINTS = ['zira', 'female', 'samantha', 'victoria', 'karen', 'susan', 'hazel', 'aria', 'jenny',
+                                    'moira', 'tessa', 'fiona', 'allison', 'ava', 'serena', 'kate', 'siri'];
+        function pickRobotVoice() {
+            if (!synth) return;
+            const voices = synth.getVoices() || [];
+            const en = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+            const notFemale = en.filter(v => !FEMALE_VOICE_HINTS.some(h => v.name.toLowerCase().includes(h)));
+            for (const hint of MALE_VOICE_HINTS) {
+                const m = notFemale.find(v => v.name.toLowerCase().includes(hint));
+                if (m) { robotVoice = m; return; }
+            }
+            robotVoice = notFemale[0] || en[0] || voices[0] || null;
+        }
+
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
@@ -901,15 +955,14 @@
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.add('speaking');
             setTimeout(() => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.pitch = 0.55;
-                utterance.rate = 1.05;
+                // choppy, robot-like phrasing: break clauses with full stops
+                const robotText = String(text).replace(/,\s*/g, '. ');
+                const utterance = new SpeechSynthesisUtterance(robotText);
+                if (!robotVoice) pickRobotVoice();
+                if (robotVoice) { utterance.voice = robotVoice; utterance.lang = robotVoice.lang; }
+                utterance.pitch = 0.1;   // very low = deep male / machine
+                utterance.rate = 0.88;   // slow and deliberate
                 utterance.volume = 1.0;
-                const voices = synth.getVoices();
-                const v = voices.find(v => v.lang && v.lang.startsWith('en') && v.name.toLowerCase().includes('zira')) ||
-                          voices.find(v => v.lang && v.lang.startsWith('en')) ||
-                          voices[0];
-                if (v) utterance.voice = v;
                 utterance.onend = () => btn.classList.remove('speaking');
                 utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
@@ -960,7 +1013,8 @@
                     document.getElementById('speedValue').innerText = speed;
                     updateUserMarker(userCoords, pos.coords.accuracy || 20);
                     if (isNavigating) {
-                        map.setView(userCoords, 17, { animate: true });
+                        simSpeedKmh = speed;
+                        followCamera();
                         checkManeuverProximity();
                     } else if (isTrackingCamera) {
                         map.panTo(userCoords, { animate: true });
@@ -989,13 +1043,56 @@
 
         function recenterUser() {
             isTrackingCamera = true;
+            clearTimeout(autoRecenterTimer);
+            manualZoomUntil = 0;
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             if (userCoords) {
-                const targetZoom = isNavigating ? 17 : 16;
-                map.flyTo(userCoords, targetZoom, { animate: true });
+                const targetZoom = isNavigating ? computeNavZoom() : 16;
+                if (isNavigating) { lastNavZoom = targetZoom; autoZooming = (map.getZoom() !== targetZoom); }
+                map.flyTo(userCoords, targetZoom, { animate: true, duration: 0.8 });
             } else {
                 requestLocationWithSafariFallback();
             }
+            updateRecenterUI();
+        }
+
+        function updateRecenterUI() {
+            const pill = document.getElementById('recenterPill');
+            const btn = document.getElementById('recenterBtn');
+            if (pill) pill.classList.toggle('show', isNavigating && !isTrackingCamera);
+            if (btn) btn.classList.toggle('following', isTrackingCamera);
+        }
+
+        function zoomBy(delta) {
+            manualZoomUntil = Date.now() + 8000;   // pause auto-zoom briefly
+            map.setZoom(Math.max(3, Math.min(19, map.getZoom() + delta)));
+        }
+
+        /* Zoom in for slow speeds / close turns, zoom out on fast roads */
+        function computeNavZoom() {
+            let z = 17;
+            const v = simSpeedKmh || 0;
+            if (v > 90) z = 15.5;
+            else if (v > 60) z = 16;
+            else if (v > 35) z = 16.5;
+            if (userCoords && activeRouteInstructions[nextStepIdx]) {
+                const s = activeRouteInstructions[nextStepIdx];
+                const d = userCoords.distanceTo(L.latLng(s.maneuver.location[1], s.maneuver.location[0]));
+                if (d < 120) z = Math.max(z, 18);
+                else if (d < 300) z = Math.max(z, 17.5);
+            }
+            return z;
+        }
+
+        /* Follow the car; only when tracking is on, and auto-zoom unless the user just zoomed */
+        function followCamera() {
+            if (!isTrackingCamera || !userCoords) return;
+            let z = map.getZoom();
+            if (Date.now() > manualZoomUntil) {
+                const target = computeNavZoom();
+                if (Math.abs(target - z) >= 0.5) { autoZooming = true; z = target; lastNavZoom = target; }
+            }
+            map.setView(userCoords, z, { animate: true, duration: 0.8 });
         }
 
         function handleSearchInput(query) {
@@ -1065,34 +1162,41 @@
             panel.classList.add('active');
             container.innerHTML = `<div class="route-loading"><div class="spinner"></div> CALCULATING...</div>`;
 
-            const url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
+            const base = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
 
-            fetch(url)
-                .then(r => r.json())
+            /* OSRM marks toll roads in step.intersections[].classes (contains "toll"). */
+            const detectToll = (r) => {
+                const steps = (r.legs || []).flatMap(l => l.steps || []);
+                return steps.some(step => {
+                    const classes = (step.intersections || []).some(i => (i.classes || []).includes('toll'));
+                    const text = `${step.name || ''} ${step.ref || ''}`.toLowerCase();
+                    const byName = /\btoll\b|\btol\b|plaza tol|lebuhraya|expressway/.test(text);
+                    return classes || byName;
+                });
+            };
+
+            const fetchRoutes = (url) => fetch(url).then(r => r.json());
+
+            // When avoiding tolls, ask OSRM to exclude them first; fall back if the server doesn't support it
+            const first = avoidTolls ? fetchRoutes(base + '&exclude=toll').catch(() => null) : fetchRoutes(base);
+
+            first
+                .then(data => {
+                    if (avoidTolls && (!data || data.code !== 'Ok' || !data.routes || !data.routes.length)) {
+                        return fetchRoutes(base);   // exclude unsupported -> filter client-side
+                    }
+                    return data;
+                })
                 .then(data => {
                     if (data.routes && data.routes.length > 0) {
-                        routesList = data.routes.map(r => {
-                            let hasToll = false;
-                            if (r.legs && r.legs[0] && r.legs[0].steps) {
-                                hasToll = r.legs[0].steps.some(step => {
-                                    const inst = (step.maneuver.instruction || '').toLowerCase();
-                                    const name = (step.name || '').toLowerCase();
-                                    return inst.includes('toll') || name.includes('toll') ||
-                                           name.includes('expressway') || name.includes('highway') ||
-                                           name.includes('e1') || name.includes('e2') ||
-                                           name.includes('plaza') || name.includes('lebuhraya');
-                                });
-                            }
-                            return { ...r, hasToll };
-                        });
-
-                        let filtered = avoidTolls ? routesList.filter(r => !r.hasToll) : routesList;
-                        if (filtered.length === 0) {
-                            showToast("// NO TOLL-FREE ROUTE");
-                            filtered = routesList;
+                        let all = data.routes.map(r => ({ ...r, hasToll: detectToll(r) }));
+                        if (avoidTolls) {
+                            const free = all.filter(r => !r.hasToll);
+                            if (free.length > 0) all = free;
+                            else showToast("// NO TOLL-FREE ROUTE FOUND");
                         }
-
-                        routesList = filtered;
+                        routesList = all;
+                        selectedRouteIndex = 0;
                         renderRouteCards(label);
                         selectRoute(0);
                         enableActionButtons();
@@ -1206,6 +1310,7 @@
                 ${tollStatus}
             `;
 
+            nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1;
             if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
         }
 
@@ -1220,13 +1325,36 @@
             document.getElementById('clearBtn').style.display = 'block';
         }
 
-        function updateTurnBanner(step) {
+        /* OSRM only returns type/modifier, so build readable text ourselves */
+        function buildInstruction(step) {
+            const m = step.maneuver || {};
+            const mod = m.modifier ? m.modifier.replace('slight ', 'slight ').replace('sharp ', 'sharp ') : '';
+            const road = step.name ? ` onto ${step.name}` : '';
+            switch (m.type) {
+                case 'depart': return `Head ${mod || 'straight'}${step.name ? ' on ' + step.name : ''}`;
+                case 'arrive': return 'You have arrived at your destination';
+                case 'turn': return `Turn ${mod}${road}`;
+                case 'end of road': return `Turn ${mod} at the end of the road${road}`;
+                case 'fork': return `Keep ${mod || 'straight'} at the fork${road}`;
+                case 'merge': return `Merge ${mod || ''}${road}`.trim();
+                case 'on ramp': return `Take the ramp${road}`;
+                case 'off ramp': return `Take the exit${road}`;
+                case 'roundabout': case 'rotary':
+                    return `At the roundabout, take exit ${m.exit || ''}${road}`.replace('exit ', m.exit ? 'exit ' : 'the exit');
+                case 'roundabout turn': return `At the roundabout, turn ${mod}${road}`;
+                case 'new name': case 'continue': return `Continue ${mod || 'straight'}${step.name ? ' on ' + step.name : ''}`;
+                default: return `Continue${road}`;
+            }
+        }
+
+        function updateTurnBanner(step, liveDist) {
             const banner = document.getElementById('turnBanner');
             banner.classList.add('active');
-            const inst = step.maneuver.instruction || "PROCEED FORWARD";
-            const dist = step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} KM` : `${Math.round(step.distance)} M`;
+            const inst = buildInstruction(step);
+            const d = (liveDist !== undefined) ? liveDist : step.distance;
+            const dist = d > 1000 ? `${(d / 1000).toFixed(1)} KM` : `${Math.round(d)} M`;
             document.getElementById('turnInstruction').innerText = inst.toUpperCase();
-            document.getElementById('turnDistance').innerText = `IN ${dist}`;
+            document.getElementById('turnDistance').innerText = (liveDist !== undefined) ? `IN ${dist}` : `NEXT ${dist}`;
         }
 
         function setTravelMode(mode) {
@@ -1253,16 +1381,21 @@
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 isNavigating = true;
                 isTrackingCamera = true;
+                nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1; manualZoomUntil = 0;
                 document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> END`;
                 document.getElementById('startNavBtn').className = "btn btn-danger";
                 document.getElementById('routeSelectionPanel').classList.remove('active');
-                if (userCoords) map.flyTo(userCoords, 17, { animate: true });
+                if (userCoords) { autoZooming = true; map.flyTo(userCoords, computeNavZoom(), { animate: true, duration: 1 }); }
+                updateRecenterUI();
                 speakUltron("Navigation started.");
             }
         }
 
         function stopNavigation() {
             isNavigating = false;
+            clearTimeout(autoRecenterTimer);
+            isTrackingCamera = true;
+            updateRecenterUI();
             document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> START`;
             document.getElementById('startNavBtn').className = "btn btn-primary";
             document.getElementById('turnBanner').classList.remove('active');
@@ -1271,17 +1404,29 @@
         }
 
         function checkManeuverProximity() {
-            if (!activeRouteInstructions || activeRouteInstructions.length === 0) return;
-            for (let i = 0; i < activeRouteInstructions.length; i++) {
-                const step = activeRouteInstructions[i];
-                const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
-                const dist = userCoords.distanceTo(wp);
-                if (dist < 50 && lastSpokenInstructionIndex !== i) {
-                    lastSpokenInstructionIndex = i;
-                    updateTurnBanner(step);
-                    speakUltron(`In 50 meters, ${step.maneuver.instruction || 'continue'}.`);
-                    break;
+            if (!activeRouteInstructions || activeRouteInstructions.length === 0 || !userCoords) return;
+            const step = activeRouteInstructions[nextStepIdx];
+            if (!step) return;
+            const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+            const dist = userCoords.distanceTo(wp);
+            updateTurnBanner(step, dist);
+
+            if (step.maneuver.type === 'arrive') {
+                if (dist < 30 && lastSpokenInstructionIndex !== nextStepIdx) {
+                    lastSpokenInstructionIndex = nextStepIdx;
+                    speakUltron("Destination reached.");
                 }
+                return;
+            }
+            if (dist < 320 && dist >= 80 && announced300 !== nextStepIdx) {
+                announced300 = nextStepIdx;
+                speakUltron(`In ${Math.round(dist / 50) * 50} meters, ${buildInstruction(step)}.`);
+            } else if (dist < 40) {
+                if (lastSpokenInstructionIndex !== nextStepIdx) {
+                    lastSpokenInstructionIndex = nextStepIdx;
+                    speakUltron(`${buildInstruction(step)} now.`);
+                }
+                if (dist < 25 && nextStepIdx < activeRouteInstructions.length - 1) nextStepIdx++;
             }
         }
 
@@ -1297,16 +1442,21 @@
             document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> HOLD`;
             document.getElementById('routeSelectionPanel').classList.remove('active');
             let index = 0;
+            nextStepIdx = Math.min(1, activeRouteInstructions.length - 1); announced300 = -1; lastSpokenInstructionIndex = -1;
+            isTrackingCamera = true; manualZoomUntil = 0;
+            updateRecenterUI();
             simInterval = setInterval(() => {
                 if (index >= activeRouteCoordinates.length) {
                     stopSimulation();
                     speakUltron("Destination reached.");
                     return;
                 }
+                const prev = userCoords;
                 userCoords = L.latLng(activeRouteCoordinates[index]);
                 updateUserMarker(userCoords, 10);
-                map.setView(userCoords, 17, { animate: true });
-                document.getElementById('speedValue').innerText = Math.floor(Math.random() * 20 + 50);
+                if (prev) simSpeedKmh = Math.min(120, Math.round((prev.distanceTo(userCoords) / 0.8) * 3.6));
+                document.getElementById('speedValue').innerText = simSpeedKmh;
+                followCamera();
                 checkManeuverProximity();
                 index += 2;
             }, 800);
@@ -1317,6 +1467,8 @@
             isSimulating = false;
             isNavigating = false;
             clearInterval(simInterval);
+            simSpeedKmh = 0;
+            updateRecenterUI();
             document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> SIM`;
             document.getElementById('speedValue').innerText = '0';
         }
