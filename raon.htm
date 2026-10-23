@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -16,21 +16,23 @@
 
     <style>
         :root {
-            --bg-color: #08080a;
-            --ink: #f5f3ef;
-            --ink-soft: rgba(245, 243, 239, 0.55);
-            --ink-faint: rgba(245, 243, 239, 0.32);
-            --hairline: rgba(245, 243, 239, 0.1);
-            --hairline-strong: rgba(245, 243, 239, 0.2);
-            --glass-bg: rgba(16, 16, 18, 0.55);
-            --glass-bg-deep: rgba(16, 16, 18, 0.78);
-            --accent: #f5f3ef;
-            --accent-soft: rgba(245, 243, 239, 0.16);
+            --bg-color: #0b0c10;
+            --ink: #f0e6d2;
+            --ink-soft: rgba(240, 230, 210, 0.7);
+            --ink-faint: rgba(240, 230, 210, 0.35);
+            --hairline: rgba(212, 175, 55, 0.22);
+            --hairline-strong: rgba(212, 175, 55, 0.55);
+            --glass-bg: rgba(18, 15, 25, 0.45);
+            --glass-bg-deep: rgba(14, 11, 20, 0.72);
+            --accent: #d4af37;
+            --accent-soft: rgba(212, 175, 55, 0.15);
+            --evil-red: #ff2244;
+            --evil-red-soft: rgba(255, 34, 68, 0.2);
 
-            /* Traffic Status Color Palette */
-            --traffic-clear: #AEC6CF;  /* Pastel Blue */
-            --traffic-moderate: #FFDAB9; /* Peach */
-            --traffic-jammed: #800020;  /* Maroon */
+            /* Traffic Status Color Palette - Muted Luxury */
+            --traffic-clear: #7094a8;    /* Muted Steel Blue */
+            --traffic-moderate: #d4a359; /* Muted Warm Amber */
+            --traffic-jammed: #a83232;   /* Muted Crimson */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -44,20 +46,34 @@
 
         #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
 
-        .dark-tiles .leaflet-tile {
-            filter: grayscale(0.85) brightness(0.68) contrast(1.06) sepia(0.08);
+        /* Muted Sophisticated Map Coloring with Glass Feel */
+        .leaflet-tile {
+            filter: hue-rotate(195deg) invert(0.92) contrast(1.18) saturate(0.5) brightness(0.72) !important;
+            transition: filter 0.5s ease;
         }
-        .leaflet-container { background: var(--bg-color) !important; font-family: inherit; }
+        .leaflet-container { background: #08090d !important; font-family: inherit; }
 
+        /* Advanced High-End Frosted Glass Panel */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(36px) saturate(130%);
-            -webkit-backdrop-filter: blur(36px) saturate(130%);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
             border: 1px solid var(--hairline);
             box-shadow:
-                0 24px 64px rgba(0, 0, 0, 0.75),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+                0 30px 60px rgba(0, 0, 0, 0.85),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
         }
 
         .top-container {
@@ -76,41 +92,43 @@
 
         .search-input-wrapper {
             flex: 1; display: flex; align-items: center;
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: 2px; padding: 10px 12px; gap: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--hairline);
+            border-radius: 4px; padding: 10px 12px; gap: 10px;
             transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         .search-input-wrapper:focus-within {
-            border-color: var(--hairline-strong);
-            background: rgba(245, 243, 239, 0.03);
+            border-color: var(--accent);
+            background: rgba(0, 0, 0, 0.55);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2), inset 0 2px 4px rgba(0,0,0,0.5);
         }
         .search-input-wrapper input {
             background: transparent; border: none; outline: none; color: var(--ink);
             font-family: 'Playfair Display', serif;
             font-size: 15px; width: 100%; font-weight: 400;
-            font-style: italic; letter-spacing: 0.2px;
+            font-style: italic; letter-spacing: 0.3px;
         }
         .search-input-wrapper input::placeholder {
             color: var(--ink-faint); font-style: italic;
         }
 
         .mic-btn {
-            background: transparent;
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--hairline);
             color: var(--ink-soft);
-            width: 32px; height: 32px; border-radius: 2px;
+            width: 32px; height: 32px; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 12px; transition: all 0.3s ease; flex-shrink: 0;
         }
-        .mic-btn:hover { border-color: var(--hairline-strong); color: var(--ink); }
+        .mic-btn:hover { border-color: var(--accent); color: var(--ink); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
         .mic-btn.listening {
-            background: var(--accent-soft); color: var(--ink); border-color: var(--ink);
-            animation: micPulse 1.2s infinite alternate;
+            background: var(--evil-red-soft); color: var(--evil-red); border-color: var(--evil-red);
+            animation: micPulse 1s infinite alternate;
         }
         @keyframes micPulse {
-            0% { box-shadow: 0 0 0 0 rgba(245,243,239,0.3); }
-            100% { box-shadow: 0 0 0 8px rgba(245,243,239,0); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 34, 68, 0.5); }
+            100% { box-shadow: 0 0 0 10px rgba(255, 34, 68, 0); }
         }
 
         .search-results-dropdown {
@@ -118,11 +136,11 @@
             max-height: 280px; overflow-y: auto;
             display: none; flex-direction: column; z-index: 4000; padding: 4px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px) saturate(130%);
-            -webkit-backdrop-filter: blur(32px) saturate(130%);
+            backdrop-filter: blur(32px) saturate(160%);
+            -webkit-backdrop-filter: blur(32px) saturate(160%);
             border: 1px solid var(--hairline-strong);
-            box-shadow: 0 24px 64px rgba(0,0,0,0.9);
-            border-radius: 4px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.95), 0 0 20px rgba(212,175,55,0.15);
+            border-radius: 6px;
         }
         .search-results-dropdown.active { display: flex; }
 
@@ -134,7 +152,7 @@
         }
         .search-item:last-child { border-bottom: none; }
         .search-item:hover, .search-item:active { background: var(--accent-soft); color: var(--ink); }
-        .search-item i { color: var(--ink-soft); }
+        .search-item i { color: var(--accent); }
 
         .shortcuts-row {
             display: flex; gap: 6px; overflow-x: auto;
@@ -143,19 +161,21 @@
         .shortcuts-row::-webkit-scrollbar { display: none; }
 
         .chip-btn {
-            background: rgba(16, 16, 18, 0.55);
+            background: var(--glass-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--hairline); border-radius: 2px;
+            border: 1px solid var(--hairline); border-radius: 4px;
             padding: 8px 14px; font-family: 'Inter', sans-serif;
-            font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+            font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
             color: var(--ink-soft); white-space: nowrap; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
         .chip-btn:hover, .chip-btn:active {
-            background: var(--accent-soft); border-color: var(--hairline-strong); color: var(--ink);
+            background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
+            box-shadow: 0 0 12px rgba(212,175,55,0.25);
         }
-        .chip-btn i { color: var(--ink-faint); }
-        .chip-btn:hover i { color: var(--ink); }
+        .chip-btn i { color: var(--accent); opacity: 0.8; }
+        .chip-btn:hover i { opacity: 1; }
 
         .header-controls-bar {
             padding: 6px; display: flex; align-items: center;
@@ -163,30 +183,30 @@
         }
 
         .mode-selector {
-            display: flex; background: transparent;
-            border: 1px solid var(--hairline); border-radius: 2px; padding: 3px; gap: 2px;
+            display: flex; background: rgba(0,0,0,0.4);
+            border: 1px solid var(--hairline); border-radius: 4px; padding: 3px; gap: 2px;
         }
         .mode-btn {
             background: transparent; border: none; color: var(--ink-faint);
-            padding: 6px 10px; border-radius: 1px;
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            padding: 6px 10px; border-radius: 2px;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
             letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
             transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;
         }
-        .mode-btn.active { background: var(--accent-soft); color: var(--ink); }
+        .mode-btn.active { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--hairline); }
 
         .ultron-voice-btn {
-            background: transparent; border: 1px solid var(--hairline);
-            color: var(--ink-soft); padding: 8px 14px; border-radius: 2px;
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--hairline);
+            color: var(--ink-soft); padding: 8px 14px; border-radius: 4px;
+            font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
             display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; position: relative;
         }
-        .ultron-voice-btn.active { background: var(--accent-soft); color: var(--ink); border-color: var(--hairline-strong); }
-        .ultron-voice-btn.speaking { animation: voicePulse 1s infinite alternate; }
+        .ultron-voice-btn.active { background: var(--evil-red-soft); color: var(--evil-red); border-color: var(--evil-red); }
+        .ultron-voice-btn.speaking { animation: voicePulse 0.8s infinite alternate; }
         @keyframes voicePulse {
-            0% { box-shadow: 0 0 0 0 rgba(245,243,239,0.3); }
-            100% { box-shadow: 0 0 0 6px rgba(245,243,239,0); }
+            0% { box-shadow: 0 0 0 0 rgba(255,34,68,0.6); }
+            100% { box-shadow: 0 0 0 10px rgba(255,34,68,0); }
         }
 
         .turn-banner {
@@ -194,17 +214,18 @@
             left: 12px; right: 12px; z-index: 999; padding: 14px 18px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px) saturate(130%); -webkit-backdrop-filter: blur(32px) saturate(130%);
-            border: 1px solid var(--hairline-strong); border-radius: 4px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.85);
+            backdrop-filter: blur(32px) saturate(160%); -webkit-backdrop-filter: blur(32px) saturate(160%);
+            border: 1px solid var(--hairline-strong); border-radius: 6px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.95), 0 0 20px rgba(212,175,55,0.1);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
-            width: 44px; height: 44px; border-radius: 2px;
+            width: 44px; height: 44px; border-radius: 4px;
             background: var(--accent-soft); border: 1px solid var(--hairline-strong);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: var(--ink); flex-shrink: 0;
+            font-size: 18px; color: var(--accent); flex-shrink: 0;
+            box-shadow: inset 0 0 8px rgba(212,175,55,0.2);
         }
         .turn-details { flex: 1; min-width: 0; }
         .turn-instruction {
@@ -212,36 +233,39 @@
             color: var(--ink); letter-spacing: -0.2px; line-height: 1.3;
         }
         .turn-distance {
-            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 500;
-            letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px;
+            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--evil-red); margin-top: 4px;
         }
 
         .speed-badge {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
             left: 12px; z-index: 999; padding: 10px 16px;
             display: flex; align-items: center; gap: 10px;
-            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 500;
-            letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-faint);
+            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
         }
         .speed-value {
-            font-family: 'Playfair Display', serif; font-size: 22px;
-            color: var(--ink); letter-spacing: -0.5px; font-weight: 500;
+            font-family: 'Orbitron', sans-serif; font-size: 22px;
+            color: var(--accent); letter-spacing: -0.5px; font-weight: 700;
+            text-shadow: 0 0 10px rgba(212,175,55,0.4);
         }
-        .speed-badge i { color: var(--ink-faint); font-size: 13px; }
+        .speed-badge i { color: var(--evil-red); font-size: 13px; }
 
         .side-controls {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
             right: 12px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
         }
         .icon-circle-btn {
-            width: 40px; height: 40px; border-radius: 2px;
+            width: 40px; height: 40px; border-radius: 4px;
             border: 1px solid var(--hairline); background: var(--glass-bg);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 14px; transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
         }
         .icon-circle-btn:hover {
-            background: var(--accent-soft); border-color: var(--hairline-strong); color: var(--ink);
+            background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
         }
 
         .route-selection-panel {
@@ -253,31 +277,32 @@
         .route-selection-panel.active { display: flex; }
 
         .route-card {
-            background: transparent; border: 1px solid var(--hairline); border-radius: 2px;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--hairline); border-radius: 4px;
             padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.3s ease; gap: 12px;
         }
         .route-card:hover, .route-card.selected {
-            background: var(--accent-soft); border-color: var(--hairline-strong);
+            background: var(--accent-soft); border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(212,175,55,0.2);
         }
         .route-card-title {
             font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500;
             display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.1px;
         }
         .route-badge {
-            font-family: 'Inter', sans-serif; font-size: 8px; font-weight: 500;
+            font-family: 'Orbitron', sans-serif; font-size: 8px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 7px;
-            border-radius: 1px; border: 1px solid var(--hairline-strong);
+            border-radius: 2px; border: 1px solid var(--hairline-strong);
             color: var(--ink-soft); background: transparent;
         }
-        .badge-fast { border-color: var(--ink); color: var(--ink); }
+        .badge-fast { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px rgba(212,175,55,0.3); }
         .badge-free { border-color: var(--hairline-strong); color: var(--ink-soft); }
         .route-card-sub {
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 400;
+            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
             letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px;
         }
         .route-card i { color: var(--ink-faint); font-size: 12px; }
-        .route-card.selected i { color: var(--ink); }
+        .route-card.selected i { color: var(--accent); }
 
         .bottom-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
@@ -287,61 +312,61 @@
         .action-buttons { display: flex; gap: 6px; width: 100%; }
 
         .btn {
-            border: 1px solid var(--hairline); padding: 12px 14px; border-radius: 2px;
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            border: 1px solid var(--hairline); padding: 12px 14px; border-radius: 4px;
+            font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
             letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft);
-            background: transparent; cursor: pointer;
+            background: rgba(0,0,0,0.4); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: all 0.3s ease; flex: 1;
         }
-        .btn:hover { border-color: var(--hairline-strong); color: var(--ink); background: var(--accent-soft); }
-        .btn-primary { background: var(--accent); color: var(--bg-color); border-color: var(--accent); }
-        .btn-primary:hover { background: var(--ink); color: var(--bg-color); }
+        .btn:hover { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); box-shadow: 0 0 12px rgba(212,175,55,0.25); }
+        .btn-primary { background: var(--accent); color: #08080a; border-color: var(--accent); box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+        .btn-primary:hover { background: #f0e6d2; color: #000; box-shadow: 0 0 20px rgba(212,175,55,0.6); }
         .btn-secondary { background: transparent; }
-        .btn-danger { background: transparent; border-color: var(--hairline-strong); color: var(--ink-faint); }
-        .btn-danger:hover { color: var(--ink); border-color: var(--ink); }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-danger { background: rgba(255,34,68,0.15); border-color: var(--evil-red); color: var(--evil-red); }
+        .btn-danger:hover { background: var(--evil-red); color: #fff; box-shadow: 0 0 15px rgba(255,34,68,0.6); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
 
         #routeMetrics {
             font-family: 'Inter', sans-serif; font-size: 10px;
             letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
         }
-        #routeMetrics strong { color: var(--ink); font-weight: 500; }
+        #routeMetrics strong { color: var(--accent); font-weight: 600; }
 
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
-            width: 14px; height: 14px; background: var(--ink);
+            width: 14px; height: 14px; background: var(--evil-red);
             border: 2px solid var(--bg-color); border-radius: 50%;
-            box-shadow: 0 0 0 1px var(--ink), 0 0 20px rgba(245,243,239,0.6);
+            box-shadow: 0 0 0 2px var(--evil-red), 0 0 20px rgba(255,34,68,0.9);
             position: absolute; top: 7px; left: 7px; z-index: 2;
         }
         .user-pulse {
             width: 40px; height: 40px;
-            background: radial-gradient(circle, rgba(245,243,239,0.35) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,34,68,0.45) 0%, transparent 70%);
             border-radius: 50%; position: absolute; top: -6px; left: -6px;
-            animation: pulse-ring 2.4s infinite ease-out;
+            animation: pulse-ring 2s infinite ease-out;
         }
         @keyframes pulse-ring {
             0% { transform: scale(0.3); opacity: 0.9; }
-            100% { transform: scale(1.8); opacity: 0; }
+            100% { transform: scale(2.0); opacity: 0; }
         }
         .dest-pin-icon {
-            font-size: 26px; color: var(--ink);
-            filter: drop-shadow(0 0 10px rgba(245,243,239,0.7));
+            font-size: 26px; color: var(--accent);
+            filter: drop-shadow(0 0 10px rgba(212,175,55,0.8));
         }
         .leaflet-routing-container { display: none !important; }
 
         .toast-msg {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%; transform: translateX(-50%);
-            background: var(--glass-bg-deep); backdrop-filter: blur(28px) saturate(130%);
-            -webkit-backdrop-filter: blur(28px) saturate(130%);
+            background: var(--glass-bg-deep); backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
             border: 1px solid var(--hairline-strong); color: var(--ink);
-            padding: 10px 20px; border-radius: 2px;
-            font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+            padding: 10px 20px; border-radius: 4px;
+            font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
             letter-spacing: 2px; text-transform: uppercase;
             z-index: 5000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.85); white-space: nowrap;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 15px rgba(212,175,55,0.2); white-space: nowrap;
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
@@ -349,23 +374,23 @@
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             left: 12px; right: 12px; z-index: 1100;
             display: flex; align-items: center; justify-content: space-around;
-            padding: 8px; border-radius: 3px;
+            padding: 8px; border-radius: 6px;
         }
         .tab-btn {
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
             background: transparent; border: none; color: var(--ink-faint);
             padding: 6px 0; font-family: 'Inter', sans-serif;
-            font-size: 8px; font-weight: 500; letter-spacing: 1.8px; text-transform: uppercase;
-            cursor: pointer; transition: all 0.3s ease; border-radius: 2px;
+            font-size: 8px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s ease; border-radius: 3px;
         }
         .tab-btn i { font-size: 14px; }
-        .tab-btn.active { color: var(--ink); }
-        .tab-btn.active i { filter: drop-shadow(0 0 6px rgba(245,243,239,0.5)); }
+        .tab-btn.active { color: var(--accent); }
+        .tab-btn.active i { filter: drop-shadow(0 0 6px rgba(212,175,55,0.8)); }
 
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 3000; display: none; background: rgba(8, 8, 10, 0.92);
-            backdrop-filter: blur(24px) saturate(130%); -webkit-backdrop-filter: blur(24px) saturate(130%);
+            z-index: 3000; display: none; background: rgba(10, 8, 14, 0.92);
+            backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);
             padding: calc(env(safe-area-inset-top, 0px) + 32px) 20px calc(env(safe-area-inset-bottom, 0px) + 90px);
             animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -381,26 +406,26 @@
             letter-spacing: -0.8px; color: var(--ink); font-style: italic;
         }
         .overlay-close {
-            width: 36px; height: 36px; border-radius: 2px; background: transparent;
+            width: 36px; height: 36px; border-radius: 4px; background: transparent;
             border: 1px solid var(--hairline); color: var(--ink-soft);
             font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: all 0.3s ease;
         }
-        .overlay-close:hover { border-color: var(--hairline-strong); color: var(--ink); }
+        .overlay-close:hover { border-color: var(--accent); color: var(--ink); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
 
         .overlay-content {
             flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px;
         }
 
         .list-card {
-            background: transparent; border: 1px solid var(--hairline); border-radius: 2px;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--hairline); border-radius: 4px;
             padding: 14px 16px; display: flex; align-items: center; gap: 14px;
             cursor: pointer; transition: all 0.3s ease;
         }
-        .list-card:hover { background: var(--accent-soft); border-color: var(--hairline-strong); }
+        .list-card:hover { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 12px rgba(212,175,55,0.2); }
         .list-icon {
-            width: 36px; height: 36px; border-radius: 2px; background: var(--accent-soft);
-            color: var(--ink); display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 4px; background: var(--accent-soft);
+            color: var(--accent); display: flex; align-items: center; justify-content: center;
             font-size: 13px; flex-shrink: 0; border: 1px solid var(--hairline);
         }
         .list-main { flex: 1; min-width: 0; }
@@ -414,24 +439,24 @@
             margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .list-action {
-            width: 32px; height: 32px; border-radius: 2px; background: transparent;
+            width: 32px; height: 32px; border-radius: 4px; background: transparent;
             color: var(--ink-faint); border: 1px solid var(--hairline);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 11px; flex-shrink: 0; transition: all 0.3s ease;
         }
-        .list-action:hover { color: var(--ink); border-color: var(--hairline-strong); background: var(--accent-soft); }
+        .list-action:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
         .empty-state {
             text-align: center; color: var(--ink-faint); padding: 60px 20px;
             font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; line-height: 1.6;
         }
-        .empty-state i { font-size: 32px; display: block; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state i { font-size: 32px; display: block; margin-bottom: 20px; opacity: 0.3; color: var(--accent); }
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            background: transparent; border: 1px solid var(--hairline); border-radius: 2px; transition: all 0.3s ease;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--hairline); border-radius: 4px; transition: all 0.3s ease;
         }
-        .settings-row[onclick]:hover { background: var(--accent-soft); border-color: var(--hairline-strong); }
+        .settings-row[onclick]:hover { background: var(--accent-soft); border-color: var(--accent); }
         .settings-row .label { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500; color: var(--ink); }
         .settings-row .sub {
             font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 400;
@@ -439,24 +464,24 @@
         }
 
         .toggle-switch {
-            width: 42px; height: 24px; border-radius: 12px; background: rgba(245,243,239,0.1);
+            width: 42px; height: 24px; border-radius: 12px; background: rgba(0,0,0,0.5);
             border: 1px solid var(--hairline); position: relative; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
         }
         .toggle-switch::after {
             content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
             border-radius: 50%; background: var(--ink-faint); transition: all 0.3s ease;
         }
-        .toggle-switch.on { background: var(--accent-soft); border-color: var(--hairline-strong); }
-        .toggle-switch.on::after { transform: translateX(18px); background: var(--ink); }
+        .toggle-switch.on { background: var(--evil-red-soft); border-color: var(--evil-red); box-shadow: 0 0 10px rgba(255,34,68,0.3); }
+        .toggle-switch.on::after { transform: translateX(18px); background: var(--evil-red); }
 
         .route-loading {
             display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px;
-            font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 400;
-            letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
+            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--accent);
         }
         .spinner {
             width: 14px; height: 14px; border: 1.5px solid var(--hairline-strong);
-            border-top-color: var(--ink); border-radius: 50%; animation: spin 0.9s linear infinite;
+            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -469,14 +494,14 @@
 </head>
 <body class="dark-tiles">
 
-    <div id="toast" class="toast-msg">Navigation initialized</div>
+    <div id="toast" class="toast-msg">Mandroid System Initialized</div>
 
     <!-- Top Header -->
     <div class="top-container">
         <div class="glass-panel search-box-panel">
             <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink-faint); font-size: 12px;"></i>
-                <input type="text" id="searchInput" placeholder="Where to?" oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--accent); font-size: 12px;"></i>
+                <input type="text" id="searchInput" placeholder="Enter target coordinates..." oninput="handleSearchInput(this.value)">
                 <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 12px;" onclick="clearSearchInput()"></i>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
                     <i class="fa-solid fa-microphone"></i>
@@ -490,7 +515,7 @@
             <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> Parking</button>
             <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> Coffee</button>
             <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> Dining</button>
-            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home Base</button>
         </div>
 
         <div class="glass-panel header-controls-bar">
@@ -500,7 +525,7 @@
                 <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
             </div>
             <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
-                <i class="fa-solid fa-volume-high"></i> <span>Voice</span>
+                <i class="fa-solid fa-robot"></i> <span>Mandroid</span>
             </button>
         </div>
     </div>
@@ -509,14 +534,14 @@
     <div class="turn-banner" id="turnBanner">
         <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
         <div class="turn-details">
-            <div class="turn-instruction" id="turnInstruction">Awaiting destination</div>
-            <div class="turn-distance" id="turnDistance">Calculating route</div>
+            <div class="turn-instruction" id="turnInstruction">Awaiting target directive</div>
+            <div class="turn-distance" id="turnDistance">Calculating trajectory</div>
         </div>
     </div>
 
     <!-- Speed Badge -->
     <div class="speed-badge glass-panel">
-        <i class="fa-solid fa-gauge-high"></i>
+        <i class="fa-solid fa-bolt"></i>
         <span class="speed-value" id="speedValue">0</span>
         <span>KM/H</span>
     </div>
@@ -528,8 +553,8 @@
 
     <!-- Route Selection -->
     <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
-        <div style="font-family:'Inter',sans-serif; font-size:9px; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:var(--ink-faint); padding: 4px 4px 8px;">
-            Route Options
+        <div style="font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); padding: 4px 4px 8px;">
+            Calculated Trajectories
         </div>
         <div id="routeCardsContainer"></div>
     </div>
@@ -540,11 +565,11 @@
     <!-- Bottom Action Bar -->
     <div class="bottom-bar glass-panel">
         <div id="routeMetrics">
-            <span>Tap the map or search</span>
+            <span>Designate destination...</span>
         </div>
         <div class="action-buttons">
             <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
-                <i class="fa-solid fa-location-arrow"></i> Start
+                <i class="fa-solid fa-skull"></i> Execute
             </button>
             <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
                 <i class="fa-solid fa-play"></i> Simulate
@@ -596,24 +621,24 @@
         <div class="overlay-content">
             <div class="settings-row">
                 <div>
-                    <div class="label">Voice Guidance</div>
-                    <div class="sub">Spoken navigation</div>
+                    <div class="label">Mandroid Voice Matrix</div>
+                    <div class="sub">Spoken evil machine guidance</div>
                 </div>
                 <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
             </div>
             <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
                 <div>
-                    <div class="label">Home Address</div>
-                    <div class="sub" id="homeAddressSub">Not set — tap to set</div>
+                    <div class="label">Secret Home Base</div>
+                    <div class="sub" id="homeAddressSub">Not set — tap to calibrate</div>
                 </div>
-                <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint); font-size:10px;"></i>
+                <i class="fa-solid fa-chevron-right" style="color:var(--hairline-strong); font-size:10px;"></i>
             </div>
             <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
                 <div>
-                    <div class="label">Clear All Data</div>
-                    <div class="sub">Recents, saved places, home</div>
+                    <div class="label">Purge Tactical Data</div>
+                    <div class="sub">Recents, saved coordinates, base location</div>
                 </div>
-                <i class="fa-solid fa-trash" style="color:var(--ink-faint); font-size:10px;"></i>
+                <i class="fa-solid fa-trash" style="color:var(--evil-red); font-size:10px;"></i>
             </div>
         </div>
     </div>
@@ -678,6 +703,7 @@
             } catch(e) {}
         }
 
+        /* Dark Synth & Metallic Evil Pulse Sound FX */
         function playUltronMetallicPulse() {
             if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -686,35 +712,60 @@
                 const osc2 = audioCtx.createOscillator();
                 const filter = audioCtx.createBiquadFilter();
                 const gain = audioCtx.createGain();
-                osc1.type = 'sawtooth'; osc2.type = 'square';
-                osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
-                osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+
+                osc1.frequency.setValueAtTime(30, audioCtx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+
+                osc2.frequency.setValueAtTime(60, audioCtx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.3);
+
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(320, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+
                 osc1.connect(filter); osc2.connect(filter);
                 filter.connect(gain); gain.connect(audioCtx.destination);
+
                 osc1.start(); osc2.start();
-                osc1.stop(audioCtx.currentTime + 0.4);
-                osc2.stop(audioCtx.currentTime + 0.4);
+                osc1.stop(audioCtx.currentTime + 0.45);
+                osc2.stop(audioCtx.currentTime + 0.45);
             } catch(e) {}
         }
 
+        /* Evil Villain Machine / Mandroid Speech Modulation */
         function speakUltron(text) {
             if (!ultronEnabled || !('speechSynthesis' in window)) return;
             synth.cancel();
             playUltronMetallicPulse();
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.add('speaking');
+
+            // Prepend villain machine persona phrasing
+            const villainPhrases = [
+                "Directive received. ",
+                "Mandroid system active. ",
+                "Target acquired. ",
+                "Commencing maneuver. ",
+                "Obey command. "
+            ];
+            const evilText = text.length > 25 ? text : villainPhrases[Math.floor(Math.random() * villainPhrases.length)] + text;
+
             setTimeout(() => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.pitch = 0.4;
-                utterance.rate = 0.92;
+                const utterance = new SpeechSynthesisUtterance(evilText);
+                utterance.pitch = 0.1;  /* Deep robot bass */
+                utterance.rate = 0.85;   /* Slow, sinister cadence */
                 utterance.volume = 1.0;
+
                 const voices = synth.getVoices();
-                const v = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                /* Prefer robotic/male english voices if available */
+                const v = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Male') || v.name.includes('David') || v.name.includes('Daniel'))) || voices[0];
                 if (v) utterance.voice = v;
+
                 utterance.onend = () => btn.classList.remove('speaking');
                 utterance.onerror = () => btn.classList.remove('speaking');
                 synth.speak(utterance);
@@ -746,7 +797,7 @@
                             if (!userCoords) {
                                 userCoords = L.latLng(DEFAULT_LOCATION);
                                 updateUserMarker(userCoords, 100);
-                                showToast("Using default location");
+                                showToast("Using default coordinates");
                             }
                         },
                         { enableHighAccuracy: false, timeout: 6000 }
@@ -788,7 +839,7 @@
                     iconSize: [28, 28], iconAnchor: [14, 14]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
-                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#f5f3ef', fillColor: '#f5f3ef', fillOpacity: 0.05, weight: 0.5 }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#ff2244', fillColor: '#ff2244', fillOpacity: 0.08, weight: 0.8 }).addTo(map);
             }
         }
 
@@ -824,7 +875,7 @@
             results.forEach(res => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${res.display_name}</span>`;
+                item.innerHTML = `<i class="fa-solid fa-location-crosshairs"></i> <span>${res.display_name}</span>`;
                 item.onclick = () => {
                     const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
                     const name = res.display_name.split(',')[0];
@@ -850,7 +901,7 @@
             document.getElementById('searchResults').classList.remove('active');
         }
 
-        function setDestination(latLng, label = "Selected Target") {
+        function setDestination(latLng, label = "Target Sector") {
             activeDestination = latLng;
             if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
             if (destMarker) map.removeLayer(destMarker);
@@ -868,7 +919,7 @@
             const panel = document.getElementById('routeSelectionPanel');
             const container = document.getElementById('routeCardsContainer');
             panel.classList.add('active');
-            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Calculating routes</div>`;
+            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Computing optimal trajectory</div>`;
 
             const url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
 
@@ -880,7 +931,7 @@
                         renderRouteCards(label);
                         selectRoute(0);
                         enableActionButtons();
-                        speakUltron("Route calculated.");
+                        speakUltron("Trajectories plotted. Awaiting execution.");
                     } else {
                         container.innerHTML = `<div class="empty-state">No route found</div>`;
                     }
@@ -896,7 +947,7 @@
             routesList.forEach((r, idx) => {
                 const mins = Math.round(r.duration / 60);
                 const km = (r.distance / 1000).toFixed(1);
-                let badge = idx === 0 ? '<span class="route-badge badge-fast">Fastest</span>' : '<span class="route-badge badge-free">Alternate</span>';
+                let badge = idx === 0 ? '<span class="route-badge badge-fast">Primary</span>' : '<span class="route-badge badge-free">Alternate</span>';
                 const card = document.createElement('div');
                 card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
                 card.id = `routeCard-${idx}`;
@@ -929,7 +980,7 @@
             renderRouteOnMap(routesList[idx]);
         }
 
-        /* Colorized Real-Time Traffic Segments (Pastel Blue, Peach, Maroon) */
+        /* Colorized Traffic Segments - Muted Steel Blue, Muted Amber, Muted Crimson */
         function renderRouteOnMap(routeData) {
             clearPolylines();
             activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
@@ -944,22 +995,22 @@
                 const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
                 const jammedSegment = activeRouteCoordinates.slice(jamEnd);
 
-                // Pastel Blue for Clear Traffic
+                // Muted Steel Blue for Clear
                 if (clearSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(clearSegment, {
-                        color: '#AEC6CF', weight: 6, opacity: 0.95
+                        color: '#7094a8', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
-                // Peach for Moderate Traffic
+                // Muted Amber for Moderate
                 if (moderateSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(moderateSegment, {
-                        color: '#FFDAB9', weight: 6, opacity: 0.95
+                        color: '#d4a359', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
-                // Maroon for Jammed Traffic
+                // Muted Crimson for Jammed
                 if (jammedSegment.length > 1) {
                     currentRoutePolylines.push(L.polyline(jammedSegment, {
-                        color: '#800020', weight: 6, opacity: 0.95
+                        color: '#a83232', weight: 6, opacity: 0.95
                     }).addTo(map));
                 }
             }
@@ -986,7 +1037,7 @@
         function updateTurnBanner(step) {
             const banner = document.getElementById('turnBanner');
             banner.classList.add('active');
-            const inst = step.maneuver.instruction || "Proceed forward";
+            const inst = step.maneuver.instruction || "Proceed straight";
             const dist = step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} km` : `${Math.round(step.distance)} m`;
             document.getElementById('turnInstruction').innerText = inst;
             document.getElementById('turnDistance').innerText = `In ${dist}`;
@@ -1005,7 +1056,7 @@
             const btn = document.getElementById('ultronVoiceBtn');
             btn.classList.toggle('active', ultronEnabled);
             document.getElementById('settingsVoiceToggle').classList.toggle('on', ultronEnabled);
-            if (ultronEnabled) speakUltron("Voice enabled.");
+            if (ultronEnabled) speakUltron("Mandroid vocal matrix active.");
             else synth.cancel();
         }
 
@@ -1016,17 +1067,17 @@
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 isNavigating = true;
                 isTrackingCamera = true;
-                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End`;
+                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> Abort`;
                 document.getElementById('startNavBtn').className = "btn btn-danger";
                 document.getElementById('routeSelectionPanel').classList.remove('active');
                 if (userCoords) map.flyTo(userCoords, 17, { animate: true });
-                speakUltron("Navigation started.");
+                speakUltron("Execution initiated. Do not deviate.");
             }
         }
 
         function stopNavigation() {
             isNavigating = false;
-            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
+            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-skull"></i> Execute`;
             document.getElementById('startNavBtn').className = "btn btn-primary";
             document.getElementById('turnBanner').classList.remove('active');
             synth.cancel();
@@ -1063,7 +1114,7 @@
             simInterval = setInterval(() => {
                 if (index >= activeRouteCoordinates.length) {
                     stopSimulation();
-                    speakUltron("Destination reached.");
+                    speakUltron("Destination subjugated.");
                     return;
                 }
                 userCoords = L.latLng(activeRouteCoordinates[index]);
@@ -1073,7 +1124,7 @@
                 checkManeuverProximity();
                 index += 2;
             }, 800);
-            speakUltron("Simulation started.");
+            speakUltron("Simulation engaged.");
         }
 
         function stopSimulation() {
@@ -1095,7 +1146,7 @@
             document.getElementById('startNavBtn').disabled = true;
             document.getElementById('simDriveBtn').disabled = true;
             document.getElementById('clearBtn').style.display = 'none';
-            document.getElementById('routeMetrics').innerHTML = `<span>Tap the map or search</span>`;
+            document.getElementById('routeMetrics').innerHTML = `<span>Designate destination...</span>`;
         }
 
         function switchTab(tabName) {
@@ -1128,7 +1179,7 @@
             const list = document.getElementById('recentsList');
             list.innerHTML = '';
             if (recents.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent destinations</div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent targets</div>`;
                 return;
             }
             recents.forEach(r => {
@@ -1158,7 +1209,7 @@
             const list = document.getElementById('savedList');
             list.innerHTML = '';
             if (savedPlaces.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved places yet</div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved targets</div>`;
                 return;
             }
             savedPlaces.forEach(s => {
@@ -1181,37 +1232,37 @@
 
         function routeHome() {
             if (!homeLocation) {
-                showToast("Home not set — open Settings");
+                showToast("Base coordinates uncalibrated");
                 switchTab('settings');
                 return;
             }
-            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home");
+            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home Base");
         }
 
         function promptSetHome() {
-            if (!userCoords) { showToast("Waiting for position"); return; }
+            if (!userCoords) { showToast("Awaiting position fix"); return; }
             homeLocation = { lat: userCoords.lat, lng: userCoords.lng };
             localStorage.setItem('raon_home', JSON.stringify(homeLocation));
             updateHomeSubLabel();
-            showToast("Home updated");
+            showToast("Base location updated");
         }
 
         function updateHomeSubLabel() {
             const sub = document.getElementById('homeAddressSub');
             if (homeLocation) sub.innerText = `${homeLocation.lat.toFixed(4)}, ${homeLocation.lng.toFixed(4)}`;
-            else sub.innerText = "Not set — tap to set";
+            else sub.innerText = "Not set — tap to calibrate";
         }
 
         function toggleSettingsVoice() { toggleUltronVoice(); }
 
         function clearAllData() {
-            if (confirm("Clear all recents and saved places?")) {
+            if (confirm("Purge all target logs and saved locations?")) {
                 localStorage.removeItem('raon_recents');
                 localStorage.removeItem('raon_saved');
                 localStorage.removeItem('raon_home');
                 recents = []; savedPlaces = []; homeLocation = null;
                 updateHomeSubLabel();
-                showToast("Data cleared");
+                showToast("Tactical data purged");
             }
         }
 
@@ -1219,11 +1270,11 @@
         function toggleVoiceSearch() {
             const micBtn = document.getElementById('micBtn');
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) { showToast("Voice not supported"); return; }
+            if (!SR) { showToast("Voice input unsupported"); return; }
             if (recognition) { recognition.stop(); recognition = null; micBtn.classList.remove('listening'); return; }
             recognition = new SR();
             recognition.lang = 'en-US';
-            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("Listening"); };
+            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("Listening for commands..."); };
             recognition.onresult = (e) => {
                 const text = e.results[0][0].transcript;
                 document.getElementById('searchInput').value = text;
