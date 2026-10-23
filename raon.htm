@@ -16,23 +16,17 @@
 
     <style>
         :root {
-            /* Deep warm-black base */
             --bg-color: #0b0a0d;
             --bg-vignette: #141117;
-
-            /* Ink — warm off-white */
             --ink: #ede8e2;
             --ink-soft: rgba(237, 232, 226, 0.58);
             --ink-faint: rgba(237, 232, 226, 0.32);
             --hairline: rgba(237, 232, 226, 0.1);
             --hairline-strong: rgba(237, 232, 226, 0.22);
-
-            /* Muted glass */
             --glass-bg: rgba(20, 17, 23, 0.52);
             --glass-bg-deep: rgba(20, 17, 23, 0.82);
             --glass-highlight: rgba(237, 232, 226, 0.06);
 
-            /* Muted accent palette — dusty rose, teal, sand, lilac */
             --rose: #c48b9f;
             --rose-soft: rgba(196, 139, 159, 0.16);
             --teal: #7fa9a0;
@@ -42,10 +36,10 @@
             --lilac: #a394b8;
             --lilac-soft: rgba(163, 148, 184, 0.16);
 
-            /* Muted traffic status colors */
-            --traffic-clear: #7fa9a0;   /* muted teal */
-            --traffic-moderate: #c9b895; /* warm sand */
-            --traffic-jammed: #8f4a5a;   /* deep rose-maroon */
+            /* Real-time traffic segment colors */
+            --traffic-clear: #AEC6CF;    /* Pastel Blue */
+            --traffic-moderate: #FFDAB9; /* Peach */
+            --traffic-jammed: #800020;   /* Maroon */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -57,7 +51,6 @@
             color: var(--ink);
         }
 
-        /* Soft ambient colored glow behind the UI */
         body::before {
             content: '';
             position: fixed;
@@ -77,26 +70,21 @@
 
         #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-color); }
 
-        /* Muted monochrome tiles with a slight warm tint */
         .dark-tiles .leaflet-tile {
             filter: grayscale(0.9) brightness(0.62) contrast(1.05) sepia(0.12);
         }
         .leaflet-container { background: var(--bg-color) !important; font-family: inherit; }
 
-        /* ---------- Glass ---------- */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(40px) saturate(140%);
             -webkit-backdrop-filter: blur(40px) saturate(140%);
             border: 1px solid var(--hairline);
-            box-shadow:
-                0 24px 64px rgba(0, 0, 0, 0.8),
-                inset 0 1px 0 var(--glass-highlight);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), inset 0 1px 0 var(--glass-highlight);
             border-radius: 4px;
             position: relative;
             overflow: hidden;
         }
-        /* Subtle top sheen */
         .glass-panel::before {
             content: '';
             position: absolute;
@@ -106,7 +94,6 @@
             pointer-events: none;
         }
 
-        /* ---------- Top Header ---------- */
         .top-container {
             position: absolute;
             top: calc(env(safe-area-inset-top, 0px) + 12px);
@@ -152,9 +139,7 @@
         }
         .mic-btn:hover { border-color: var(--rose); color: var(--rose); }
         .mic-btn.listening {
-            background: var(--rose-soft);
-            color: var(--rose);
-            border-color: var(--rose);
+            background: var(--rose-soft); color: var(--rose); border-color: var(--rose);
             animation: micPulse 1.2s infinite alternate;
         }
         @keyframes micPulse {
@@ -182,12 +167,9 @@
             border-bottom: 1px solid var(--hairline);
         }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item:active {
-            background: var(--rose-soft); color: var(--ink);
-        }
+        .search-item:hover, .search-item:active { background: var(--rose-soft); color: var(--ink); }
         .search-item i { color: var(--rose); }
 
-        /* ---------- Shortcuts ---------- */
         .shortcuts-row {
             display: flex; gap: 6px; overflow-x: auto;
             padding-bottom: 2px; scrollbar-width: none; z-index: 1000;
@@ -196,34 +178,18 @@
 
         .chip-btn {
             background: rgba(20, 17, 23, 0.55);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--hairline);
-            border-radius: 2px;
-            padding: 8px 14px;
-            font-family: 'Inter', sans-serif;
-            font-size: 10px; font-weight: 500;
-            letter-spacing: 2px; text-transform: uppercase;
-            color: var(--ink-soft);
-            white-space: nowrap; cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-            transition: all 0.3s ease;
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--hairline); border-radius: 2px;
+            padding: 8px 14px; font-family: 'Inter', sans-serif;
+            font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ink-soft); white-space: nowrap; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
         }
         .chip-btn:hover, .chip-btn:active {
-            background: var(--rose-soft);
-            border-color: rgba(196, 139, 159, 0.35);
-            color: var(--ink);
+            background: var(--rose-soft); border-color: rgba(196, 139, 159, 0.35); color: var(--ink);
         }
         .chip-btn i { color: var(--rose); }
-        .chip-btn:nth-child(2) i { color: var(--teal); }
-        .chip-btn:nth-child(3) i { color: var(--sand); }
-        .chip-btn:nth-child(4) i { color: var(--lilac); }
-        .chip-btn:nth-child(5) i { color: var(--rose); }
-        .chip-btn:nth-child(2):hover { background: var(--teal-soft); border-color: rgba(127, 169, 160, 0.35); }
-        .chip-btn:nth-child(3):hover { background: var(--sand-soft); border-color: rgba(201, 184, 149, 0.35); }
-        .chip-btn:nth-child(4):hover { background: var(--lilac-soft); border-color: rgba(163, 148, 184, 0.35); }
 
-        /* ---------- Controls Bar ---------- */
         .header-controls-bar {
             padding: 6px; display: flex; align-items: center;
             justify-content: space-between; gap: 6px; z-index: 1000;
@@ -241,8 +207,7 @@
             transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;
         }
         .mode-btn.active {
-            background: var(--rose-soft);
-            color: var(--rose);
+            background: var(--rose-soft); color: var(--rose);
             box-shadow: inset 0 0 0 1px rgba(196, 139, 159, 0.3);
         }
 
@@ -254,36 +219,28 @@
             display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; position: relative;
         }
         .ultron-voice-btn.active {
-            background: var(--teal-soft);
-            color: var(--teal);
-            border-color: rgba(127, 169, 160, 0.4);
+            background: var(--teal-soft); color: var(--teal); border-color: rgba(127, 169, 160, 0.4);
         }
-        .ultron-voice-btn.speaking {
-            animation: voicePulse 0.7s infinite alternate;
-        }
+        .ultron-voice-btn.speaking { animation: voicePulse 0.7s infinite alternate; }
         @keyframes voicePulse {
             0%   { box-shadow: 0 0 0 0 rgba(127,169,160,0.5); color: var(--rose); }
             100% { box-shadow: 0 0 0 8px rgba(127,169,160,0); color: var(--teal); }
         }
 
-        /* ---------- Turn Banner ---------- */
         .turn-banner {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 148px);
             left: 12px; right: 12px; z-index: 999; padding: 14px 18px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(36px) saturate(140%);
-            -webkit-backdrop-filter: blur(36px) saturate(140%);
-            border: 1px solid rgba(196, 139, 159, 0.25);
-            border-radius: 4px;
+            backdrop-filter: blur(36px) saturate(140%); -webkit-backdrop-filter: blur(36px) saturate(140%);
+            border: 1px solid rgba(196, 139, 159, 0.25); border-radius: 4px;
             box-shadow: 0 24px 64px rgba(0,0,0,0.85);
         }
         .turn-banner.active { display: flex; }
 
         .turn-icon-box {
             width: 44px; height: 44px; border-radius: 2px;
-            background: var(--rose-soft);
-            border: 1px solid rgba(196, 139, 159, 0.4);
+            background: var(--rose-soft); border: 1px solid rgba(196, 139, 159, 0.4);
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; color: var(--rose); flex-shrink: 0;
         }
@@ -297,7 +254,6 @@
             letter-spacing: 2.5px; text-transform: uppercase; color: var(--rose); margin-top: 4px;
         }
 
-        /* ---------- Speed Badge ---------- */
         .speed-badge {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
             left: 12px; z-index: 999; padding: 10px 16px;
@@ -311,7 +267,6 @@
         }
         .speed-badge i { color: var(--teal); font-size: 13px; }
 
-        /* ---------- Side Controls ---------- */
         .side-controls {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 230px);
             right: 12px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
@@ -324,12 +279,9 @@
             cursor: pointer; font-size: 14px; transition: all 0.3s ease;
         }
         .icon-circle-btn:hover {
-            background: var(--lilac-soft);
-            border-color: rgba(163, 148, 184, 0.4);
-            color: var(--lilac);
+            background: var(--lilac-soft); border-color: rgba(163, 148, 184, 0.4); color: var(--lilac);
         }
 
-        /* ---------- Route Selection ---------- */
         .route-selection-panel {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
             left: 12px; right: 12px; z-index: 1000; padding: 10px;
@@ -345,8 +297,7 @@
         }
         .route-card:hover { background: rgba(237, 232, 226, 0.04); border-color: var(--hairline-strong); }
         .route-card.selected {
-            background: var(--rose-soft);
-            border-color: rgba(196, 139, 159, 0.45);
+            background: var(--rose-soft); border-color: rgba(196, 139, 159, 0.45);
         }
         .route-card-title {
             font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500;
@@ -367,7 +318,6 @@
         .route-card i { color: var(--ink-faint); font-size: 12px; }
         .route-card.selected i { color: var(--rose); }
 
-        /* ---------- Bottom Action Bar ---------- */
         .bottom-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
             left: 12px; right: 12px; z-index: 1000; padding: 12px 14px;
@@ -384,23 +334,11 @@
             transition: all 0.3s ease; flex: 1;
         }
         .btn:hover { border-color: var(--hairline-strong); color: var(--ink); background: rgba(237,232,226,0.04); }
-        .btn-primary {
-            background: var(--rose);
-            color: var(--bg-color);
-            border-color: var(--rose);
-        }
-        .btn-primary:hover {
-            background: #d5a2b3;
-            border-color: #d5a2b3;
-            color: var(--bg-color);
-        }
+        .btn-primary { background: var(--rose); color: var(--bg-color); border-color: var(--rose); }
+        .btn-primary:hover { background: #d5a2b3; border-color: #d5a2b3; color: var(--bg-color); }
         .btn-secondary { background: transparent; color: var(--teal); border-color: rgba(127, 169, 160, 0.3); }
         .btn-secondary:hover { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
-        .btn-danger {
-            background: transparent;
-            border-color: rgba(143, 74, 90, 0.5);
-            color: var(--traffic-jammed);
-        }
+        .btn-danger { background: transparent; border-color: rgba(143, 74, 90, 0.5); color: var(--traffic-jammed); }
         .btn-danger:hover { background: rgba(143, 74, 90, 0.15); border-color: var(--traffic-jammed); }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
@@ -410,13 +348,10 @@
         }
         #routeMetrics strong { color: var(--rose); font-weight: 500; }
 
-        /* ---------- Markers ---------- */
         .user-location-marker { position: relative; width: 28px; height: 28px; }
         .user-dot {
-            width: 14px; height: 14px;
-            background: var(--teal);
-            border: 2px solid var(--bg-color);
-            border-radius: 50%;
+            width: 14px; height: 14px; background: var(--teal);
+            border: 2px solid var(--bg-color); border-radius: 50%;
             box-shadow: 0 0 0 1px var(--teal), 0 0 24px rgba(127, 169, 160, 0.8);
             position: absolute; top: 7px; left: 7px; z-index: 2;
         }
@@ -436,15 +371,12 @@
         }
         .leaflet-routing-container { display: none !important; }
 
-        /* ---------- Toast ---------- */
         .toast-msg {
             position: absolute; top: calc(env(safe-area-inset-top, 0px) + 60px);
             left: 50%; transform: translateX(-50%);
-            background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px) saturate(140%);
+            background: var(--glass-bg-deep); backdrop-filter: blur(32px) saturate(140%);
             -webkit-backdrop-filter: blur(32px) saturate(140%);
-            border: 1px solid rgba(196, 139, 159, 0.3);
-            color: var(--ink);
+            border: 1px solid rgba(196, 139, 159, 0.3); color: var(--ink);
             padding: 10px 20px; border-radius: 2px;
             font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
             letter-spacing: 2px; text-transform: uppercase;
@@ -453,7 +385,6 @@
         }
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(8px); }
 
-        /* ---------- Tab Bar ---------- */
         .tab-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             left: 12px; right: 12px; z-index: 1100;
@@ -477,7 +408,6 @@
         .tab-btn:nth-child(4).active { color: var(--lilac); }
         .tab-btn:nth-child(4).active i { filter: drop-shadow(0 0 8px rgba(163, 148, 184, 0.7)); }
 
-        /* ---------- Overlay Panels ---------- */
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 3000; display: none;
@@ -492,8 +422,7 @@
 
         .overlay-header {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; padding-bottom: 16px;
-            border-bottom: 1px solid var(--hairline);
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);
         }
         .overlay-title {
             font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400;
@@ -523,8 +452,7 @@
         .list-card:hover { background: rgba(237, 232, 226, 0.06); border-color: var(--hairline-strong); }
         .list-icon {
             width: 36px; height: 36px; border-radius: 2px;
-            background: var(--teal-soft);
-            color: var(--teal);
+            background: var(--teal-soft); color: var(--teal);
             display: flex; align-items: center; justify-content: center;
             font-size: 13px; flex-shrink: 0; border: 1px solid rgba(127, 169, 160, 0.25);
         }
@@ -546,9 +474,7 @@
             cursor: pointer; font-size: 11px; flex-shrink: 0; transition: all 0.3s ease;
         }
         .list-action:hover {
-            color: var(--rose);
-            border-color: rgba(196, 139, 159, 0.4);
-            background: var(--rose-soft);
+            color: var(--rose); border-color: rgba(196, 139, 159, 0.4); background: var(--rose-soft);
         }
 
         .empty-state {
@@ -563,9 +489,7 @@
             border: 1px solid var(--hairline); border-radius: 2px; transition: all 0.3s ease;
         }
         .settings-row[onclick]:hover { background: var(--lilac-soft); border-color: rgba(163, 148, 184, 0.3); }
-        .settings-row .label {
-            font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500; color: var(--ink);
-        }
+        .settings-row .label { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 500; color: var(--ink); }
         .settings-row .sub {
             font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 400;
             letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px;
@@ -591,4 +515,781 @@
         }
         .spinner {
             width: 14px; height: 14px; border: 1.5px solid var(--hairline-strong);
-            border-top-color:
+            border-top-color: var(--ink); border-radius: 50%; animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .mode-btn span { display: none; }
+            .ultron-voice-btn span { display: none; }
+            .overlay-title { font-size: 26px; }
+        }
+    </style>
+</head>
+<body class="dark-tiles">
+
+    <div id="toast" class="toast-msg">Navigation initialized</div>
+
+    <!-- Top Header -->
+    <div class="top-container">
+        <div class="glass-panel search-box-panel">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--ink-faint); font-size: 12px;"></i>
+                <input type="text" id="searchInput" placeholder="Where to?" oninput="handleSearchInput(this.value)">
+                <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 12px;" onclick="clearSearchInput()"></i>
+                <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+            </div>
+            <div class="search-results-dropdown" id="searchResults"></div>
+        </div>
+
+        <div class="shortcuts-row">
+            <button class="chip-btn" onclick="searchCategory('Gas Station')"><i class="fa-solid fa-gas-pump"></i> Fuel</button>
+            <button class="chip-btn" onclick="searchCategory('Parking')"><i class="fa-solid fa-square-parking"></i> Parking</button>
+            <button class="chip-btn" onclick="searchCategory('Coffee Shop')"><i class="fa-solid fa-mug-hot"></i> Coffee</button>
+            <button class="chip-btn" onclick="searchCategory('Restaurant')"><i class="fa-solid fa-utensils"></i> Dining</button>
+            <button class="chip-btn" onclick="routeHome()"><i class="fa-solid fa-house"></i> Home</button>
+        </div>
+
+        <div class="glass-panel header-controls-bar">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="car" onclick="setTravelMode('car')"><i class="fa-solid fa-car"></i> <span>Drive</span></button>
+                <button class="mode-btn" data-mode="bike" onclick="setTravelMode('bike')"><i class="fa-solid fa-bicycle"></i> <span>Bike</span></button>
+                <button class="mode-btn" data-mode="foot" onclick="setTravelMode('foot')"><i class="fa-solid fa-person-walking"></i> <span>Walk</span></button>
+            </div>
+            <button class="ultron-voice-btn active" id="ultronVoiceBtn" onclick="toggleUltronVoice()">
+                <i class="fa-solid fa-volume-high"></i> <span>Voice</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Turn Banner -->
+    <div class="turn-banner" id="turnBanner">
+        <div class="turn-icon-box" id="turnIcon"><i class="fa-solid fa-arrow-up"></i></div>
+        <div class="turn-details">
+            <div class="turn-instruction" id="turnInstruction">Awaiting destination</div>
+            <div class="turn-distance" id="turnDistance">Calculating route</div>
+        </div>
+    </div>
+
+    <!-- Speed Badge -->
+    <div class="speed-badge glass-panel">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span class="speed-value" id="speedValue">0</span>
+        <span>KM/H</span>
+    </div>
+
+    <!-- Side Controls -->
+    <div class="side-controls">
+        <button class="icon-circle-btn" onclick="recenterUser()" title="Recenter"><i class="fa-solid fa-crosshairs"></i></button>
+    </div>
+
+    <!-- Route Selection -->
+    <div class="glass-panel route-selection-panel" id="routeSelectionPanel">
+        <div style="font-family:'Inter',sans-serif; font-size:9px; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:var(--ink-faint); padding: 4px 4px 8px;">
+            Route Options
+        </div>
+        <div id="routeCardsContainer"></div>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar glass-panel">
+        <div id="routeMetrics">
+            <span>Tap the map or search</span>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="startNavBtn" onclick="toggleNavigation()" disabled>
+                <i class="fa-solid fa-location-arrow"></i> Start
+            </button>
+            <button class="btn btn-secondary" id="simDriveBtn" onclick="toggleSimulation()" disabled>
+                <i class="fa-solid fa-play"></i> Simulate
+            </button>
+            <button class="btn btn-danger" id="clearBtn" onclick="clearActiveRoute()" style="display:none;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar glass-panel">
+        <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">
+            <i class="fa-solid fa-map"></i><span>Map</span>
+        </button>
+        <button class="tab-btn" data-tab="recents" onclick="switchTab('recents')">
+            <i class="fa-solid fa-clock-rotate-left"></i><span>Recents</span>
+        </button>
+        <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">
+            <i class="fa-solid fa-bookmark"></i><span>Saved</span>
+        </button>
+        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+            <i class="fa-solid fa-sliders"></i><span>Settings</span>
+        </button>
+    </div>
+
+    <!-- Overlay Panels -->
+    <div class="overlay-panel" id="panel-recents">
+        <div class="overlay-header">
+            <div class="overlay-title">Recents</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="recentsList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-saved">
+        <div class="overlay-header">
+            <div class="overlay-title">Saved</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" id="savedList"></div>
+    </div>
+
+    <div class="overlay-panel" id="panel-settings">
+        <div class="overlay-header">
+            <div class="overlay-title">Settings</div>
+            <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content">
+            <div class="settings-row">
+                <div>
+                    <div class="label">Voice Guidance</div>
+                    <div class="sub">Spoken navigation</div>
+                </div>
+                <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
+            </div>
+            <div class="settings-row" onclick="promptSetHome()" style="cursor:pointer;">
+                <div>
+                    <div class="label">Home Address</div>
+                    <div class="sub" id="homeAddressSub">Not set — tap to set</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:var(--ink-faint); font-size:10px;"></i>
+            </div>
+            <div class="settings-row" onclick="clearAllData()" style="cursor:pointer;">
+                <div>
+                    <div class="label">Clear All Data</div>
+                    <div class="sub">Recents, saved places, home</div>
+                </div>
+                <i class="fa-solid fa-trash" style="color:var(--ink-faint); font-size:10px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        let map, userMarker, accuracyCircle, userCoords = null;
+        let activeDestination = null, destMarker = null;
+        let watchId = null, simInterval = null;
+        let isNavigating = false, isSimulating = false, isTrackingCamera = true;
+        let ultronEnabled = true, synth = window.speechSynthesis, audioCtx = null;
+        let travelMode = 'car';
+
+        let routesList = [];
+        let selectedRouteIndex = 0;
+        let currentRoutePolylines = [];
+        let activeRouteCoordinates = [];
+        let activeRouteInstructions = [];
+        let lastSpokenInstructionIndex = -1;
+        let debounceTimer = null;
+
+        let recents = JSON.parse(localStorage.getItem('raon_recents') || '[]');
+        let savedPlaces = JSON.parse(localStorage.getItem('raon_saved') || '[]');
+        let homeLocation = JSON.parse(localStorage.getItem('raon_home') || 'null');
+
+        const DEFAULT_LOCATION = [1.4927, 103.7414];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            initAudioContext();
+            requestLocationWithSafariFallback();
+            updateHomeSubLabel();
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function initMap() {
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(DEFAULT_LOCATION, 15);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+            map.on('click', (e) => {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if (!userCoords) requestLocationWithSafariFallback();
+                setDestination(e.latlng);
+            });
+            map.on('dragstart', () => { isTrackingCamera = false; });
+        }
+
+        function initAudioContext() {
+            try {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AC();
+            } catch(e) {}
+        }
+
+        function playUltronMetallicPulse() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            try {
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                const gain = audioCtx.createGain();
+                osc1.type = 'sawtooth'; osc2.type = 'square';
+                osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(320, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc1.connect(filter); osc2.connect(filter);
+                filter.connect(gain); gain.connect(audioCtx.destination);
+                osc1.start(); osc2.start();
+                osc1.stop(audioCtx.currentTime + 0.4);
+                osc2.stop(audioCtx.currentTime + 0.4);
+            } catch(e) {}
+        }
+
+        function speakUltron(text) {
+            if (!ultronEnabled || !('speechSynthesis' in window)) return;
+            synth.cancel();
+            playUltronMetallicPulse();
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.add('speaking');
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = 0.4;
+                utterance.rate = 0.92;
+                utterance.volume = 1.0;
+                const voices = synth.getVoices();
+                const v = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                if (v) utterance.voice = v;
+                utterance.onend = () => btn.classList.remove('speaking');
+                utterance.onerror = () => btn.classList.remove('speaking');
+                synth.speak(utterance);
+            }, 180);
+        }
+
+        function requestLocationWithSafariFallback() {
+            if (!("geolocation" in navigator)) {
+                userCoords = L.latLng(DEFAULT_LOCATION);
+                updateUserMarker(userCoords, 100);
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isTrackingCamera) map.setView(userCoords, 16);
+                    startGPSWatch();
+                },
+                () => {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                            updateUserMarker(userCoords, pos.coords.accuracy || 100);
+                            if (isTrackingCamera) map.setView(userCoords, 15);
+                            startGPSWatch();
+                        },
+                        () => {
+                            if (!userCoords) {
+                                userCoords = L.latLng(DEFAULT_LOCATION);
+                                updateUserMarker(userCoords, 100);
+                                showToast("Using default location");
+                            }
+                        },
+                        { enableHighAccuracy: false, timeout: 6000 }
+                    );
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
+            );
+        }
+
+        function startGPSWatch() {
+            if (watchId !== null) return;
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
+                    document.getElementById('speedValue').innerText = speed;
+                    updateUserMarker(userCoords, pos.coords.accuracy || 20);
+                    if (isNavigating) {
+                        map.setView(userCoords, 17, { animate: true });
+                        checkManeuverProximity();
+                    } else if (isTrackingCamera) {
+                        map.panTo(userCoords, { animate: true });
+                    }
+                },
+                () => {},
+                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+            );
+        }
+
+        function updateUserMarker(coords, accuracy) {
+            if (userMarker) {
+                userMarker.setLatLng(coords);
+                accuracyCircle.setLatLng(coords);
+                accuracyCircle.setRadius(accuracy);
+            } else {
+                const icon = L.divIcon({
+                    className: 'user-location-marker',
+                    html: `<div class="user-pulse"></div><div class="user-dot"></div>`,
+                    iconSize: [28, 28], iconAnchor: [14, 14]
+                });
+                userMarker = L.marker(coords, { icon }).addTo(map);
+                accuracyCircle = L.circle(coords, { radius: accuracy, color: '#7fa9a0', fillColor: '#7fa9a0', fillOpacity: 0.05, weight: 0.5 }).addTo(map);
+            }
+        }
+
+        function recenterUser() {
+            isTrackingCamera = true;
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            if (userCoords) {
+                const targetZoom = isNavigating ? 17 : 16;
+                map.flyTo(userCoords, targetZoom, { animate: true });
+            } else {
+                requestLocationWithSafariFallback();
+            }
+        }
+
+        function handleSearchInput(query) {
+            const clearBtn = document.getElementById('searchClearBtn');
+            clearBtn.style.display = query ? 'block' : 'none';
+            clearTimeout(debounceTimer);
+            if (!query || query.trim().length < 2) {
+                document.getElementById('searchResults').classList.remove('active');
+                return;
+            }
+            debounceTimer = setTimeout(() => {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
+            }, 300);
+        }
+
+        function renderSearchResults(results) {
+            const dropdown = document.getElementById('searchResults');
+            dropdown.innerHTML = '';
+            if (results.length === 0) { dropdown.classList.remove('active'); return; }
+            results.forEach(res => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.innerHTML = `<i class="fa-solid fa-location-dot"></i> <span>${res.display_name}</span>`;
+                item.onclick = () => {
+                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
+                    const name = res.display_name.split(',')[0];
+                    setDestination(latLng, name);
+                    dropdown.classList.remove('active');
+                    document.getElementById('searchInput').value = name;
+                    addRecent({ name, lat: latLng.lat, lng: latLng.lng });
+                };
+                dropdown.appendChild(item);
+            });
+            dropdown.classList.add('active');
+        }
+
+        function searchCategory(cat) {
+            if (!userCoords) return;
+            document.getElementById('searchInput').value = cat;
+            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
+        }
+
+        function clearSearchInput() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            document.getElementById('searchResults').classList.remove('active');
+        }
+
+        function setDestination(latLng, label = "Selected Target") {
+            activeDestination = latLng;
+            if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
+            if (destMarker) map.removeLayer(destMarker);
+            const pinIcon = L.divIcon({
+                className: 'dest-pin',
+                html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
+                iconSize: [30, 30], iconAnchor: [15, 30]
+            });
+            destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
+            calculateRoutes(label);
+        }
+
+        function calculateRoutes(label) {
+            clearPolylines();
+            const panel = document.getElementById('routeSelectionPanel');
+            const container = document.getElementById('routeCardsContainer');
+            panel.classList.add('active');
+            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Calculating routes</div>`;
+
+            const url = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        routesList = data.routes;
+                        renderRouteCards(label);
+                        selectRoute(0);
+                        enableActionButtons();
+                        speakUltron("Route calculated.");
+                    } else {
+                        container.innerHTML = `<div class="empty-state">No route found</div>`;
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = `<div class="empty-state">Routing error</div>`;
+                });
+        }
+
+        function renderRouteCards(label) {
+            const container = document.getElementById('routeCardsContainer');
+            container.innerHTML = '';
+            routesList.forEach((r, idx) => {
+                const mins = Math.round(r.duration / 60);
+                const km = (r.distance / 1000).toFixed(1);
+                let badge = idx === 0 ? '<span class="route-badge badge-fast">Fastest</span>' : '<span class="route-badge badge-free">Alternate</span>';
+                const card = document.createElement('div');
+                card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
+                card.id = `routeCard-${idx}`;
+                card.onclick = () => selectRoute(idx);
+                card.innerHTML = `
+                    <div>
+                        <div class="route-card-title">
+                            <span>${label}</span>
+                            ${badge}
+                        </div>
+                        <div class="route-card-sub">${mins} min · ${km} km</div>
+                    </div>
+                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check' : 'fa-circle'}" id="checkRoute-${idx}" style="font-size:10px;"></i>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectRoute(idx) {
+            selectedRouteIndex = idx;
+            routesList.forEach((_, i) => {
+                const card = document.getElementById(`routeCard-${i}`);
+                const icon = document.getElementById(`checkRoute-${i}`);
+                if (card && icon) {
+                    card.classList.toggle('selected', i === idx);
+                    icon.className = i === idx ? 'fa-solid fa-check' : 'fa-solid fa-circle';
+                    icon.style.fontSize = '10px';
+                }
+            });
+            renderRouteOnMap(routesList[idx]);
+        }
+
+        /* Colorized Traffic Segments: Pastel Blue, Peach, Maroon */
+        function renderRouteOnMap(routeData) {
+            clearPolylines();
+            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
+            activeRouteInstructions = routeData.legs[0].steps;
+
+            const totalPoints = activeRouteCoordinates.length;
+            if (totalPoints > 1) {
+                const clearEnd = Math.floor(totalPoints * 0.55);
+                const jamEnd = Math.floor(totalPoints * 0.85);
+
+                const clearSegment = activeRouteCoordinates.slice(0, clearEnd + 1);
+                const moderateSegment = activeRouteCoordinates.slice(clearEnd, jamEnd + 1);
+                const jammedSegment = activeRouteCoordinates.slice(jamEnd);
+
+                if (clearSegment.length > 1) {
+                    currentRoutePolylines.push(L.polyline(clearSegment, {
+                        color: '#AEC6CF', weight: 6, opacity: 0.95
+                    }).addTo(map));
+                }
+                if (moderateSegment.length > 1) {
+                    currentRoutePolylines.push(L.polyline(moderateSegment, {
+                        color: '#FFDAB9', weight: 6, opacity: 0.95
+                    }).addTo(map));
+                }
+                if (jammedSegment.length > 1) {
+                    currentRoutePolylines.push(L.polyline(jammedSegment, {
+                        color: '#800020', weight: 6, opacity: 0.95
+                    }).addTo(map));
+                }
+            }
+
+            map.fitBounds(L.latLngBounds(activeRouteCoordinates), { padding: [60, 60] });
+            const mins = Math.round(routeData.duration / 60);
+            const km = (routeData.distance / 1000).toFixed(1);
+            document.getElementById('routeMetrics').innerHTML = `<span><strong>ETA</strong> ${mins} min &nbsp;&nbsp; <strong>DIST</strong> ${km} km</span>`;
+
+            if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
+        }
+
+        function clearPolylines() {
+            currentRoutePolylines.forEach(p => map.removeLayer(p));
+            currentRoutePolylines = [];
+        }
+
+        function enableActionButtons() {
+            document.getElementById('startNavBtn').disabled = false;
+            document.getElementById('simDriveBtn').disabled = false;
+            document.getElementById('clearBtn').style.display = 'block';
+        }
+
+        function updateTurnBanner(step) {
+            const banner = document.getElementById('turnBanner');
+            banner.classList.add('active');
+            const inst = step.maneuver.instruction || "Proceed forward";
+            const dist = step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} km` : `${Math.round(step.distance)} m`;
+            document.getElementById('turnInstruction').innerText = inst;
+            document.getElementById('turnDistance').innerText = `In ${dist}`;
+        }
+
+        function setTravelMode(mode) {
+            travelMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            if (activeDestination) calculateRoutes("Target");
+        }
+
+        function toggleUltronVoice() {
+            ultronEnabled = !ultronEnabled;
+            const btn = document.getElementById('ultronVoiceBtn');
+            btn.classList.toggle('active', ultronEnabled);
+            document.getElementById('settingsVoiceToggle').classList.toggle('on', ultronEnabled);
+            if (ultronEnabled) speakUltron("Voice enabled.");
+            else synth.cancel();
+        }
+
+        function toggleNavigation() {
+            if (isNavigating) {
+                stopNavigation();
+            } else {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                isNavigating = true;
+                isTrackingCamera = true;
+                document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End`;
+                document.getElementById('startNavBtn').className = "btn btn-danger";
+                document.getElementById('routeSelectionPanel').classList.remove('active');
+                if (userCoords) map.flyTo(userCoords, 17, { animate: true });
+                speakUltron("Navigation started.");
+            }
+        }
+
+        function stopNavigation() {
+            isNavigating = false;
+            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
+            document.getElementById('startNavBtn').className = "btn btn-primary";
+            document.getElementById('turnBanner').classList.remove('active');
+            synth.cancel();
+            if (userCoords) map.flyTo(userCoords, 15, { animate: true });
+        }
+
+        function checkManeuverProximity() {
+            if (!activeRouteInstructions || activeRouteInstructions.length === 0) return;
+            for (let i = 0; i < activeRouteInstructions.length; i++) {
+                const step = activeRouteInstructions[i];
+                const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+                const dist = userCoords.distanceTo(wp);
+                if (dist < 50 && lastSpokenInstructionIndex !== i) {
+                    lastSpokenInstructionIndex = i;
+                    updateTurnBanner(step);
+                    speakUltron(`In 50 meters, ${step.maneuver.instruction || 'continue'}.`);
+                    break;
+                }
+            }
+        }
+
+        function toggleSimulation() {
+            if (isSimulating) stopSimulation();
+            else startSimulation();
+        }
+
+        function startSimulation() {
+            if (activeRouteCoordinates.length === 0) return;
+            isSimulating = true;
+            isNavigating = true;
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            let index = 0;
+            simInterval = setInterval(() => {
+                if (index >= activeRouteCoordinates.length) {
+                    stopSimulation();
+                    speakUltron("Destination reached.");
+                    return;
+                }
+                userCoords = L.latLng(activeRouteCoordinates[index]);
+                updateUserMarker(userCoords, 10);
+                map.setView(userCoords, 17, { animate: true });
+                document.getElementById('speedValue').innerText = Math.floor(Math.random() * 20 + 50);
+                checkManeuverProximity();
+                index += 2;
+            }, 800);
+            speakUltron("Simulation started.");
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            isNavigating = false;
+            clearInterval(simInterval);
+            document.getElementById('simDriveBtn').innerHTML = `<i class="fa-solid fa-play"></i> Simulate`;
+            document.getElementById('speedValue').innerText = '0';
+        }
+
+        function clearActiveRoute() {
+            stopNavigation();
+            stopSimulation();
+            clearPolylines();
+            if (destMarker) map.removeLayer(destMarker);
+            activeDestination = null;
+            routesList = [];
+            document.getElementById('routeSelectionPanel').classList.remove('active');
+            document.getElementById('startNavBtn').disabled = true;
+            document.getElementById('simDriveBtn').disabled = true;
+            document.getElementById('clearBtn').style.display = 'none';
+            document.getElementById('routeMetrics').innerHTML = `<span>Tap the map or search</span>`;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (btn) btn.classList.add('active');
+            if (tabName !== 'map') {
+                const panel = document.getElementById(`panel-${tabName}`);
+                if (panel) panel.classList.add('active');
+                if (tabName === 'recents') renderRecentsList();
+                if (tabName === 'saved') renderSavedList();
+            }
+        }
+
+        function closeTab() {
+            document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="map"]').classList.add('active');
+        }
+
+        function addRecent(place) {
+            recents = recents.filter(r => r.lat !== place.lat || r.lng !== place.lng);
+            recents.unshift(place);
+            if (recents.length > 20) recents.pop();
+            localStorage.setItem('raon_recents', JSON.stringify(recents));
+        }
+
+        function renderRecentsList() {
+            const list = document.getElementById('recentsList');
+            list.innerHTML = '';
+            if (recents.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent destinations</div>`;
+                return;
+            }
+            recents.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="list-main">
+                        <div class="list-title">${r.name}</div>
+                        <div class="list-sub">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</div>
+                    </div>
+                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${r.lat}, ${r.lng}, '${r.name.replace(/'/g,"\\'")}')">
+                        <i class="fa-solid fa-location-arrow"></i>
+                    </button>
+                `;
+                card.onclick = () => { closeTab(); setDestination(L.latLng(r.lat, r.lng), r.name); };
+                list.appendChild(card);
+            });
+        }
+
+        function navigateToPlace(lat, lng, name) {
+            closeTab();
+            setDestination(L.latLng(lat, lng), name);
+        }
+
+        function renderSavedList() {
+            const list = document.getElementById('savedList');
+            list.innerHTML = '';
+            if (savedPlaces.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved places yet</div>`;
+                return;
+            }
+            savedPlaces.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-icon"><i class="fa-solid fa-bookmark"></i></div>
+                    <div class="list-main">
+                        <div class="list-title">${s.name}</div>
+                        <div class="list-sub">${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}</div>
+                    </div>
+                    <button class="list-action" onclick="event.stopPropagation(); navigateToPlace(${s.lat}, ${s.lng}, '${s.name.replace(/'/g,"\\'")}')">
+                        <i class="fa-solid fa-location-arrow"></i>
+                    </button>
+                `;
+                card.onclick = () => { closeTab(); setDestination(L.latLng(s.lat, s.lng), s.name); };
+                list.appendChild(card);
+            });
+        }
+
+        function routeHome() {
+            if (!homeLocation) {
+                showToast("Home not set — open Settings");
+                switchTab('settings');
+                return;
+            }
+            setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home");
+        }
+
+        function promptSetHome() {
+            if (!userCoords) { showToast("Waiting for position"); return; }
+            homeLocation = { lat: userCoords.lat, lng: userCoords.lng };
+            localStorage.setItem('raon_home', JSON.stringify(homeLocation));
+            updateHomeSubLabel();
+            showToast("Home updated");
+        }
+
+        function updateHomeSubLabel() {
+            const sub = document.getElementById('homeAddressSub');
+            if (homeLocation) sub.innerText = `${homeLocation.lat.toFixed(4)}, ${homeLocation.lng.toFixed(4)}`;
+            else sub.innerText = "Not set — tap to set";
+        }
+
+        function toggleSettingsVoice() { toggleUltronVoice(); }
+
+        function clearAllData() {
+            if (confirm("Clear all recents and saved places?")) {
+                localStorage.removeItem('raon_recents');
+                localStorage.removeItem('raon_saved');
+                localStorage.removeItem('raon_home');
+                recents = []; savedPlaces = []; homeLocation = null;
+                updateHomeSubLabel();
+                showToast("Data cleared");
+            }
+        }
+
+        let recognition = null;
+        function toggleVoiceSearch() {
+            const micBtn = document.getElementById('micBtn');
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { showToast("Voice not supported"); return; }
+            if (recognition) { recognition.stop(); recognition = null; micBtn.classList.remove('listening'); return; }
+            recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.onstart = () => { micBtn.classList.add('listening'); showToast("Listening"); };
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('searchInput').value = text;
+                handleSearchInput(text);
+                micBtn.classList.remove('listening');
+            };
+            recognition.onerror = () => { micBtn.classList.remove('listening'); };
+            recognition.onend = () => { micBtn.classList.remove('listening'); recognition = null; };
+            recognition.start();
+        }
+    </script>
+</body>
+</html>
