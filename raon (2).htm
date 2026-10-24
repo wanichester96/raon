@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Leaflet Rotate Plugin -->
+    <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
+
     <style>
         :root {
             /* Dark Vogue Aesthetics */
@@ -29,12 +32,12 @@
             --neon-green: #10b981;
             --accent-toll: #f59e0b;
 
-            /* 50% Translucent Glass */
-            --glass-bg: rgba(18, 22, 30, 0.52);
-            --glass-bg-deep: rgba(12, 14, 18, 0.68);
-            --glass-card: rgba(28, 34, 46, 0.48);
-            --hairline: rgba(255, 255, 255, 0.10);
-            --hairline-strong: rgba(255, 255, 255, 0.22);
+            /* Translucent Glass & See-through Overlay */
+            --glass-bg: rgba(18, 22, 30, 0.42);
+            --glass-bg-deep: rgba(12, 14, 18, 0.55);
+            --glass-card: rgba(28, 34, 46, 0.40);
+            --hairline: rgba(255, 255, 255, 0.12);
+            --hairline-strong: rgba(255, 255, 255, 0.25);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -51,17 +54,17 @@
 
         /* Dark Desaturated Map Tiles */
         .vogue-dark-tiles .leaflet-tile {
-            filter: brightness(0.55) contrast(1.15) saturate(0.2) invert(0.92) hue-rotate(180deg);
+            filter: brightness(0.60) contrast(1.15) saturate(0.25) invert(0.92) hue-rotate(180deg);
         }
         .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
 
         /* Translucent Frosted Glass */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(28px) saturate(180%);
-            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid var(--hairline);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
             border-radius: 14px;
             position: relative;
         }
@@ -107,13 +110,13 @@
         .neon-icon-yellow { color: var(--neon-yellow); filter: drop-shadow(0 0 6px rgba(255, 208, 0, 0.6)); }
         .neon-icon-green { color: var(--neon-green); filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6)); }
 
-        .mic-btn {
+        .mic-btn, .save-quick-btn {
             background: transparent; border: none; color: var(--neon-cyan);
             width: 36px; height: 36px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 16px; transition: all 0.2s ease; flex-shrink: 0;
+            cursor: pointer; font-size: 15px; transition: all 0.2s ease; flex-shrink: 0;
         }
-        .mic-btn:hover { background: rgba(0, 240, 255, 0.1); }
+        .mic-btn:hover, .save-quick-btn:hover { background: rgba(0, 240, 255, 0.1); }
         .mic-btn.listening { color: var(--neon-magenta); animation: pulseListening 1.2s infinite; }
         @keyframes pulseListening { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -122,7 +125,7 @@
             max-height: 280px; overflow-y: auto;
             display: none; flex-direction: column; z-index: 4000; padding: 6px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--hairline-strong);
             box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
             border-radius: 12px;
@@ -131,7 +134,7 @@
 
         .search-item {
             padding: 12px 14px; cursor: pointer; font-size: 13px;
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 12px; justify-content: space-between;
             transition: background 0.2s ease; color: var(--ink);
             border-bottom: 1px solid var(--hairline); font-weight: 400;
         }
@@ -146,7 +149,7 @@
 
         .chip-btn {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--hairline); border-radius: 20px;
             padding: 8px 16px; font-family: 'Inter', sans-serif;
             font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
@@ -194,7 +197,7 @@
             left: 14px; right: 14px; z-index: 999; padding: 16px 20px;
             display: none; align-items: center; gap: 16px;
             background: var(--glass-bg-deep);
-            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--hairline-strong); border-radius: 14px;
             box-shadow: 0 20px 48px rgba(0,0,0,0.5);
         }
@@ -323,13 +326,20 @@
         }
         #routeMetrics strong { color: var(--ink); font-weight: 700; }
 
-        /* Minimal User Marker */
-        .user-location-marker { position: relative; width: 28px; height: 28px; }
+        /* Vehicle Navigation Marker with Heading Indicator */
+        .user-location-marker { position: relative; width: 32px; height: 32px; }
         .user-dot {
-            width: 16px; height: 16px; background: var(--neon-cyan);
+            width: 18px; height: 18px; background: var(--neon-cyan);
             border: 3px solid var(--bg-deep); border-radius: 50%;
             box-shadow: 0 0 16px var(--neon-cyan);
-            position: absolute; top: 6px; left: 6px; z-index: 2;
+            position: absolute; top: 7px; left: 7px; z-index: 2;
+        }
+        .user-heading-arrow {
+            position: absolute; top: -6px; left: 11px; width: 0; height: 0;
+            border-left: 5px solid transparent; border-right: 5px solid transparent;
+            border-bottom: 12px solid var(--neon-cyan);
+            filter: drop-shadow(0 0 6px var(--neon-cyan));
+            transition: transform 0.3s ease;
         }
         .dest-pin-icon { font-size: 26px; color: var(--neon-magenta); filter: drop-shadow(0 0 10px var(--neon-magenta)); }
 
@@ -358,7 +368,7 @@
 
         .tab-bar {
             position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-            left: 14px; right: 14px; z-index: 1100;
+            left: 14px; right: 14px; z-index: 3100;
             display: flex; align-items: center; justify-content: space-around;
             padding: 8px; border-radius: 14px;
         }
@@ -371,40 +381,111 @@
         .tab-btn i { font-size: 16px; }
         .tab-btn.active { color: var(--neon-cyan); font-weight: 600; filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4)); }
 
+        /* ==========================================================================
+           GLASS SEE-THROUGH WATER DROPLET OVERLAY PANEL
+           ========================================================================== */
         .overlay-panel {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 3000; display: none;
-            background: rgba(12, 14, 18, 0.75);
-            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
-            padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px calc(env(safe-area-inset-bottom, 0px) + 90px);
+            /* See-through glass backdrop with mild blur to reveal map beneath */
+            background: rgba(10, 14, 22, 0.35);
+            backdrop-filter: blur(12px) saturate(160%);
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
+            padding: calc(env(safe-area-inset-top, 0px) + 24px) 18px calc(env(safe-area-inset-bottom, 0px) + 80px);
+            overflow: hidden;
+            pointer-events: auto;
         }
         .overlay-panel.active { display: flex; flex-direction: column; }
 
+        /* Realistic Water Droplet Effect Overlay Layer */
+        .droplet-surface {
+            position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0.75;
+            background-image:
+                /* Realistic Water Drop Refractions using Radial Gradients */
+                radial-gradient(circle at 20% 25%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 10%, rgba(0,0,0,0.4) 35%, transparent 60%),
+                radial-gradient(circle at 75% 15%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.15) 8%, rgba(0,0,0,0.4) 30%, transparent 55%),
+                radial-gradient(circle at 45% 65%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 12%, rgba(0,0,0,0.3) 40%, transparent 65%),
+                radial-gradient(circle at 85% 70%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.2) 9%, rgba(0,0,0,0.35) 35%, transparent 60%),
+                radial-gradient(circle at 15% 80%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 11%, rgba(0,0,0,0.3) 38%, transparent 58%),
+                radial-gradient(circle at 60% 35%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 7%, rgba(0,0,0,0.35) 28%, transparent 50%),
+                /* Fine condensed moisture mist */
+                radial-gradient(circle at 35% 45%, rgba(255,255,255,0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 40%, rgba(255,255,255,0.12) 0%, transparent 35%);
+            background-size: 100% 100%;
+        }
+
         .overlay-header {
+            position: relative; z-index: 2;
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);
+            margin-bottom: 16px; padding: 12px 16px;
+            background: rgba(18, 24, 36, 0.45);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--hairline-strong); border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
         .overlay-title {
-            font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--ink);
+            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--ink);
+            display: flex; align-items: center; gap: 10px;
         }
         .overlay-close {
-            width: 38px; height: 38px; border-radius: 50%; background: transparent;
+            width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08);
             border: 1px solid var(--hairline); color: var(--ink);
             font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
         }
+        .overlay-close:hover { background: rgba(255, 42, 133, 0.2); border-color: var(--neon-magenta); }
 
-        .overlay-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .overlay-content {
+            position: relative; z-index: 2;
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+            padding-right: 2px;
+        }
 
         .list-card {
-            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 12px;
-            padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+            background: rgba(20, 26, 38, 0.45); border: 1px solid var(--hairline); border-radius: 14px;
+            padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.25s ease; cursor: pointer;
         }
-        .list-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--ink); }
-        .list-sub { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+        .list-card:hover {
+            background: rgba(28, 36, 52, 0.60); border-color: var(--neon-cyan);
+            transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0, 240, 255, 0.15);
+        }
+        .list-card-main { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+        .list-card-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .list-title {
+            font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: var(--ink);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .list-sub {
+            font-family: 'Inter', sans-serif; font-size: 11px; color: var(--ink-soft);
+            margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .list-card-actions { display: flex; align-items: center; gap: 8px; }
+        .card-action-btn {
+            background: transparent; border: 1px solid var(--hairline); color: var(--ink-soft);
+            width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .card-action-btn:hover { color: var(--neon-magenta); border-color: var(--neon-magenta); background: rgba(255, 42, 133, 0.12); }
+
+        .tag-badge {
+            font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 2px 8px; border-radius: 4px; border: 1px solid var(--hairline);
+            color: var(--neon-yellow); background: rgba(255, 208, 0, 0.1); margin-left: 6px;
+        }
 
         .settings-row {
             display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            background: var(--glass-card); border: 1px solid var(--hairline); border-radius: 12px;
+            background: rgba(20, 26, 38, 0.45); border: 1px solid var(--hairline); border-radius: 14px;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
         }
 
         .toggle-switch {
@@ -427,6 +508,12 @@
             border-top-color: var(--neon-cyan); border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state {
+            padding: 40px 20px; text-align: center; color: var(--ink-faint);
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400;
+        }
+        .empty-state i { font-size: 32px; margin-bottom: 12px; display: block; opacity: 0.5; }
     </style>
 </head>
 <body class="vogue-dark-tiles">
@@ -439,6 +526,9 @@
                 <i class="fa-solid fa-magnifying-glass neon-icon-cyan" style="font-size: 15px;"></i>
                 <input type="text" id="searchInput" placeholder="Search destination..." oninput="handleSearchInput(this.value)">
                 <i class="fa-solid fa-xmark" id="searchClearBtn" style="cursor: pointer; display: none; color: var(--ink-faint); font-size: 14px;" onclick="clearSearchInput()"></i>
+                <button class="save-quick-btn" id="saveQuickBtn" onclick="saveCurrentSearchPlace()" title="Save location">
+                    <i class="fa-regular fa-bookmark"></i>
+                </button>
                 <button class="mic-btn" id="micBtn" onclick="toggleVoiceSearch()" title="Voice search">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
@@ -535,9 +625,11 @@
         </button>
     </div>
 
+    <!-- Transparent See-through Glass & Droplet Overlay Panels -->
     <div class="overlay-panel" id="panel-recents">
+        <div class="droplet-surface"></div>
         <div class="overlay-header">
-            <div class="overlay-title">Recents</div>
+            <div class="overlay-title"><i class="fa-solid fa-clock-rotate-left neon-icon-cyan"></i> Recents</div>
             <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="overlay-content" id="recentsList"></div>
@@ -545,22 +637,23 @@
 
     <div class="overlay-panel" id="panel-saved">
         <div class="overlay-header">
-            <div class="overlay-title">Saved Places</div>
+            <div class="overlay-title"><i class="fa-solid fa-bookmark neon-icon-cyan"></i> Saved Places</div>
             <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="overlay-content" id="savedList"></div>
     </div>
 
     <div class="overlay-panel" id="panel-settings">
+        <div class="droplet-surface"></div>
         <div class="overlay-header">
-            <div class="overlay-title">Configuration</div>
+            <div class="overlay-title"><i class="fa-solid fa-sliders neon-icon-cyan"></i> Configuration</div>
             <button class="overlay-close" onclick="closeTab()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="overlay-content">
             <div class="settings-row">
                 <div>
                     <div style="font-weight:600;">Voice Guidance</div>
-                    <div style="font-size:11px; color:var(--ink-soft);">Natural male voice synthesis</div>
+                    <div style="font-size:11px; color:var(--ink-soft);">Natural voice synthesis</div>
                 </div>
                 <div class="toggle-switch on" id="settingsVoiceToggle" onclick="toggleSettingsVoice()"></div>
             </div>
@@ -586,6 +679,8 @@
         let autoRecenterTimer = null;
         let normalMaleVoice = null;
         let travelMode = 'car';
+        let currentHeading = 0;
+        let currentActivePlace = null;
 
         let routesList = [];
         let selectedRouteIndex = 0;
@@ -607,6 +702,8 @@
             pickMaleVoice();
             if (synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = pickMaleVoice;
             requestLocationWithSafariFallback();
+            renderSavedPlacesList();
+            renderRecentsList();
         });
 
         function showToast(msg) {
@@ -617,12 +714,21 @@
         }
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.5 }).setView(DEFAULT_LOCATION, 15);
+            // Leaflet with Rotate plugin capability enabled
+            map = L.map('map', { 
+                zoomControl: false, 
+                attributionControl: false, 
+                zoomSnap: 0.5,
+                rotate: true,
+                rotateControl: false,
+                bearing: 0
+            }).setView(DEFAULT_LOCATION, 15);
+
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
             map.on('click', (e) => {
                 if (!userCoords) requestLocationWithSafariFallback();
-                setDestination(e.latlng);
+                setDestination(e.latlng, "Selected Target");
             });
 
             // Pause auto-tracking on manual drag/pan
@@ -687,6 +793,9 @@
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    if (pos.coords.heading !== null && pos.coords.heading !== undefined && !isNaN(pos.coords.heading)) {
+                        currentHeading = pos.coords.heading;
+                    }
                     updateUserMarker(userCoords, pos.coords.accuracy || 20);
                     if (isTrackingCamera) map.setView(userCoords, 16);
                     startGPSWatch();
@@ -703,10 +812,19 @@
             if (watchId !== null) return;
             watchId = navigator.geolocation.watchPosition(
                 (pos) => {
+                    const prevCoords = userCoords;
                     userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
                     const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
                     document.getElementById('speedValue').innerText = speed;
+
+                    if (pos.coords.heading !== null && pos.coords.heading !== undefined && !isNaN(pos.coords.heading)) {
+                        currentHeading = pos.coords.heading;
+                    } else if (prevCoords) {
+                        currentHeading = calculateBearing(prevCoords, userCoords);
+                    }
+
                     updateUserMarker(userCoords, pos.coords.accuracy || 20);
+
                     if (isNavigating) {
                         simSpeedKmh = speed;
                         followCamera();
@@ -720,15 +838,30 @@
             );
         }
 
+        function calculateBearing(start, end) {
+            const startLat = start.lat * Math.PI / 180;
+            const startLng = start.lng * Math.PI / 180;
+            const endLat = end.lat * Math.PI / 180;
+            const endLng = end.lng * Math.PI / 180;
+
+            const dLng = endLng - startLng;
+            const y = Math.sin(dLng) * Math.cos(endLat);
+            const x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+            const brng = Math.atan2(y, x) * 180 / Math.PI;
+            return (brng + 360) % 360;
+        }
+
         function updateUserMarker(coords, accuracy) {
             if (userMarker) {
                 userMarker.setLatLng(coords);
                 accuracyCircle.setLatLng(coords);
+                const arrow = document.getElementById('userHeadingArrow');
+                if (arrow) arrow.style.transform = `rotate(${currentHeading}deg)`;
             } else {
                 const icon = L.divIcon({
                     className: 'user-location-marker',
-                    html: `<div class="user-dot"></div>`,
-                    iconSize: [28, 28], iconAnchor: [14, 14]
+                    html: `<div class="user-heading-arrow" id="userHeadingArrow"></div><div class="user-dot"></div>`,
+                    iconSize: [32, 32], iconAnchor: [16, 16]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
                 accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.05, weight: 1 }).addTo(map);
@@ -738,7 +871,12 @@
         function recenterUser() {
             isTrackingCamera = true;
             clearTimeout(autoRecenterTimer);
-            if (userCoords) map.flyTo(userCoords, 16, { animate: true });
+            if (userCoords) {
+                const zoomLevel = isNavigating ? 18 : 16;
+                const bearing = isNavigating ? currentHeading : 0;
+                map.setBearing(bearing);
+                map.flyTo(userCoords, zoomLevel, { animate: true, duration: 0.8 });
+            }
             updateRecenterUI();
         }
 
@@ -753,9 +891,12 @@
             map.setZoom(Math.max(3, Math.min(19, map.getZoom() + delta)));
         }
 
+        /* Orient map to vehicle heading & dynamic zoom during active driving */
         function followCamera() {
             if (!isTrackingCamera || !userCoords) return;
-            map.setView(userCoords, map.getZoom(), { animate: true, duration: 0.8 });
+            const targetZoom = isNavigating ? 18 : 16;
+            map.setBearing(currentHeading);
+            map.setView(userCoords, targetZoom, { animate: true, duration: 0.6 });
         }
 
         function handleSearchInput(query) {
@@ -777,15 +918,25 @@
             dropdown.innerHTML = '';
             if (results.length === 0) { dropdown.classList.remove('active'); return; }
             results.forEach(res => {
+                const name = res.display_name.split(',')[0];
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                item.innerHTML = `<i class="fa-solid fa-location-dot neon-icon-cyan"></i> <span>${res.display_name}</span>`;
-                item.onclick = () => {
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; flex:1; overflow:hidden;">
+                        <i class="fa-solid fa-location-dot neon-icon-cyan"></i> 
+                        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${res.display_name}</span>
+                    </div>
+                    <button class="card-action-btn" onclick="savePlaceFromSearch(event, '${name.replace(/'/g, "\\'")}', ${res.lat}, ${res.lon})" title="Save Place">
+                        <i class="fa-regular fa-bookmark"></i>
+                    </button>
+                `;
+                item.onclick = (e) => {
+                    if (e.target.closest('.card-action-btn')) return;
                     const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
-                    const name = res.display_name.split(',')[0];
                     setDestination(latLng, name);
                     dropdown.classList.remove('active');
                     document.getElementById('searchInput').value = name;
+                    addToRecents(name, parseFloat(res.lat), parseFloat(res.lon));
                 };
                 dropdown.appendChild(item);
             });
@@ -802,10 +953,13 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('searchClearBtn').style.display = 'none';
             document.getElementById('searchResults').classList.remove('active');
+            currentActivePlace = null;
         }
 
         function setDestination(latLng, label = "Target") {
             activeDestination = latLng;
+            currentActivePlace = { name: label, lat: latLng.lat, lng: latLng.lng };
+
             if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
             if (destMarker) map.removeLayer(destMarker);
             const pinIcon = L.divIcon({
@@ -815,6 +969,7 @@
             });
             destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
             calculateRoutes(label);
+            addToRecents(label, latLng.lat, latLng.lng);
         }
 
         function calculateRoutes(label) {
@@ -996,6 +1151,7 @@
                 document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End`;
                 document.getElementById('startNavBtn').className = "btn btn-danger";
                 document.getElementById('routeSelectionPanel').classList.remove('active');
+                map.setZoom(18);
                 speakGuidance("Starting navigation.");
             }
         }
@@ -1005,6 +1161,7 @@
             document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
             document.getElementById('startNavBtn').className = "btn btn-primary";
             document.getElementById('turnBanner').classList.remove('active');
+            map.setBearing(0);
             synth.cancel();
             updateRecenterUI();
         }
@@ -1040,12 +1197,16 @@
                     speakGuidance("Destination reached.");
                     return;
                 }
+                const prev = userCoords;
                 userCoords = L.latLng(activeRouteCoordinates[index]);
+                if (prev) {
+                    currentHeading = calculateBearing(prev, userCoords);
+                }
                 updateUserMarker(userCoords, 10);
                 followCamera();
                 checkManeuverProximity();
                 index += 2;
-            }, 800);
+            }, 700);
             speakGuidance("Simulation started.");
         }
 
@@ -1053,6 +1214,7 @@
             isSimulating = false;
             isNavigating = false;
             clearInterval(simInterval);
+            map.setBearing(0);
             updateRecenterUI();
         }
 
@@ -1063,10 +1225,120 @@
             clearTollMarkers();
             if (destMarker) map.removeLayer(destMarker);
             activeDestination = null;
+            currentActivePlace = null;
             document.getElementById('routeSelectionPanel').classList.remove('active');
             document.getElementById('startNavBtn').disabled = true;
             document.getElementById('simDriveBtn').disabled = true;
             document.getElementById('clearBtn').style.display = 'none';
+        }
+
+        /* ==========================================================================
+           SAVED PLACES & RECENTS MANAGEMENT
+           ========================================================================== */
+        function addToSavedPlaces(name, lat, lng, tag = 'Saved') {
+            const exists = savedPlaces.some(p => Math.abs(p.lat - lat) < 0.0001 && Math.abs(p.lng - lng) < 0.0001);
+            if (!exists) {
+                savedPlaces.unshift({ name, lat, lng, tag, timestamp: Date.now() });
+                localStorage.setItem('raon_saved', JSON.stringify(savedPlaces));
+                renderSavedPlacesList();
+                showToast(`Saved to ${tag}`);
+            } else {
+                showToast("Place already saved");
+            }
+        }
+
+        function saveCurrentSearchPlace() {
+            const inputVal = document.getElementById('searchInput').value.trim();
+            if (currentActivePlace) {
+                const tag = prompt("Enter tag for this place (Home, Work, Favorite, etc.):", "Favorite") || "Saved";
+                addToSavedPlaces(currentActivePlace.name, currentActivePlace.lat, currentActivePlace.lng, tag);
+            } else if (inputVal && activeDestination) {
+                const tag = prompt("Enter tag for this place:", "Favorite") || "Saved";
+                addToSavedPlaces(inputVal, activeDestination.lat, activeDestination.lng, tag);
+            } else {
+                showToast("Search or tap map to select a place first");
+            }
+        }
+
+        function savePlaceFromSearch(e, name, lat, lng) {
+            e.stopPropagation();
+            const tag = prompt(`Tag for "${name}":`, "Favorite") || "Saved";
+            addToSavedPlaces(name, lat, lng, tag);
+        }
+
+        function removeSavedPlace(index, e) {
+            if (e) e.stopPropagation();
+            savedPlaces.splice(index, 1);
+            localStorage.setItem('raon_saved', JSON.stringify(savedPlaces));
+            renderSavedPlacesList();
+            showToast("Place removed");
+        }
+
+        function renderSavedPlacesList() {
+            const list = document.getElementById('savedList');
+            if (!list) return;
+            if (savedPlaces.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bookmark"></i>No saved locations yet.<br>Save destinations from search or map taps.</div>`;
+                return;
+            }
+            list.innerHTML = '';
+            savedPlaces.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-card-main">
+                        <div class="list-card-icon"><i class="fa-solid fa-location-dot neon-icon-cyan"></i></div>
+                        <div style="min-width:0; flex:1;">
+                            <div class="list-title">${item.name} <span class="tag-badge">${item.tag}</span></div>
+                            <div class="list-sub">${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</div>
+                        </div>
+                    </div>
+                    <div class="list-card-actions">
+                        <button class="card-action-btn" onclick="removeSavedPlace(${idx}, event)" title="Remove"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                card.onclick = () => {
+                    closeTab();
+                    setDestination(L.latLng(item.lat, item.lng), item.name);
+                };
+                list.appendChild(card);
+            });
+        }
+
+        function addToRecents(name, lat, lng) {
+            recents = recents.filter(p => !(Math.abs(p.lat - lat) < 0.0001 && Math.abs(p.lng - lng) < 0.0001));
+            recents.unshift({ name, lat, lng, timestamp: Date.now() });
+            if (recents.length > 20) recents.pop();
+            localStorage.setItem('raon_recents', JSON.stringify(recents));
+            renderRecentsList();
+        }
+
+        function renderRecentsList() {
+            const list = document.getElementById('recentsList');
+            if (!list) return;
+            if (recents.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>No recent destinations.</div>`;
+                return;
+            }
+            list.innerHTML = '';
+            recents.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+                card.innerHTML = `
+                    <div class="list-card-main">
+                        <div class="list-card-icon"><i class="fa-solid fa-clock neon-icon-cyan"></i></div>
+                        <div style="min-width:0; flex:1;">
+                            <div class="list-title">${item.name}</div>
+                            <div class="list-sub">${new Date(item.timestamp).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => {
+                    closeTab();
+                    setDestination(L.latLng(item.lat, item.lng), item.name);
+                };
+                list.appendChild(card);
+            });
         }
 
         function switchTab(tabName) {
@@ -1103,8 +1375,9 @@
         }
 
         function routeHome() {
-            if (homeLocation) setDestination(L.latLng(homeLocation.lat, homeLocation.lng), "Home");
-            else showToast("Home not calibrated");
+            const home = savedPlaces.find(p => p.tag.toLowerCase() === 'home') || homeLocation;
+            if (home) setDestination(L.latLng(home.lat, home.lng), "Home");
+            else showToast("Home not saved. Add a place tagged 'Home'");
         }
 
         function toggleVoiceSearch() {
