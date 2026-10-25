@@ -80,6 +80,13 @@
             transform: rotateX(52deg) scale(1.15) translateY(-6%);
         }
 
+        /* Counter-Rotation for Billboards in 3D Mode */
+        #map-wrapper.mode-3d .billboard-3d {
+            transform: rotateX(-52deg) translateZ(18px) scale(1.1) !important;
+            transform-origin: bottom center;
+            transition: transform 0.4s ease;
+        }
+
         /* Dark Desaturated Map Tiles */
         .vogue-dark-tiles .leaflet-tile {
             filter: brightness(0.60) contrast(1.15) saturate(0.25) invert(0.92) hue-rotate(180deg);
@@ -87,14 +94,100 @@
         .leaflet-container { background: var(--bg-deep) !important; font-family: inherit; }
 
         /* Translucent Frosted Glass */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid var(--hairline);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-            border-radius: 14px;
+        /* Vehicle Navigation Marker with 3D Styled Car Avatar */
+        .user-location-marker { position: relative; width: 44px; height: 44px; transform-style: preserve-3d; }
+        
+        /* Stylized 3D Car Model Container */
+        .car-3d-wrapper {
+            width: 44px;
+            height: 44px;
             position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+        }
+
+        .car-shadow {
+            position: absolute;
+            inset: 6px 10px;
+            background: rgba(0, 0, 0, 0.65);
+            border-radius: 12px;
+            filter: blur(6px);
+            transform: translateZ(-2px);
+        }
+
+        .car-body {
+            position: absolute;
+            inset: 4px 10px;
+            background: linear-gradient(135deg, #0d131f 0%, #1a2336 40%, #00f0ff 100%);
+            border: 1.5px solid rgba(0, 240, 255, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            transform-style: preserve-3d;
+        }
+
+        /* Front Headlights Glow */
+        .car-headlights {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            position: relative;
+        }
+        .car-headlight {
+            width: 4px;
+            height: 3px;
+            background: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 -8px 12px 4px rgba(255, 255, 255, 0.9), 0 -4px 8px 3px rgba(0, 240, 255, 0.8);
+        }
+
+        /* Cabin / Windshield */
+        .car-cabin {
+            width: 75%;
+            height: 14px;
+            background: rgba(12, 18, 28, 0.95);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 4px;
+            box-shadow: inset 0 0 4px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Rear Taillights Glow */
+        .car-taillights {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+        }
+        .car-taillight {
+            width: 5px;
+            height: 2.5px;
+            background: #ff2a85;
+            border-radius: 1px;
+            box-shadow: 0 4px 8px 2px rgba(255, 42, 133, 0.8);
+        }
+
+        .dest-pin-icon { 
+            font-size: 28px; 
+            color: var(--neon-magenta); 
+            filter: drop-shadow(0 0 12px var(--neon-magenta)); 
+            animation: float3d 2.5s ease-in-out infinite;
+        }
+
+        @keyframes float3d {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Neon Toll Marker Billboard */
+        .toll-marker-icon {
+            background: rgba(12, 14, 18, 0.85); border: 1.5px solid var(--accent-toll);
+            color: var(--accent-toll); border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.5); backdrop-filter: blur(12px);
+            animation: float3d 3s ease-in-out infinite;
         }
 
         .top-container {
@@ -950,107 +1043,34 @@
             if (userMarker) {
                 userMarker.setLatLng(coords);
                 accuracyCircle.setLatLng(coords);
-                const arrow = document.getElementById('userHeadingArrow');
-                if (arrow) arrow.style.transform = `rotate(${currentHeading}deg)`;
+                const carModel = document.getElementById('car3dModel');
+                if (carModel) carModel.style.transform = `rotate(${currentHeading}deg)`;
             } else {
                 const icon = L.divIcon({
-                    className: 'user-location-marker',
-                    html: `<div class="user-heading-arrow" id="userHeadingArrow"></div><div class="user-dot"></div>`,
-                    iconSize: [32, 32], iconAnchor: [16, 16]
+                    className: 'user-location-marker billboard-3d',
+                    html: `
+                        <div class="car-3d-wrapper" id="car3dModel" style="transform: rotate(${currentHeading}deg);">
+                            <div class="car-shadow"></div>
+                            <div class="car-body">
+                                <div class="car-headlights">
+                                    <div class="car-headlight"></div>
+                                    <div class="car-headlight"></div>
+                                </div>
+                                <div class="car-cabin"></div>
+                                <div class="car-taillights">
+                                    <div class="car-taillight"></div>
+                                    <div class="car-taillight"></div>
+                                </div>
+                            </div>
+                        </div>`,
+                    iconSize: [44, 44], iconAnchor: [22, 22]
                 });
                 userMarker = L.marker(coords, { icon }).addTo(map);
                 accuracyCircle = L.circle(coords, { radius: accuracy, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.05, weight: 1 }).addTo(map);
             }
         }
 
-        function recenterUser() {
-            isTrackingCamera = true;
-            clearTimeout(autoRecenterTimer);
-            if (userCoords) {
-                const zoomLevel = isNavigating ? 18 : 16;
-                const bearing = (isNavigating || is3DMode) ? currentHeading : 0;
-                if (map.setBearing) map.setBearing(bearing);
-                map.flyTo(userCoords, zoomLevel, { animate: true, duration: 0.8 });
-            }
-            updateRecenterUI();
-        }
-
-        function updateRecenterUI() {
-            const pill = document.getElementById('recenterPill');
-            const btn = document.getElementById('recenterBtn');
-            if (pill) pill.classList.toggle('show', !isTrackingCamera);
-            if (btn) btn.classList.toggle('following', isTrackingCamera);
-        }
-
-        function zoomBy(delta) {
-            map.setZoom(Math.max(3, Math.min(19, map.getZoom() + delta)));
-        }
-
-        /* Orient map to vehicle heading & dynamic zoom during active driving */
-        function followCamera() {
-            if (!isTrackingCamera || !userCoords) return;
-            const targetZoom = isNavigating ? 18 : 16;
-            if (map.setBearing) map.setBearing(currentHeading);
-            map.setView(userCoords, targetZoom, { animate: true, duration: 0.6 });
-        }
-
-        function handleSearchInput(query) {
-            const clearBtn = document.getElementById('searchClearBtn');
-            clearBtn.style.display = query ? 'block' : 'none';
-            clearTimeout(debounceTimer);
-            if (!query || query.trim().length < 2) {
-                document.getElementById('searchResults').classList.remove('active');
-                return;
-            }
-            debounceTimer = setTimeout(() => {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
-                fetch(url).then(r => r.json()).then(data => renderSearchResults(data)).catch(() => {});
-            }, 300);
-        }
-
-        function renderSearchResults(results) {
-            const dropdown = document.getElementById('searchResults');
-            dropdown.innerHTML = '';
-            if (results.length === 0) { dropdown.classList.remove('active'); return; }
-            results.forEach(res => {
-                const name = res.display_name.split(',')[0];
-                const item = document.createElement('div');
-                item.className = 'search-item';
-                item.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px; flex:1; overflow:hidden;">
-                        <i class="fa-solid fa-location-dot neon-icon-cyan"></i> 
-                        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${res.display_name}</span>
-                    </div>
-                    <button class="card-action-btn" onclick="savePlaceFromSearch(event, '${name.replace(/'/g, "\\'")}', ${res.lat}, ${res.lon})" title="Save Place">
-                        <i class="fa-regular fa-bookmark"></i>
-                    </button>
-                `;
-                item.onclick = (e) => {
-                    if (e.target.closest('.card-action-btn')) return;
-                    const latLng = L.latLng(parseFloat(res.lat), parseFloat(res.lon));
-                    setDestination(latLng, name);
-                    dropdown.classList.remove('active');
-                    document.getElementById('searchInput').value = name;
-                    addToRecents(name, parseFloat(res.lat), parseFloat(res.lon));
-                };
-                dropdown.appendChild(item);
-            });
-            dropdown.classList.add('active');
-        }
-
-        function searchCategory(cat) {
-            if (!userCoords) return;
-            document.getElementById('searchInput').value = cat;
-            handleSearchInput(`${cat} near ${userCoords.lat},${userCoords.lng}`);
-        }
-
-        function clearSearchInput() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchClearBtn').style.display = 'none';
-            document.getElementById('searchResults').classList.remove('active');
-            currentActivePlace = null;
-        }
-
+<!-- ... existing code ... @@ -582,6 +614,14 @@
         function setDestination(latLng, label = "Target") {
             activeDestination = latLng;
             currentActivePlace = { name: label, lat: latLng.lat, lng: latLng.lng };
@@ -1058,117 +1078,22 @@
             if (!userCoords) { userCoords = L.latLng(DEFAULT_LOCATION); updateUserMarker(userCoords, 100); }
             if (destMarker) map.removeLayer(destMarker);
             const pinIcon = L.divIcon({
-                className: 'dest-pin',
+                className: 'dest-pin billboard-3d',
                 html: `<i class="fa-solid fa-location-dot dest-pin-icon"></i>`,
-                iconSize: [26, 26], iconAnchor: [13, 26]
+                iconSize: [28, 28], iconAnchor: [14, 28]
             });
             destMarker = L.marker(activeDestination, { icon: pinIcon }).addTo(map);
             calculateRoutes(label);
             addToRecents(label, latLng.lat, latLng.lng);
         }
 
-        function calculateRoutes(label) {
-            clearPolylines();
-            clearTollMarkers();
-            const panel = document.getElementById('routeSelectionPanel');
-            const container = document.getElementById('routeCardsContainer');
-            panel.classList.add('active');
-            container.innerHTML = `<div class="route-loading"><div class="spinner"></div> Calculating optimal route...</div>`;
-
-            const base = `https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${activeDestination.lng},${activeDestination.lat}?alternatives=true&overview=full&geometries=geojson&steps=true`;
-
-            fetch(base)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.routes && data.routes.length > 0) {
-                        routesList = data.routes.map(r => {
-                            const tollPoints = [];
-                            (r.legs || []).forEach(leg => {
-                                (leg.steps || []).forEach(step => {
-                                    const text = `${step.name || ''} ${step.ref || ''}`.toLowerCase();
-                                    const isToll = /\btoll\b|\btol\b|plaza tol|expressway|highway/.test(text) ||
-                                        (step.intersections || []).some(i => (i.classes || []).includes('toll'));
-                                    if (isToll && step.maneuver) {
-                                        tollPoints.push({
-                                            coords: [step.maneuver.location[1], step.maneuver.location[0]],
-                                            name: step.name || 'Toll Plaza'
-                                        });
-                                    }
-                                });
-                            });
-                            return { ...r, tollPoints, hasToll: tollPoints.length > 0 };
-                        });
-
-                        if (avoidTolls) {
-                            const freeRoutes = routesList.filter(r => !r.hasToll);
-                            if (freeRoutes.length > 0) routesList = freeRoutes;
-                            else showToast("No toll-free alternative available");
-                        }
-
-                        selectedRouteIndex = 0;
-                        renderRouteCards(label);
-                        selectRoute(0);
-                        enableActionButtons();
-                        speakGuidance("Route calculated.");
-                    } else {
-                        container.innerHTML = `<div class="route-loading">No route found.</div>`;
-                    }
-                })
-                .catch(() => {
-                    container.innerHTML = `<div class="route-loading">Error retrieving route.</div>`;
-                });
-        }
-
-        function renderRouteCards(label) {
-            const container = document.getElementById('routeCardsContainer');
-            container.innerHTML = '';
-            routesList.forEach((r, idx) => {
-                const mins = Math.round(r.duration / 60);
-                const km = (r.distance / 1000).toFixed(1);
-                let tollBadge = r.hasToll
-                    ? `<span class="route-badge badge-toll"><i class="fa-solid fa-receipt"></i> ${r.tollPoints.length} Toll Gate(s)</span>`
-                    : `<span class="route-badge badge-notoll">No Tolls</span>`;
-
-                const card = document.createElement('div');
-                card.className = `route-card ${idx === selectedRouteIndex ? 'selected' : ''}`;
-                card.onclick = () => selectRoute(idx);
-                card.innerHTML = `
-                    <div>
-                        <div class="route-card-title">
-                            <span>${label}</span>
-                            ${tollBadge}
-                        </div>
-                        <div class="route-card-sub">${mins} min · ${km} km</div>
-                    </div>
-                    <i class="fa-solid ${idx === selectedRouteIndex ? 'fa-check neon-icon-cyan' : 'fa-circle'}" style="font-size:14px;"></i>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function selectRoute(idx) {
-            selectedRouteIndex = idx;
-            renderRouteOnMap(routesList[idx]);
-        }
-
-        function renderRouteOnMap(routeData) {
-            clearPolylines();
-            clearTollMarkers();
-
-            activeRouteCoordinates = routeData.geometry.coordinates.map(c => [c[1], c[0]]);
-            activeRouteInstructions = routeData.legs[0].steps;
-
-            const mainPolyline = L.polyline(activeRouteCoordinates, {
-                color: '#00f0ff', weight: 6, opacity: 0.85
-            }).addTo(map);
-            currentRoutePolylines.push(mainPolyline);
-
+<!-- ... existing code ... @@ -661,7 +701,7 @@
             if (routeData.tollPoints && routeData.tollPoints.length > 0) {
                 routeData.tollPoints.forEach((toll) => {
                     const icon = L.divIcon({
-                        className: 'toll-marker-wrapper',
+                        className: 'toll-marker-wrapper billboard-3d',
                         html: `<div class="toll-marker-icon" title="Toll Booth: ${toll.name}"><i class="fa-solid fa-road-barrier"></i></div>`,
-                        iconSize: [28, 28], iconAnchor: [14, 14]
+                        iconSize: [32, 32], iconAnchor: [16, 16]
                     });
                     const marker = L.marker(toll.coords, { icon }).addTo(map)
                         .bindPopup(`<b>Toll Plaza</b><br>${toll.name}`);
@@ -1176,116 +1101,40 @@
                 });
             }
 
-            map.fitBounds(mainPolyline.getBounds(), { padding: [60, 60] });
-
-            const mins = Math.round(routeData.duration / 60);
-            const km = (routeData.distance / 1000).toFixed(1);
-            const tollText = routeData.hasToll
-                ? `<span style="color:var(--accent-toll);"><i class="fa-solid fa-road-barrier"></i> ${routeData.tollPoints.length} Toll Gate(s)</span>`
-                : `<span style="color:var(--neon-cyan);"><i class="fa-solid fa-check"></i> Toll-Free</span>`;
-
-            document.getElementById('routeMetrics').innerHTML = `
-                <span><strong>ETA</strong> ${mins} mins &nbsp; <strong>Distance</strong> ${km} km</span>
-                ${tollText}
-            `;
-
-            if (activeRouteInstructions.length > 0) updateTurnBanner(activeRouteInstructions[0]);
-        }
-
-        function clearPolylines() {
-            currentRoutePolylines.forEach(p => map.removeLayer(p));
-            currentRoutePolylines = [];
-        }
-
-        function clearTollMarkers() {
-            tollMarkers.forEach(m => map.removeLayer(m));
-            tollMarkers = [];
-        }
-
-        function toggleAvoidTolls() {
-            avoidTolls = !avoidTolls;
-            document.getElementById('tollToggleBtn').classList.toggle('active', avoidTolls);
-            document.getElementById('settingsTollToggle').classList.toggle('on', avoidTolls);
-            showToast(avoidTolls ? "Avoiding Tolls" : "Tolls Allowed");
-            if (activeDestination) calculateRoutes("Target");
-        }
-
-        function enableActionButtons() {
-            document.getElementById('startNavBtn').disabled = false;
-            document.getElementById('simDriveBtn').disabled = false;
-            document.getElementById('clearBtn').style.display = 'block';
-        }
-
-        function buildInstruction(step) {
-            const m = step.maneuver || {};
-            const road = step.name ? ` onto ${step.name}` : '';
-            switch (m.type) {
-                case 'turn': return `Turn ${m.modifier || ''}${road}`;
-                case 'arrive': return 'You have arrived at your destination';
-                case 'depart': return `Head straight${step.name ? ' on ' + step.name : ''}`;
-                default: return `Continue${road}`;
-            }
-        }
-
-        function updateTurnBanner(step, liveDist) {
-            const banner = document.getElementById('turnBanner');
-            banner.classList.add('active');
-            const inst = buildInstruction(step);
-            const d = (liveDist !== undefined) ? liveDist : step.distance;
-            const dist = d > 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`;
-            document.getElementById('turnInstruction').innerText = inst;
-            document.getElementById('turnDistance').innerText = `In ${dist}`;
-        }
-
+<!-- ... existing code ... @@ -725,9 +765,15 @@
         function toggleNavigation() {
             if (isNavigating) {
                 stopNavigation();
             } else {
                 isNavigating = true;
                 isTrackingCamera = true;
+                if (!is3DMode) toggle3DMode();
                 document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-stop"></i> End`;
                 document.getElementById('startNavBtn').className = "btn btn-danger";
                 document.getElementById('routeSelectionPanel').classList.remove('active');
-                map.setZoom(18);
+                
+                // Deep zoom-in & align bearing with movement heading
+                if (userCoords) {
+                    if (map.setBearing) map.setBearing(currentHeading);
+                    map.flyTo(userCoords, 18.5, { animate: true, duration: 1.2 });
+                }
                 speakGuidance("Starting navigation.");
             }
         }
 
-        function stopNavigation() {
-            isNavigating = false;
-            document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
-            document.getElementById('startNavBtn').className = "btn btn-primary";
-            document.getElementById('turnBanner').classList.remove('active');
-            if (map.setBearing) map.setBearing(0);
-            updateCompassPointer(0);
-            synth.cancel();
-            updateRecenterUI();
-        }
-
-        function checkManeuverProximity() {
-            if (!activeRouteInstructions || !userCoords) return;
-            const step = activeRouteInstructions[nextStepIdx];
-            if (!step) return;
-            const wp = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
-            const dist = userCoords.distanceTo(wp);
-            updateTurnBanner(step, dist);
-
-            if (dist < 40 && lastSpokenInstructionIndex !== nextStepIdx) {
-                lastSpokenInstructionIndex = nextStepIdx;
-                speakGuidance(buildInstruction(step));
-                if (nextStepIdx < activeRouteInstructions.length - 1) nextStepIdx++;
-            }
-        }
-
-        function toggleSimulation() {
-            if (isSimulating) stopSimulation();
-            else startSimulation();
-        }
-
+<!-- ... existing code ... @@ -775,6 +821,11 @@
         function startSimulation() {
             if (activeRouteCoordinates.length === 0) return;
             isSimulating = true;
             isNavigating = true;
+            if (!is3DMode) toggle3DMode();
+            
+            // Deep zoom-in on user position for realistic 3D cockpit perspective
+            if (userCoords) {
+                if (map.setBearing) map.setBearing(currentHeading);
+                map.flyTo(userCoords, 18.5, { animate: true, duration: 1.0 });
+            }
+
             let index = 0;
             simInterval = setInterval(() => {
                 if (index >= activeRouteCoordinates.length) {
