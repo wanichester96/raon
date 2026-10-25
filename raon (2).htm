@@ -50,7 +50,35 @@
             position: relative;
         }
 
-        #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: var(--bg-deep); }
+        /* Perspective View Container Wrapper for 3D View */
+        #map-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            background: var(--bg-deep);
+            perspective: 1000px;
+            perspective-origin: 50% 80%;
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #map {
+            position: absolute;
+            inset: -20%;
+            width: 140%;
+            height: 140%;
+            z-index: 0;
+            background: var(--bg-deep);
+            transform-origin: 50% 80%;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* 3D Plane Mode CSS Transformation */
+        #map-wrapper.mode-3d #map {
+            transform: rotateX(52deg) scale(1.15) translateY(-6%);
+        }
 
         /* Dark Desaturated Map Tiles */
         .vogue-dark-tiles .leaflet-tile {
@@ -243,10 +271,17 @@
             backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
             color: var(--ink); display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 16px; transition: all 0.2s ease;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3); position: relative;
         }
         .icon-circle-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--neon-cyan); color: var(--neon-cyan); }
-        .icon-circle-btn.following { color: var(--neon-cyan); border-color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.3); }
+        .icon-circle-btn.active, .icon-circle-btn.following { color: var(--neon-cyan); border-color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.3); }
+
+        /* Compass Icon Rotation */
+        #compassPointer {
+            transition: transform 0.2s ease;
+            transform-origin: center center;
+            display: inline-block;
+        }
 
         /* Floating Recentre Button */
         .recenter-pill {
@@ -575,6 +610,12 @@
     </div>
 
     <div class="side-controls">
+        <button class="icon-circle-btn" id="toggle3dBtn" onclick="toggle3DMode()" title="Toggle 3D Perspective Plane">
+            <i class="fa-solid fa-cube neon-icon-cyan"></i>
+        </button>
+        <button class="icon-circle-btn" id="compassBtn" onclick="resetNorth()" title="Reset North Rotation">
+            <i class="fa-solid fa-compass neon-icon-cyan" id="compassPointer"></i>
+        </button>
         <button class="icon-circle-btn" onclick="zoomBy(1)" title="Zoom in"><i class="fa-solid fa-plus neon-icon-cyan"></i></button>
         <button class="icon-circle-btn" onclick="zoomBy(-1)" title="Zoom out"><i class="fa-solid fa-minus neon-icon-cyan"></i></button>
         <button class="icon-circle-btn" id="recenterBtn" onclick="recenterUser()" title="Re-centre"><i class="fa-solid fa-crosshairs neon-icon-cyan"></i></button>
@@ -591,7 +632,10 @@
         <div id="routeCardsContainer"></div>
     </div>
 
-    <div id="map"></div>
+    <!-- Map Container Wrapper for Perspective Controls -->
+    <div id="map-wrapper">
+        <div id="map"></div>
+    </div>
 
     <div class="bottom-bar glass-panel">
         <div id="routeMetrics">
@@ -664,6 +708,13 @@
                 </div>
                 <div class="toggle-switch" id="settingsTollToggle" onclick="toggleAvoidTolls()"></div>
             </div>
+            <div class="settings-row">
+                <div>
+                    <div style="font-weight:600;">3D Plane Perspective</div>
+                    <div style="font-size:11px; color:var(--ink-soft);">Render driving mode in 3D tilt</div>
+                </div>
+                <div class="toggle-switch" id="settings3DToggle" onclick="toggle3DMode()"></div>
+            </div>
         </div>
     </div>
 
@@ -674,6 +725,7 @@
         let activeDestination = null, destMarker = null;
         let watchId = null, simInterval = null;
         let isNavigating = false, isSimulating = false, isTrackingCamera = true;
+        let is3DMode = false;
         let ultronEnabled = true, avoidTolls = false, synth = window.speechSynthesis;
         let nextStepIdx = 1, simSpeedKmh = 0;
         let autoRecenterTimer = null;
@@ -721,6 +773,7 @@
                 zoomSnap: 0.5,
                 rotate: true,
                 rotateControl: false,
+                touchRotate: true,
                 bearing: 0
             }).setView(DEFAULT_LOCATION, 15);
 
@@ -731,8 +784,14 @@
                 setDestination(e.latlng, "Selected Target");
             });
 
-            // Pause auto-tracking on manual drag/pan
-            map.on('dragstart', () => {
+            // Listen for user map bearing rotation changes
+            map.on('rotate', () => {
+                const currentBearing = map.getBearing ? map.getBearing() : 0;
+                updateCompassPointer(currentBearing);
+            });
+
+            // Pause auto-tracking on manual drag/pan/rotate
+            map.on('dragstart rotatestart', () => {
                 isTrackingCamera = false;
                 updateRecenterUI();
                 if (isNavigating) {
@@ -748,6 +807,42 @@
                     updateRecenterUI();
                 }
             });
+        }
+
+        /* 3D Plane Mode Toggle Functionality */
+        function toggle3DMode() {
+            is3DMode = !is3DMode;
+            const wrapper = document.getElementById('map-wrapper');
+            const toggle3dBtn = document.getElementById('toggle3dBtn');
+            const settings3DToggle = document.getElementById('settings3DToggle');
+
+            wrapper.classList.toggle('mode-3d', is3DMode);
+            if (toggle3dBtn) toggle3dBtn.classList.toggle('active', is3DMode);
+            if (settings3DToggle) settings3DToggle.classList.toggle('on', is3DMode);
+
+            showToast(is3DMode ? "3D Plane View Enabled" : "Flat 2D View");
+
+            // Recenter view smoothly to fit perspective
+            if (userCoords) {
+                map.invalidateSize();
+                followCamera();
+            }
+        }
+
+        /* Compass North Reset */
+        function resetNorth() {
+            if (map.setBearing) {
+                map.setBearing(0);
+            }
+            updateCompassPointer(0);
+            showToast("Map Oriented North");
+        }
+
+        function updateCompassPointer(bearing) {
+            const pointer = document.getElementById('compassPointer');
+            if (pointer) {
+                pointer.style.transform = `rotate(${-bearing}deg)`;
+            }
         }
 
         const MALE_VOICE_PREFS = [
@@ -873,8 +968,8 @@
             clearTimeout(autoRecenterTimer);
             if (userCoords) {
                 const zoomLevel = isNavigating ? 18 : 16;
-                const bearing = isNavigating ? currentHeading : 0;
-                map.setBearing(bearing);
+                const bearing = (isNavigating || is3DMode) ? currentHeading : 0;
+                if (map.setBearing) map.setBearing(bearing);
                 map.flyTo(userCoords, zoomLevel, { animate: true, duration: 0.8 });
             }
             updateRecenterUI();
@@ -895,7 +990,7 @@
         function followCamera() {
             if (!isTrackingCamera || !userCoords) return;
             const targetZoom = isNavigating ? 18 : 16;
-            map.setBearing(currentHeading);
+            if (map.setBearing) map.setBearing(currentHeading);
             map.setView(userCoords, targetZoom, { animate: true, duration: 0.6 });
         }
 
@@ -1161,7 +1256,8 @@
             document.getElementById('startNavBtn').innerHTML = `<i class="fa-solid fa-location-arrow"></i> Start`;
             document.getElementById('startNavBtn').className = "btn btn-primary";
             document.getElementById('turnBanner').classList.remove('active');
-            map.setBearing(0);
+            if (map.setBearing) map.setBearing(0);
+            updateCompassPointer(0);
             synth.cancel();
             updateRecenterUI();
         }
@@ -1214,7 +1310,8 @@
             isSimulating = false;
             isNavigating = false;
             clearInterval(simInterval);
-            map.setBearing(0);
+            if (map.setBearing) map.setBearing(0);
+            updateCompassPointer(0);
             updateRecenterUI();
         }
 
