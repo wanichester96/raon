@@ -851,6 +851,18 @@
             renderRecentsList();
         });
 
+        // Click-outside listener to close search dropdown and fix frozen touch/click states
+        document.addEventListener('click', (e) => {
+            const searchPanel = document.querySelector('.search-box-panel');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (searchPanel && !searchPanel.contains(e.target)) {
+                if (searchResults) {
+                    searchResults.classList.remove('active');
+                }
+            }
+        });
+
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
@@ -1070,7 +1082,6 @@
             }
         }
 
-<!-- ... existing code ... @@ -582,6 +614,14 @@
         function setDestination(latLng, label = "Target") {
             activeDestination = latLng;
             currentActivePlace = { name: label, lat: latLng.lat, lng: latLng.lng };
@@ -1087,21 +1098,19 @@
             addToRecents(label, latLng.lat, latLng.lng);
         }
 
-<!-- ... existing code ... @@ -661,7 +701,7 @@
-            if (routeData.tollPoints && routeData.tollPoints.length > 0) {
-                routeData.tollPoints.forEach((toll) => {
-                    const icon = L.divIcon({
-                        className: 'toll-marker-wrapper billboard-3d',
-                        html: `<div class="toll-marker-icon" title="Toll Booth: ${toll.name}"><i class="fa-solid fa-road-barrier"></i></div>`,
-                        iconSize: [32, 32], iconAnchor: [16, 16]
-                    });
-                    const marker = L.marker(toll.coords, { icon }).addTo(map)
-                        .bindPopup(`<b>Toll Plaza</b><br>${toll.name}`);
-                    tollMarkers.push(marker);
+        if (routeData.tollPoints && routeData.tollPoints.length > 0) {
+            routeData.tollPoints.forEach((toll) => {
+                const icon = L.divIcon({
+                    className: 'toll-marker-wrapper billboard-3d',
+                    html: `<div class="toll-marker-icon" title="Toll Booth: ${toll.name}"><i class="fa-solid fa-road-barrier"></i></div>`,
+                    iconSize: [32, 32], iconAnchor: [16, 16]
                 });
-            }
+                const marker = L.marker(toll.coords, { icon }).addTo(map)
+                    .bindPopup(`<b>Toll Plaza</b><br>${toll.name}`);
+                tollMarkers.push(marker);
+            });
+        }
 
-<!-- ... existing code ... @@ -725,9 +765,15 @@
         function toggleNavigation() {
             if (isNavigating) {
                 stopNavigation();
@@ -1122,7 +1131,6 @@
             }
         }
 
-<!-- ... existing code ... @@ -775,6 +821,11 @@
         function startSimulation() {
             if (activeRouteCoordinates.length === 0) return;
             isSimulating = true;
